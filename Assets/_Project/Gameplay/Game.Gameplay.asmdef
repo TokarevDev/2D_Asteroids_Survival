@@ -1,3 +1,17 @@
 {
-	"name": "Game.Gameplay"
+  "name": "Game.Gameplay",
+  "rootNamespace": "Game.Gameplay",
+  "references": [
+    "Game.Core",
+    "Zenject"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": true,
+  "defineConstraints": [],
+  "versionDefines": [],
+  "noEngineReferences": false
 }
