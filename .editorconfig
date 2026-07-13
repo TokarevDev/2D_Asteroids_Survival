@@ -1,0 +1,121 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+indent_style = space
+indent_size = 4
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.{json,asmdef,asmref,inputactions,inputsettings}]
+indent_size = 2
+
+[*.cs]
+# Unity 2022 does not use file-scoped namespaces reliably, so keep block namespaces.
+# Unity asmdef rootNamespace is the source of truth; folder-based namespace matching is noisy here.
+csharp_style_namespace_declarations = block_scoped:suggestion
+dotnet_style_namespace_match_folder = false:silent
+dotnet_diagnostic.IDE0130.severity = none
+resharper_check_namespace_highlighting = none
+
+# Zenject creates service implementations through bindings, so explicit `new` usages are intentionally absent.
+resharper_class_never_instantiated_global_highlighting = none
+
+# Keep Unity code readable and predictable.
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = true
+csharp_new_line_before_catch = true
+csharp_new_line_before_finally = true
+csharp_indent_case_contents = true
+csharp_indent_switch_labels = true
+csharp_using_directive_placement = outside_namespace:suggestion
+dotnet_sort_system_directives_first = true
+dotnet_separate_import_directive_groups = false
+
+# Prefer explicitness in gameplay code, but keep it as advice, not noise.
+csharp_style_var_for_built_in_types = false:suggestion
+csharp_style_var_when_type_is_apparent = false:suggestion
+csharp_style_var_elsewhere = false:suggestion
+csharp_prefer_braces = true:suggestion
+csharp_style_expression_bodied_methods = false:silent
+csharp_style_expression_bodied_constructors = false:silent
+csharp_style_expression_bodied_properties = false:silent
+csharp_style_expression_bodied_accessors = false:silent
+
+# Useful low-noise C# suggestions.
+dotnet_style_object_initializer = true:suggestion
+dotnet_style_collection_initializer = true:suggestion
+dotnet_style_coalesce_expression = true:suggestion
+dotnet_style_null_propagation = true:suggestion
+dotnet_style_predefined_type_for_locals_parameters_members = true:suggestion
+dotnet_style_predefined_type_for_member_access = true:suggestion
+dotnet_style_qualification_for_field = false:suggestion
+dotnet_style_qualification_for_property = false:suggestion
+dotnet_style_qualification_for_method = false:suggestion
+dotnet_style_qualification_for_event = false:suggestion
+
+# Naming. Private and serialized private fields use _camelCase.
+dotnet_diagnostic.IDE1006.severity = suggestion
+
+dotnet_naming_rule.interfaces_should_start_with_i.severity = suggestion
+dotnet_naming_rule.interfaces_should_start_with_i.symbols = interfaces
+dotnet_naming_rule.interfaces_should_start_with_i.style = prefix_i_pascal_case
+
+dotnet_naming_symbols.interfaces.applicable_kinds = interface
+dotnet_naming_symbols.interfaces.applicable_accessibilities = *
+
+dotnet_naming_style.prefix_i_pascal_case.required_prefix = I
+dotnet_naming_style.prefix_i_pascal_case.capitalization = pascal_case
+
+dotnet_naming_rule.constants_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.constants_should_be_pascal_case.symbols = constants
+dotnet_naming_rule.constants_should_be_pascal_case.style = pascal_case
+
+dotnet_naming_symbols.constants.applicable_kinds = field
+dotnet_naming_symbols.constants.applicable_accessibilities = *
+dotnet_naming_symbols.constants.required_modifiers = const
+
+dotnet_naming_rule.types_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.types_should_be_pascal_case.symbols = types
+dotnet_naming_rule.types_should_be_pascal_case.style = pascal_case
+
+dotnet_naming_symbols.types.applicable_kinds = class, struct, interface, enum, delegate
+dotnet_naming_symbols.types.applicable_accessibilities = *
+
+dotnet_naming_rule.non_private_fields_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.non_private_fields_should_be_pascal_case.symbols = non_private_fields
+dotnet_naming_rule.non_private_fields_should_be_pascal_case.style = pascal_case
+
+dotnet_naming_symbols.non_private_fields.applicable_kinds = field
+dotnet_naming_symbols.non_private_fields.applicable_accessibilities = public, internal, protected, protected_internal, private_protected
+
+dotnet_naming_rule.private_fields_should_be_underscore_camel_case.severity = suggestion
+dotnet_naming_rule.private_fields_should_be_underscore_camel_case.symbols = private_fields
+dotnet_naming_rule.private_fields_should_be_underscore_camel_case.style = underscore_camel_case
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
+
+dotnet_naming_style.underscore_camel_case.required_prefix = _
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+
+dotnet_naming_rule.members_should_be_pascal_case.severity = suggestion
+dotnet_naming_rule.members_should_be_pascal_case.symbols = members
+dotnet_naming_rule.members_should_be_pascal_case.style = pascal_case
+
+dotnet_naming_symbols.members.applicable_kinds = property, event, method
+dotnet_naming_symbols.members.applicable_accessibilities = *
+
+dotnet_naming_style.pascal_case.capitalization = pascal_case
+
+# Do not fight Unity message methods or third-party code style.
+dotnet_diagnostic.IDE0051.severity = none
+
+[Assets/_Project/Plugins/Zenject/**/*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none
+
+[_DisabledUnityAssets/**/*.cs]
+generated_code = true
+dotnet_analyzer_diagnostic.severity = none

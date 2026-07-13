@@ -1,0 +1,211 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &8575429055994721187
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8955931115656358169}
+  - component: {fileID: 5469059293214910140}
+  - component: {fileID: 7783054936703455862}
+  m_Layer: 0
+  m_Name: hangar-a_001
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8955931115656358169
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8575429055994721187}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2863060301790943221}
+  - {fileID: 5956339745728425319}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!33 &5469059293214910140
+MeshFilter:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8575429055994721187}
+  m_Mesh: {fileID: 4870043995884940883, guid: 26cdbb05afc1ca843a836ee548a165f0, type: 3}
+--- !u!23 &7783054936703455862
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8575429055994721187}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: df938a229a3dd8849a7a5590ad15f613, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1001 &4174279132234043273
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 8955931115656358169}
+    m_Modifications:
+    - target: {fileID: 1521783747225518790, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_Name
+      value: hangar-a-door_001
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_RootOrder
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 6.6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.66
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 17.87
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+--- !u!4 &2863060301790943221 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+  m_PrefabInstance: {fileID: 4174279132234043273}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &5547464546820142363
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 8955931115656358169}
+    m_Modifications:
+    - target: {fileID: 1521783747225518790, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_Name
+      value: hangar-a-door_001 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_RootOrder
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -7.12
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 5.66
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 17.87
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+--- !u!4 &5956339745728425319 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 2185836734299199612, guid: 1a7411bcadb0ef34881856f2ae8f81bc, type: 3}
+  m_PrefabInstance: {fileID: 5547464546820142363}
+  m_PrefabAsset: {fileID: 0}
