@@ -3,7 +3,7 @@ using Zenject;
 
 namespace Game.Infrastructure
 {
-    public class BootstrapInstaller : MonoInstaller
+    public class Installer : MonoInstaller
     {
         // ReSharper disable Unity.PerformanceAnalysis
         public override void InstallBindings()
