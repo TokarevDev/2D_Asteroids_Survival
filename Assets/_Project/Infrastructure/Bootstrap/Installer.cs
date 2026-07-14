@@ -8,7 +8,15 @@ namespace Game.Infrastructure
         // ReSharper disable Unity.PerformanceAnalysis
         public override void InstallBindings()
         {
+            BindInput();
             BindSceneLoader();
+        }
+
+        private void BindInput()
+        {
+            Container.BindInterfacesTo<InputReader>()
+                .AsSingle()
+                .NonLazy();
         }
 
         private void BindSceneLoader()

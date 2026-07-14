@@ -4,7 +4,8 @@
     "references": [
         "Game.Core",
         "Zenject",
-        "UniTask"
+        "UniTask",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
