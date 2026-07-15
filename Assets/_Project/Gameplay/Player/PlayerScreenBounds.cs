@@ -11,9 +11,11 @@ namespace Game.Gameplay
         private Vector3 _viewportMin;
         private Vector3 _viewportMax;
 
-        private Vector2 _minAllowedPosotion;
+        private Vector2 _minAllowedPosition;
         private Vector2 _maxAllowedPosition;
 
+        private float _cachedAspect;
+        private float _cachedOrthographicSize;
 
         private void Awake()
         {
@@ -28,14 +30,16 @@ namespace Game.Gameplay
 
         public Vector2 Clamp(Vector2 desiredPosition)
         {
+            RefreshBoundsIfNeeded();
+
             float clampedX = Mathf.Clamp(
                 desiredPosition.x,
-                _minAllowedPosotion.x,
+                _minAllowedPosition.x,
                 _maxAllowedPosition.x);
 
             float clampedY = Mathf.Clamp(
                 desiredPosition.y,
-                _minAllowedPosotion.y,
+                _minAllowedPosition.y,
                 _maxAllowedPosition.y);
 
             return new Vector2(clampedX, clampedY);
@@ -64,17 +68,32 @@ namespace Game.Gameplay
             _viewportMax = _camera.ViewportToWorldPoint(Vector3.one);
 
             Bounds colliderBounds = _collider2D.bounds;
-            Vector2 extens = colliderBounds.extents;
+            Vector2 extents = colliderBounds.extents;
 
             Vector2 centerOffset = colliderBounds.center - transform.position;
 
-            _minAllowedPosotion = new Vector2(
-                _viewportMin.x + extens.x - centerOffset.x,
-                _viewportMin.y + extens.y - centerOffset.y);
+            _minAllowedPosition = new Vector2(
+                _viewportMin.x + extents.x - centerOffset.x,
+                _viewportMin.y + extents.y - centerOffset.y);
 
             _maxAllowedPosition = new Vector2(
-                _viewportMax.x - extens.x - centerOffset.x,
-                _viewportMax.y - extens.y - centerOffset.y);
+                _viewportMax.x - extents.x - centerOffset.x,
+                _viewportMax.y - extents.y - centerOffset.y);
+
+            _cachedAspect = _camera.aspect;
+            _cachedOrthographicSize = _camera.orthographicSize;
+        }
+
+        private void RefreshBoundsIfNeeded()
+        {
+            bool aspectChanged = !Mathf.Approximately(_cachedAspect, _camera.aspect);
+
+            bool sizeChanged = !Mathf.Approximately(_cachedOrthographicSize, _camera.orthographicSize);
+
+            if (!aspectChanged && !sizeChanged)
+                return;
+
+            RefreshBounds();
         }
     }
 }

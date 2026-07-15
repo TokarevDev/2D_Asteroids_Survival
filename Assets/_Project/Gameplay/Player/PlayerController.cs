@@ -23,19 +23,25 @@ namespace Game.Gameplay
         private void Awake()
         {
             _rigidbody = GetComponent<Rigidbody2D>();
+
+            if (_screenBounds == null)
+            {
+                Debug.LogError("Player scren bound reference is missing", this);
+                enabled = false;
+            }
         }
 
         private void FixedUpdate()
         {
             Vector2 direction = Vector2.ClampMagnitude(_inputReader.MoveDirection, 1f);
 
-            Vector2 desiredVelosity = direction * _moveSpeed;
+            Vector2 desiredVelocity = direction * _moveSpeed;
 
-            Vector2 desiredPosition = _rigidbody.position + desiredVelosity * Time.fixedDeltaTime;
+            Vector2 desiredPosition = _rigidbody.position + desiredVelocity * Time.fixedDeltaTime;
 
-            Vector2 clampPosition = _screenBounds.Clamp(desiredPosition);
+            Vector2 clampedPosition = _screenBounds.Clamp(desiredPosition);
 
-            _rigidbody.velocity = (clampPosition - _rigidbody.position) / Time.fixedDeltaTime;
+            _rigidbody.velocity = (clampedPosition - _rigidbody.position) / Time.fixedDeltaTime;
         }
     }
 }

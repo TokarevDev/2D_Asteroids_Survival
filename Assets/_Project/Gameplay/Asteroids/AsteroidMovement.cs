@@ -16,5 +16,10 @@ namespace Game.Gameplay
         {
             _rigidbody.velocity = direction.normalized * speed;
         }
+
+        public void Stop()
+        {
+            _rigidbody.velocity = Vector2.zero;
+        }
     }
 }
