@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace Game.Gameplay
@@ -13,7 +12,7 @@ namespace Game.Gameplay
         private Vector3 _viewportMax;
 
         private Vector2 _minAllowedPosotion;
-        private Vector2 _maxAllowedPostition;
+        private Vector2 _maxAllowedPosition;
 
 
         private void Awake()
@@ -32,12 +31,12 @@ namespace Game.Gameplay
             float clampedX = Mathf.Clamp(
                 desiredPosition.x,
                 _minAllowedPosotion.x,
-                _maxAllowedPostition.x);
+                _maxAllowedPosition.x);
 
             float clampedY = Mathf.Clamp(
                 desiredPosition.y,
                 _minAllowedPosotion.y,
-                _maxAllowedPostition.y);
+                _maxAllowedPosition.y);
 
             return new Vector2(clampedX, clampedY);
         }
@@ -73,7 +72,7 @@ namespace Game.Gameplay
                 _viewportMin.x + extens.x - centerOffset.x,
                 _viewportMin.y + extens.y - centerOffset.y);
 
-            _maxAllowedPostition = new Vector2(
+            _maxAllowedPosition = new Vector2(
                 _viewportMax.x - extens.x - centerOffset.x,
                 _viewportMax.y - extens.y - centerOffset.y);
         }
