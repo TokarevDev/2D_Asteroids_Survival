@@ -26,7 +26,7 @@ namespace Game.Gameplay
 
             if (_screenBounds == null)
             {
-                Debug.LogError("Player scren bound reference is missing", this);
+                Debug.LogError("Player screen bound reference is missing", this);
                 enabled = false;
             }
         }
