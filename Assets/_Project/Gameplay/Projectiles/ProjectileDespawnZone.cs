@@ -3,29 +3,29 @@ using UnityEngine;
 namespace Game.Gameplay
 {
     [RequireComponent(typeof(BoxCollider2D))]
-    public class AsteroidDespawnZone : MonoBehaviour
+    public sealed class ProjectileDespawnZone : MonoBehaviour
     {
-        [SerializeField] private AsteroidPool _asteroidPool;
+        [SerializeField] private ProjectilePool _projectilePool;
 
         private void Awake()
         {
-            if (_asteroidPool != null)
+            if (_projectilePool != null)
             {
                 return;
             }
 
-            Debug.LogError("Asteroid pool reference is missing", this);
+            Debug.LogError("Projectile pool reference is missing", this);
             enabled = false;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
         {
-            if (!other.TryGetComponent(out Asteroid asteroid))
+            if (!other.TryGetComponent(out Projectile projectile))
             {
                 return;
             }
 
-            _asteroidPool.Return(asteroid);
+            _projectilePool.Return(projectile);
         }
     }
 }

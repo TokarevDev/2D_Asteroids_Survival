@@ -12,6 +12,7 @@ namespace Game.Infrastructure
         public Vector2 MoveDirection =>
             _inputActions.Player.Move.ReadValue<Vector2>();
 
+
         public void Initialize()
         {
             _inputActions.Player.Enable();

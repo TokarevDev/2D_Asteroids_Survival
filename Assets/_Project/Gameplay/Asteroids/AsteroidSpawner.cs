@@ -6,10 +6,10 @@ namespace Game.Gameplay
     {
         [SerializeField] private Camera _camera;
         [SerializeField] private AsteroidPool _asteroidPool;
+        [SerializeField] private AsteroidConfig[] _asteroidConfigs;
 
         [SerializeField, Min(0f)] private float _spawnOffset = 2f;
         [SerializeField, Min(0f)] private float _targetOffset = 2f;
-        [SerializeField, Min(0f)] private float _asteroidSpeed = 5f;
 
         [SerializeField, Min(0.1f)] private float _spawnInterval = 1f;
         private float _timeUntilNextSpawn;
@@ -27,6 +27,26 @@ namespace Game.Gameplay
             {
                 Debug.LogError("Asteroid pool reference is missing", this);
                 enabled = false;
+                return;
+            }
+
+            if (_asteroidConfigs == null || _asteroidConfigs.Length == 0)
+            {
+                Debug.LogError("Asteroid configs are missing", this);
+                enabled = false;
+                return;
+            }
+
+            for (int i = 0; i < _asteroidConfigs.Length; i++)
+            {
+                if (_asteroidConfigs[i] != null)
+                {
+                    continue;
+                }
+
+                Debug.LogError($"Asteroid config at index {i} is missing", this);
+                enabled = false;
+                return;
             }
         }
 
@@ -55,9 +75,13 @@ namespace Game.Gameplay
 
             Vector2 direction = targetPosition - spawnPosition;
 
-            AsteroidMovement asteroid = _asteroidPool.Get(spawnPosition);
+            int configIndex = Random.Range(0, _asteroidConfigs.Length);
+            AsteroidConfig config = _asteroidConfigs[configIndex];
 
-            asteroid.Launch(direction, _asteroidSpeed);
+            Asteroid asteroid = _asteroidPool.Get(spawnPosition);
+
+            asteroid.Initialize(config);
+            asteroid.Launch(direction);
         }
 
         private Vector2 GetRandomSpawnPosition()

@@ -6,6 +6,9 @@ namespace Game.Gameplay
     [RequireComponent(typeof(AsteroidMovement))]
     public sealed class Asteroid : MonoBehaviour, IDamageable
     {
+        public event Action<Asteroid> Died;
+        public int CurrentHealth => _health.CurrentHealth;
+
         [SerializeField] private AsteroidMovement _movement;
         [SerializeField] private SpriteRenderer _spriteRenderer;
 
@@ -15,6 +18,7 @@ namespace Game.Gameplay
 
         private void Awake()
         {
+            _health.Died += OnHealthDied;
             if (_movement == null)
             {
                 Debug.LogError("Asteroid movement reference is missing", this);
@@ -27,6 +31,11 @@ namespace Game.Gameplay
                 Debug.LogError("Asteroid sprite renderer reference is missing", this);
                 enabled = false;
             }
+        }
+
+        private void OnDestroy()
+        {
+            _health.Died -= OnHealthDied;
         }
 
         public void Initialize(AsteroidConfig config)
@@ -58,9 +67,19 @@ namespace Game.Gameplay
             _health.TakeDamage(damage);
         }
 
+        public void Kill()
+        {
+            _health.TakeDamage(_health.CurrentHealth);
+        }
+
         public void Stop()
         {
             _movement.Stop();
+        }
+
+        private void OnHealthDied()
+        {
+            Died?.Invoke(this);
         }
     }
 }

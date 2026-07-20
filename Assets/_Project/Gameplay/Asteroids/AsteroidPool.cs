@@ -5,11 +5,12 @@ namespace Game.Gameplay
 {
     public class AsteroidPool : MonoBehaviour
     {
-        [SerializeField] private AsteroidMovement _asteroidPrefab;
+        [SerializeField] private Asteroid _asteroidPrefab;
 
         [SerializeField, Min(1)] private int _initialSize = 5;
 
-        private readonly Queue<AsteroidMovement> _availableAsteroids = new();
+        private readonly Queue<Asteroid> _availableAsteroids = new();
+        private readonly HashSet<Asteroid> _availableAsteroidSet = new();
 
         private void Awake()
         {
@@ -23,13 +24,14 @@ namespace Game.Gameplay
             Prewarm();
         }
 
-        public AsteroidMovement Get(Vector2 position)
+        public Asteroid Get(Vector2 position)
         {
-            AsteroidMovement asteroid;
+            Asteroid asteroid;
 
             if (_availableAsteroids.Count > 0)
             {
                 asteroid = _availableAsteroids.Dequeue();
+                _availableAsteroidSet.Remove(asteroid);
             }
             else
             {
@@ -43,11 +45,17 @@ namespace Game.Gameplay
             return asteroid;
         }
 
-        public void Return(AsteroidMovement asteroid)
+        public void Return(Asteroid asteroid)
         {
             if (asteroid == null)
             {
                 Debug.LogError("Cannot return a null asteroid", this);
+                return;
+            }
+
+            if (!_availableAsteroidSet.Add(asteroid))
+            {
+                Debug.LogWarning("Asteroid is already in the pool", asteroid);
                 return;
             }
 
@@ -61,16 +69,17 @@ namespace Game.Gameplay
         {
             for (int i = 0; i < _initialSize; i++)
             {
-                AsteroidMovement asteroid = CreateAsteroid();
+                Asteroid asteroid = CreateAsteroid();
 
-                _availableAsteroids.Enqueue(asteroid);
+                Return(asteroid);
             }
         }
 
-        private AsteroidMovement CreateAsteroid()
+        private Asteroid CreateAsteroid()
         {
-            AsteroidMovement asteroid = Instantiate(_asteroidPrefab, transform);
+            Asteroid asteroid = Instantiate(_asteroidPrefab, transform);
 
+            asteroid.Died += Return;
             asteroid.gameObject.SetActive(false);
 
             return asteroid;
