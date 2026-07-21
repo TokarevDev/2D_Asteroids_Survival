@@ -5,7 +5,8 @@
         "Game.Core",
         "Game.Gameplay",
         "Zenject",
-        "UniTask"
+        "UniTask",
+        "Unity.TextMeshPro"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

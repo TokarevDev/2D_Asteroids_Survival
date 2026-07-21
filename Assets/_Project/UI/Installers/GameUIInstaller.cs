@@ -8,11 +8,23 @@ namespace Game.UI
         public override void InstallBindings()
         {
             BindGameOverViewModel();
+            BindHealthViewModel();
+            BindTimerViewModel();
         }
 
         private void BindGameOverViewModel()
         {
             Container.BindInterfacesAndSelfTo<GameOverViewModel>().AsSingle().NonLazy();
+        }
+
+        private void BindHealthViewModel()
+        {
+            Container.BindInterfacesAndSelfTo<HealthViewModel>().AsSingle().NonLazy();
+        }
+
+        private void BindTimerViewModel()
+        {
+            Container.BindInterfacesAndSelfTo<TimerViewModel>().AsSingle().NonLazy();
         }
     }
 }
