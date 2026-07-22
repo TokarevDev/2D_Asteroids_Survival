@@ -7,12 +7,15 @@ namespace Game.Gameplay
     public sealed class Asteroid : MonoBehaviour, IDamageable
     {
         public event Action<Asteroid> Died;
+        public event Action<int> DestroyedByPlayer;
         public int CurrentHealth => _health.CurrentHealth;
 
         [SerializeField] private AsteroidMovement _movement;
         [SerializeField] private SpriteRenderer _spriteRenderer;
 
         private readonly Health _health = new();
+
+        private bool _shouldGrantScore;
 
         private AsteroidConfig _config;
 
@@ -46,6 +49,7 @@ namespace Game.Gameplay
             }
 
             _config = config;
+            _shouldGrantScore = false;
 
             _health.Initialize(config.MaxHealth);
             _spriteRenderer.sprite = config.Sprite;
@@ -64,11 +68,13 @@ namespace Game.Gameplay
 
         public void TakeDamage(int damage)
         {
+            _shouldGrantScore = true;
             _health.TakeDamage(damage);
         }
 
         public void Kill()
         {
+            _shouldGrantScore = false;
             _health.TakeDamage(_health.CurrentHealth);
         }
 
@@ -79,6 +85,11 @@ namespace Game.Gameplay
 
         private void OnHealthDied()
         {
+            if (_shouldGrantScore)
+            {
+                DestroyedByPlayer?.Invoke(_config.ScoreReward);
+            }
+
             Died?.Invoke(this);
         }
     }

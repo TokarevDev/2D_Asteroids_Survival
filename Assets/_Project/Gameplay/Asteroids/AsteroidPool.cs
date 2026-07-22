@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -5,10 +6,13 @@ namespace Game.Gameplay
 {
     public class AsteroidPool : MonoBehaviour
     {
+        public event Action<int> AsteroidDestroyedByPlayer;
+
         [SerializeField] private Asteroid _asteroidPrefab;
 
         [SerializeField, Min(1)] private int _initialSize = 5;
 
+        private readonly List<Asteroid> _createdAsteroids = new();
         private readonly Queue<Asteroid> _availableAsteroids = new();
         private readonly HashSet<Asteroid> _availableAsteroidSet = new();
 
@@ -80,9 +84,35 @@ namespace Game.Gameplay
             Asteroid asteroid = Instantiate(_asteroidPrefab, transform);
 
             asteroid.Died += Return;
+            asteroid.DestroyedByPlayer += OnAsteroidDestroyedByPlayer;
+            _createdAsteroids.Add(asteroid);
             asteroid.gameObject.SetActive(false);
 
             return asteroid;
+        }
+
+        private void OnDestroy()
+        {
+            for (int i = 0; i < _createdAsteroids.Count; i++)
+            {
+                Asteroid asteroid = _createdAsteroids[i];
+                if (asteroid == null)
+                {
+                    continue;
+                }
+
+                asteroid.Died -= Return;
+                asteroid.DestroyedByPlayer -= OnAsteroidDestroyedByPlayer;
+            }
+
+            _createdAsteroids.Clear();
+            _availableAsteroids.Clear();
+            _availableAsteroidSet.Clear();
+        }
+
+        private void OnAsteroidDestroyedByPlayer(int scoreReward)
+        {
+            AsteroidDestroyedByPlayer?.Invoke(scoreReward);
         }
     }
 }
