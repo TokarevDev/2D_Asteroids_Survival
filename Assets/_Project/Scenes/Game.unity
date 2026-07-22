@@ -2387,6 +2387,8 @@ MonoBehaviour:
   _spawnOffset: 2
   _targetOffset: 2
   _spawnInterval: 1
+  _minimumSpawnInterval: 0.5
+  _spawnIntervalReductionPerMinute: 0.1
 --- !u!4 &2095653410
 Transform:
   m_ObjectHideFlags: 0

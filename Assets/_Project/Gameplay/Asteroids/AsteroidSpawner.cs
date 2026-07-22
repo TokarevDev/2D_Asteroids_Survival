@@ -1,4 +1,5 @@
 using UnityEngine;
+using Zenject;
 
 namespace Game.Gameplay
 {
@@ -12,7 +13,17 @@ namespace Game.Gameplay
         [SerializeField, Min(0f)] private float _targetOffset = 2f;
 
         [SerializeField, Min(0.1f)] private float _spawnInterval = 1f;
+        [SerializeField, Min(0.1f)] private float _minimumSpawnInterval = 0.5f;
+        [SerializeField, Min(0f)] private float _spawnIntervalReductionPerMinute = 0.1f;
+
+        private SurvivalTimer _survivalTimer;
         private float _timeUntilNextSpawn;
+
+        [Inject]
+        private void Construct(SurvivalTimer survivalTimer)
+        {
+            _survivalTimer = survivalTimer;
+        }
 
         private void Awake()
         {
@@ -48,13 +59,20 @@ namespace Game.Gameplay
                 enabled = false;
                 return;
             }
+
+            if (_minimumSpawnInterval > _spawnInterval)
+            {
+                Debug.LogError("Minimum spawn interval cannot exceed initial interval", this);
+                enabled = false;
+                return;
+            }
         }
 
         private void Start()
         {
             SpawnOne();
 
-            _timeUntilNextSpawn = _spawnInterval;
+            _timeUntilNextSpawn = GetCurrentSpawnInterval();
         }
 
         private void Update()
@@ -62,10 +80,20 @@ namespace Game.Gameplay
             _timeUntilNextSpawn -= Time.deltaTime;
 
             if (_timeUntilNextSpawn > 0)
+            {
                 return;
+            }
 
             SpawnOne();
-            _timeUntilNextSpawn = _spawnInterval;
+            _timeUntilNextSpawn = GetCurrentSpawnInterval();
+        }
+
+        private float GetCurrentSpawnInterval()
+        {
+            float elapsedMinutes = _survivalTimer.ElapsedSeconds / 60f;
+            float intervalReduction = elapsedMinutes * _spawnIntervalReductionPerMinute;
+
+            return Mathf.Max(_minimumSpawnInterval, _spawnInterval - intervalReduction);
         }
 
         private void SpawnOne()
