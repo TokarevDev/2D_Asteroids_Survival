@@ -1,4 +1,5 @@
 using Cysharp.Threading.Tasks;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -10,6 +11,8 @@ namespace Game.UI
         [SerializeField] private GameObject _gameOverPanel;
         [SerializeField] private Button _restartButton;
         [SerializeField] private Button _mainMenuButton;
+        [SerializeField] private TMP_Text _finalScoreText;
+        [SerializeField] private GameObject _hudRoot;
 
         private GameOverViewModel _viewModel;
 
@@ -37,6 +40,19 @@ namespace Game.UI
             if (_mainMenuButton == null)
             {
                 Debug.LogError("Main menu button reference is missing", this);
+                enabled = false;
+                return;
+            }
+
+            if (_finalScoreText == null)
+            {
+                Debug.LogError("Final score text reference is missing", this);
+                enabled = false;
+            }
+
+            if (_hudRoot == null)
+            {
+                Debug.LogError("HUD root reference is missing", this);
                 enabled = false;
                 return;
             }
@@ -75,6 +91,12 @@ namespace Game.UI
 
         private void OnVisibilityChanged(bool isVisible)
         {
+            if (isVisible)
+            {
+                _finalScoreText.SetText("Score: {0}", _viewModel.FinalScore);
+            }
+
+            _hudRoot.SetActive(!isVisible);
             _gameOverPanel.SetActive(isVisible);
         }
 

@@ -10,19 +10,23 @@ namespace Game.UI
     {
         private readonly SignalBus _signalBus;
         private readonly ISceneLoader _sceneLoader;
+        private readonly ScoreCounter _scoreCounter;
 
         private bool _isTransitionInProgress;
 
         public event Action<bool> VisibilityChanged;
         public event Action<bool> InteractabilityChanged;
 
+        public int FinalScore { get; private set; }
+
         public bool IsVisible { get; private set; }
         public bool IsInteractable => _isTransitionInProgress == false;
 
-        public GameOverViewModel(SignalBus signalBus, ISceneLoader sceneLoader)
+        public GameOverViewModel(SignalBus signalBus, ISceneLoader sceneLoader, ScoreCounter scoreCounter)
         {
             _signalBus = signalBus;
             _sceneLoader = sceneLoader;
+            _scoreCounter = scoreCounter;
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
@@ -54,7 +58,9 @@ namespace Game.UI
                 return;
             }
 
+            FinalScore = _scoreCounter.Score;
             IsVisible = true;
+
             VisibilityChanged?.Invoke(IsVisible);
         }
 

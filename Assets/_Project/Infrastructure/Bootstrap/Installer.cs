@@ -10,6 +10,12 @@ namespace Game.Infrastructure
         {
             BindSceneLoader();
             BindInput();
+            BindAdvertisement();
+        }
+
+        private void BindAdvertisement()
+        {
+            Container.BindInterfacesTo<AdMobAdvertisementService>().AsSingle().NonLazy();
         }
 
         private void BindInput()
