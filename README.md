@@ -19,6 +19,7 @@ Start here:
 - Gameplay systems: `Assets/_Project/Gameplay/`
 - UI and ViewModel flow: `Assets/_Project/UI/`
 - Assembly boundaries: `Game.Core`, `Game.Infrastructure`, `Game.Gameplay`, `Game.UI`
+- Runtime architecture walkthrough: [How To Read The Project](#how-to-read-the-project)
 
 ## Overview
 
@@ -31,16 +32,18 @@ The project intentionally keeps the gameplay scope focused so the architecture r
 ## Architecture
 
 ```mermaid
-flowchart LR
-    Bootstrap["Bootstrap Scene"] --> CompositionRoot["ProjectContext / Scene Installers"]
-    CompositionRoot --> Infrastructure["Game.Infrastructure"]
-    CompositionRoot --> Gameplay["Game.Gameplay"]
-    CompositionRoot --> UI["Game.UI"]
-    Infrastructure --> Core["Game.Core"]
-    Gameplay --> Core
-    UI --> Core
+flowchart BT
+    Infrastructure["Game.Infrastructure<br/>platform adapters and project services"] --> Core["Game.Core<br/>shared contracts"]
+    Gameplay["Game.Gameplay<br/>game rules and runtime systems"] --> Core
+    UI["Game.UI<br/>Views and ViewModels"] --> Core
     UI --> Gameplay
+
+    ProjectInstaller["ProjectContext Installer"] -.wires.-> Infrastructure
+    GameInstaller["Game Scene Installer"] -.wires.-> Gameplay
+    UIInstaller["Game UI Installer"] -.wires.-> UI
 ```
+
+Arrows show compile-time dependency direction: the outer layer knows the inner contract, never the other way around. `Game.Core` does not know about AdMob, concrete input actions, scenes, gameplay models, or UI. Scene and project installers are composition roots: they are the only places expected to know which concrete implementation satisfies each contract.
 
 ### Assembly Definition Boundaries
 
@@ -50,6 +53,81 @@ flowchart LR
 - `Game.UI` owns the main menu, gameplay HUD, navigation, advertising presentation, and game-over View/ViewModel flow.
 
 These boundaries make dependencies visible, reduce accidental coupling, and keep infrastructure and presentation concerns outside core gameplay classes.
+
+### How To Read The Project
+
+Use this mental model:
+
+1. **Core defines vocabulary.** It contains contracts that multiple assemblies may use.
+2. **Infrastructure talks to Unity or an SDK.** Input System, scene loading, and AdMob live here.
+3. **Gameplay owns game truth.** Health, score, time, spawning, movement, damage, and session state do not belong to UI.
+4. **UI translates game truth for the player.** ViewModels observe models and expose presentation state; Views only render state and forward button commands.
+5. **Installers connect the graph.** Zenject constructs services and ViewModels, so runtime code does not search the scene or create hidden global dependencies.
+
+The most important rule is that data flows outward to presentation while dependencies point inward toward contracts:
+
+```mermaid
+flowchart LR
+    Input["Input / Physics"] --> GameplayState["Gameplay state<br/>Health · Score · Timer"]
+    GameplayState --> Events["C# events / SignalBus"]
+    Events --> ViewModels["ViewModels"]
+    ViewModels --> Views["Unity Views"]
+
+    Views -.commands.-> SceneContract["Core contracts"]
+    ViewModels -.commands.-> SceneContract
+    Infrastructure["Infrastructure adapters"] -.implements.-> SceneContract
+```
+
+### Runtime Ownership And Lifecycle
+
+| Lifetime | Created by | Examples | Cleanup |
+| --- | --- | --- | --- |
+| Application | `ProjectContext` | `InputReader`, `SceneLoader`, `AdMobAdvertisementService` | Zenject calls `IDisposable.Dispose` |
+| Game scene | `GameInstaller` | `SurvivalTimer`, `ScoreCounter`, `GameSession` | Scene container disposes subscriptions and restores time scale |
+| Game UI | `GameUIInstaller` | HUD and game-over ViewModels | Scene container disposes model/signal subscriptions |
+| Scene object | Unity scene/prefab | Player, spawner, pools, Views | `OnDisable`/`OnDestroy` remove listeners and release local resources |
+| Pooled entity | Projectile/asteroid pool | Projectiles and asteroids | State and velocity reset on return; object is disabled and reused |
+
+This ownership model answers two practical questions when adding a feature: **who creates it?** and **who is responsible for cleaning it up?** If neither answer is clear, the dependency probably belongs in an installer or the class has too many responsibilities.
+
+### Score And Game-Over Event Flow
+
+```mermaid
+sequenceDiagram
+    participant Projectile
+    participant Asteroid
+    participant Pool as AsteroidPool
+    participant Score as ScoreCounter
+    participant ScoreVM as ScoreViewModel
+    participant HUD as ScoreView
+
+    Projectile->>Asteroid: TakeDamage(damage)
+    Asteroid-->>Pool: DestroyedByPlayer(reward)
+    Pool-->>Score: AsteroidDestroyedByPlayer(reward)
+    Score-->>ScoreVM: ScoreChanged(total)
+    ScoreVM-->>HUD: ScoreChanged(total)
+```
+
+```mermaid
+sequenceDiagram
+    participant Health as PlayerHealth
+    participant Emitter as PlayerDeathSignalEmitter
+    participant Bus as SignalBus
+    participant Session as GameSession
+    participant GameOverVM as GameOverViewModel
+    participant View as GameOverView
+
+    Health-->>Emitter: Died
+    Emitter->>Bus: Fire PlayerDiedSignal
+    Bus-->>Session: OnPlayerDied
+    Session->>Session: Time.timeScale = 0
+    Bus-->>GameOverVM: OnPlayerDied
+    GameOverVM->>GameOverVM: Capture ScoreCounter.Score
+    GameOverVM-->>View: VisibilityChanged(true)
+    View->>View: Hide HUD and show final score
+```
+
+`PlayerHealth` does not open UI, and `GameOverView` does not pause gameplay. SignalBus lets both reactions happen independently from the same domain event.
 
 ### Composition Root And Dependency Injection
 
