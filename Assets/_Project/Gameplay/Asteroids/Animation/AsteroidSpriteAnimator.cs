@@ -32,31 +32,31 @@ namespace Game.Gameplay
             AdvanceFrames();
         }
 
-        public void Play(AsteroidAnimationConfig animation)
+        public void Play(AsteroidAnimationConfig animationConfig)
         {
-            ValidateAnimation(animation);
+            ValidateAnimation(animationConfig);
 
-            _animation = animation;
-            _frameDuration = animation.FrameDuration;
+            _animation = animationConfig;
+            _frameDuration = animationConfig.FrameDuration;
             _elapsedTime = 0f;
             _frameIndex = 0;
 
-            _spriteRenderer.sprite = animation.GetFrame(0);
+            _spriteRenderer.sprite = animationConfig.GetFrame(0);
             enabled = true;
         }
 
-        public void ShowFrame(AsteroidAnimationConfig animation, int frameIndex)
+        public void ShowFrame(AsteroidAnimationConfig animationConfig, int frameIndex)
         {
-            ValidateAnimation(animation);
+            ValidateAnimation(animationConfig);
 
-            if (frameIndex < 0 || frameIndex >= animation.FrameCount)
+            if (frameIndex < 0 || frameIndex >= animationConfig.FrameCount)
             {
                 throw new ArgumentOutOfRangeException(nameof(frameIndex));
             }
 
             Stop();
 
-            _spriteRenderer.sprite = animation.GetFrame(frameIndex);
+            _spriteRenderer.sprite = animationConfig.GetFrame(frameIndex);
         }
 
         public void Stop()
