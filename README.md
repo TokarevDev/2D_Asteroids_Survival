@@ -1,12 +1,12 @@
 # 2D Asteroids Survival
 
-Architecture-focused 2D survival prototype built with Unity 2022 LTS and C#.
+Architecture-focused endless 2D survival game built with Unity 2022 LTS and C#.
 
-The project is a compact public code sample demonstrating how I structure a Unity gameplay feature with explicit dependencies, assembly boundaries, lifecycle-safe communication, asynchronous scene flow, and pooled runtime objects.
+The project is a compact graduation project and public code sample demonstrating explicit dependencies, assembly boundaries, lifecycle-safe communication, asynchronous scene flow, data-driven difficulty, MVVM-style UI, and pooled runtime objects.
 
 Portfolio: https://tokarevdev.github.io/
 
-Status: playable architecture prototype / work in progress
+Status: playable end-to-end game / final polish in progress
 
 ## Quick Review
 
@@ -22,36 +22,40 @@ Start here:
 
 ## Overview
 
-The player moves inside camera bounds and automatically fires pooled projectiles while data-driven asteroids enter from randomized positions. Asteroid health determines collision damage, projectiles and asteroids are reused through dedicated pools, and player death is propagated through a signal-driven session/UI flow.
+The player moves inside responsive camera bounds and automatically fires pooled projectiles while data-driven asteroids enter from randomized positions. Destroying small, medium, and large asteroids awards different score values, while spawn frequency progressively increases during the run.
 
-The project intentionally keeps the gameplay scope small so the architecture remains easy to inspect. It demonstrates production-oriented Unity practices without hiding them behind a large content layer.
+The HUD displays health, survival time, and score. Player death is propagated through Zenject SignalBus, pauses the session, hides the gameplay HUD, and opens a game-over screen with the final score, restart, and main-menu navigation.
+
+The project intentionally keeps the gameplay scope focused so the architecture remains easy to inspect. It demonstrates production-oriented Unity practices without hiding them behind a large content layer.
 
 ## Architecture
 
 ```mermaid
 flowchart LR
-    Bootstrap[Bootstrap Scene] --> Infrastructure[Infrastructure / Composition Root]
-    Core[Core Interfaces] --> Infrastructure
-    Core --> Gameplay[Gameplay]
-    Infrastructure --> Gameplay
-    Core --> UI[UI / ViewModels]
-    Gameplay --> UI
-    Infrastructure --> UI
+    Bootstrap["Bootstrap Scene"] --> CompositionRoot["ProjectContext / Scene Installers"]
+    CompositionRoot --> Infrastructure["Game.Infrastructure"]
+    CompositionRoot --> Gameplay["Game.Gameplay"]
+    CompositionRoot --> UI["Game.UI"]
+    Infrastructure --> Core["Game.Core"]
+    Gameplay --> Core
+    UI --> Core
+    UI --> Gameplay
 ```
 
 ### Assembly Definition Boundaries
 
-- `Game.Core` contains engine-facing abstractions such as `IInputReader` and `ISceneLoader`.
-- `Game.Infrastructure` implements input, async scene loading, bootstrap, and project-level Zenject bindings.
-- `Game.Gameplay` owns combat, player, asteroid, projectile, session, and gameplay signal logic.
-- `Game.UI` owns menu and game-over presentation plus `GameOverViewModel`.
+- `Game.Core` contains shared abstractions such as `IInputReader`, `ISceneLoader`, and `IAdvertisementService`.
+- `Game.Infrastructure` implements input, async scene loading, bootstrap, advertising, and project-level Zenject bindings.
+- `Game.Gameplay` owns combat, player, asteroid, projectile, score, survival timer, session, and gameplay signal logic.
+- `Game.UI` owns the main menu, gameplay HUD, navigation, advertising presentation, and game-over View/ViewModel flow.
 
 These boundaries make dependencies visible, reduce accidental coupling, and keep infrastructure and presentation concerns outside core gameplay classes.
 
 ### Composition Root And Dependency Injection
 
 - `ProjectContext` and scene installers act as composition roots.
-- Zenject binds `ISceneLoader`, `IInputReader`, `GameSession`, `GameOverViewModel`, and SignalBus dependencies.
+- Zenject binds project services, gameplay models, ViewModels, and SignalBus dependencies.
+- Pure C# services use constructor injection; scene `MonoBehaviour` components use explicit Zenject method injection.
 - Gameplay and UI consume interfaces or injected services instead of searching the scene at runtime.
 - Serialized scene references remain explicit for local Unity object relationships.
 
@@ -59,7 +63,7 @@ These boundaries make dependencies visible, reduce accidental coupling, and keep
 
 - `SceneLoader` exposes `UniTask`-based transitions through `ISceneLoader`.
 - A dedicated bootstrap scene loads the main menu.
-- Menu and game-over actions disable repeated interaction while a transition is running.
+- Menu, gameplay, and game-over navigation disable repeated interaction while a transition is running.
 - Exceptions are surfaced through `Debug.LogException` rather than silently ignored.
 
 ### Event And MVVM-Style UI Flow
@@ -67,16 +71,40 @@ These boundaries make dependencies visible, reduce accidental coupling, and keep
 - `PlayerHealth` exposes state changes without controlling UI.
 - `PlayerDeathSignalEmitter` forwards death through Zenject SignalBus.
 - `GameSession` owns session-ending behavior and time-scale state.
+- `HealthViewModel`, `TimerViewModel`, and `ScoreViewModel` translate gameplay state into HUD state.
 - `GameOverViewModel` converts gameplay signals into visibility, interaction, and navigation state.
-- `GameOverView` only binds Unity UI controls to ViewModel state and commands.
+- `GameOverView` presents the final score, hides the gameplay HUD, and binds Unity UI controls to ViewModel state and commands.
+
+## Design Patterns
+
+### GoF Observer
+
+Observer is the primary GoF pattern used by the project.
+
+- `Health` publishes health-change and death events.
+- `ScoreCounter` publishes score changes.
+- ViewModels observe gameplay models and expose presentation state to their Views.
+- Zenject SignalBus publishes `PlayerDiedSignal` to independent session and UI consumers.
+
+Observer was selected because one gameplay event can affect multiple systems without the sender holding direct references to them. For example, player death independently pauses the session and opens the game-over UI. This keeps gameplay, session control, and presentation loosely coupled.
+
+### Supporting Patterns And Practices
+
+- **Object Pool** reuses projectiles and asteroids instead of repeatedly calling `Instantiate` and `Destroy`.
+- **Dependency Injection / IoC** is implemented with Zenject.
+- **Composition Root** is represented by `ProjectContext` and scene installers.
+- **MVVM-style presentation** separates gameplay state, ViewModels, and Unity UI Views.
+- **Adapter-style boundaries** connect pure C# models such as `Health` to Unity `MonoBehaviour` lifecycles.
+- **Data-driven configuration** uses `AsteroidConfig` ScriptableObjects for asteroid variants and balance.
 
 ## Key Systems
 
 ### Data-Driven Asteroids
 
-- `AsteroidConfig` ScriptableObjects define health, movement speed, sprite, and scale.
+- `AsteroidConfig` ScriptableObjects define health, movement speed, sprite, scale, and score reward.
 - Small, medium, and large variants reuse the same runtime behavior.
 - Asteroid collision damage is derived from remaining health.
+- Spawn frequency progressively increases over time and is clamped to a configured minimum interval.
 
 ### Reusable Combat Model
 
@@ -98,6 +126,22 @@ These boundaries make dependencies visible, reduce accidental coupling, and keep
 - Rigidbody2D references are cached in `Awake` and movement runs in `FixedUpdate`.
 - Player bounds are cached and refreshed only when camera aspect or orthographic size changes.
 
+### Score And Session UI
+
+- Player-destroyed asteroids award 100, 200, or 500 points depending on their configured variant.
+- Collision and despawn paths do not award score.
+- The HUD displays current health, survival time, score, and direct main-menu navigation.
+- Game over freezes the session, hides the HUD, and displays the final score.
+- Restart and scene-navigation actions are guarded against duplicate requests.
+
+### Advertising
+
+- Google Mobile Ads is isolated behind `IAdvertisementService`.
+- `AdMobAdvertisementService` is created once by the project-level Zenject container.
+- The main menu requests a test banner through a dedicated presentation component.
+- The banner is destroyed when leaving the menu and recreated when returning, keeping its native lifecycle aligned with scene flow.
+- Official Google test identifiers are used; production AdMob identifiers are intentionally not stored in the repository.
+
 ## Lifecycle And Performance Practices
 
 - Event subscriptions are paired across `OnEnable`/`OnDisable`, `Awake`/`OnDestroy`, or `IInitializable`/`IDisposable`.
@@ -113,8 +157,10 @@ These boundaries make dependencies visible, reduce accidental coupling, and keep
 2. The player starts the game through an injected scene loader.
 3. Asteroids spawn from configurable variants and move toward randomized lower-screen targets.
 4. The player moves within cached screen bounds and automatically fires pooled projectiles.
-5. Player death ends the session and opens the game-over UI through SignalBus and ViewModel state.
-6. Restart and main-menu transitions are guarded against duplicate input.
+5. Destroyed asteroids award variant-specific score while spawn frequency increases over time.
+6. Player death ends the session and opens the game-over UI through SignalBus and ViewModel state.
+7. The HUD is hidden and the final score is presented.
+8. Restart and main-menu transitions are guarded against duplicate input.
 
 ## Tech Stack
 
@@ -129,14 +175,28 @@ These boundaries make dependencies visible, reduce accidental coupling, and keep
 - ScriptableObjects
 - Object pooling
 - MVVM-style presentation boundaries
+- Google Mobile Ads
+
+## Graduation Requirements Coverage
+
+| Requirement | Implementation |
+| --- | --- |
+| Endless gameplay | Survival loop with progressively increasing asteroid spawn frequency |
+| GoF pattern | Observer through C# events and Zenject SignalBus |
+| Zenject and SignalBus | Project/scene composition roots and `PlayerDiedSignal` flow |
+| Assembly Definitions | `Game.Core`, `Game.Infrastructure`, `Game.Gameplay`, and `Game.UI` |
+| Menu and gameplay UI | Main menu, HUD, gameplay navigation, and game-over screen |
+| Advertising | Google Mobile Ads test banner integrated behind an abstraction |
+| Code quality | Explicit dependencies, lifecycle cleanup, pooling, and separated presentation |
+| MonoBehaviour / pure C# split | Unity adapters and Views around pure models, services, and ViewModels |
 
 ## Current Scope
 
-This repository is an architecture and gameplay systems sample, not a shipped commercial release. The current scope covers the core survival loop, navigation, combat, pooling, and game-over flow. Content progression, audio/VFX polish, automated gameplay tests, and release packaging are future work.
+This repository is a graduation project and architecture/gameplay systems sample, not a shipped commercial release. The core survival loop, progression, score, navigation, combat, pooling, advertising, HUD, and game-over flow are playable. Persistent high score, audio/VFX polish, automated gameplay tests, and release packaging remain future work.
 
 ## Run Locally
 
-1. Open the repository with Unity `2022.3.62f3` or a compatible Unity 2022.3 LTS version.
+1. Open the repository with Unity `2022.3.62f3` or a compatible Unity 2022.3 LTS patch.
 2. Open `Assets/_Project/Scenes/Bootstrap.unity`.
 3. Enter Play Mode.
 
