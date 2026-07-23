@@ -16,4 +16,15 @@ MonoBehaviour:
   _movementSpeed: 5
   _scoreReward: 100
   _sprite: {fileID: 21300000, guid: 7fdccc36c61e1cf48a3f7beca711c3b5, type: 3}
+  _animationVariants:
+  - {fileID: 11400000, guid: 03e1a2d43d79c564f9a14d62dbf4f93e, type: 2}
+  - {fileID: 11400000, guid: 19f672aad00a6e5498bad86731edd9fb, type: 2}
+  - {fileID: 11400000, guid: 8df0167d77853ba43863530c88920128, type: 2}
+  - {fileID: 11400000, guid: 7efe93aac7f57fe479a0f69ec348fce4, type: 2}
+  - {fileID: 11400000, guid: 3dbb16930e1e77f4fbc2ee43b31657b4, type: 2}
+  - {fileID: 11400000, guid: 6e34c7d495945e846859615d86911507, type: 2}
+  - {fileID: 11400000, guid: 4c167cc56502507469ae22b562b8bfb8, type: 2}
   _scale: 0.65
+  _useFrameAnimation: 1
+  _minAngularSpeed: 15
+  _maxAngularSpeed: 35

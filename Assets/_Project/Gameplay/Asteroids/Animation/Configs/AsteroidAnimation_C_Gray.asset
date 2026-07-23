@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4643d7704a0aede43bcbd0cf98afdcec, type: 3}
+  m_Name: AsteroidAnimation_C_Gray
+  m_EditorClassIdentifier: 
+  _frames:
+  - {fileID: 21300000, guid: cca43562f7354804bac4941ff5989cf0, type: 3}
+  - {fileID: 21300000, guid: 5ef773449f88ed244a0cabad22dd5b3a, type: 3}
+  - {fileID: 21300000, guid: d159f3f99ba21aa40a340dff505a4cee, type: 3}
+  - {fileID: 21300000, guid: 74f44136ef37a2d47931c51d06b32f94, type: 3}
+  - {fileID: 21300000, guid: 06225b5d5c3b8fc4893c7c16d525ccfd, type: 3}
+  - {fileID: 21300000, guid: 4edfa93e0917956479021b5f451ee791, type: 3}
+  - {fileID: 21300000, guid: 63ba398db42051d4788bbbb3628c0db8, type: 3}
+  - {fileID: 21300000, guid: 42f73c4e87980ea4cb294ca797f59f01, type: 3}
+  - {fileID: 21300000, guid: a24d423787379774d9a368a1dfb96176, type: 3}
+  - {fileID: 21300000, guid: d57f07cafbdc2884f983bcdd2cc506b7, type: 3}
+  - {fileID: 21300000, guid: d2a069dd196ec9a42a3a3f48b0682144, type: 3}
+  - {fileID: 21300000, guid: c2ba7dc4aed39c2498ff04735a017763, type: 3}
+  - {fileID: 21300000, guid: ed7471d60c33326408fc6ee783e0e83b, type: 3}
+  - {fileID: 21300000, guid: 384bbcce0b3ef7745ada521e7d766392, type: 3}
+  - {fileID: 21300000, guid: 388575536f7223847a1908189311f788, type: 3}
+  - {fileID: 21300000, guid: 37835e20f0ccb9242837f37452248b65, type: 3}
+  _framesPerSecond: 20

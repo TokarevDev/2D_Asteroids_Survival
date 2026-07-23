@@ -19,6 +19,10 @@ namespace Game.Gameplay
         private SurvivalTimer _survivalTimer;
         private float _timeUntilNextSpawn;
 
+        private int[] _configOrder;
+        private int _nextConfigIndex;
+        private int _lastConfigIndex = -1;
+
         [Inject]
         private void Construct(SurvivalTimer survivalTimer)
         {
@@ -27,45 +31,19 @@ namespace Game.Gameplay
 
         private void Awake()
         {
-            if (_camera == null)
+            if (!ValidateSetup())
             {
-                Debug.LogError("Camera reference is missing", this);
                 enabled = false;
                 return;
             }
 
-            if (_asteroidPool == null)
-            {
-                Debug.LogError("Asteroid pool reference is missing", this);
-                enabled = false;
-                return;
-            }
+            InitializeConfigOrder();
+        }
 
-            if (_asteroidConfigs == null || _asteroidConfigs.Length == 0)
-            {
-                Debug.LogError("Asteroid configs are missing", this);
-                enabled = false;
-                return;
-            }
-
-            for (int i = 0; i < _asteroidConfigs.Length; i++)
-            {
-                if (_asteroidConfigs[i] != null)
-                {
-                    continue;
-                }
-
-                Debug.LogError($"Asteroid config at index {i} is missing", this);
-                enabled = false;
-                return;
-            }
-
-            if (_minimumSpawnInterval > _spawnInterval)
-            {
-                Debug.LogError("Minimum spawn interval cannot exceed initial interval", this);
-                enabled = false;
-                return;
-            }
+        private void InitializeConfigOrder()
+        {
+            _configOrder = new int[_asteroidConfigs.Length];
+            _nextConfigIndex = _configOrder.Length;
         }
 
         private void Start()
@@ -103,13 +81,49 @@ namespace Game.Gameplay
 
             Vector2 direction = targetPosition - spawnPosition;
 
-            int configIndex = Random.Range(0, _asteroidConfigs.Length);
-            AsteroidConfig config = _asteroidConfigs[configIndex];
+            AsteroidConfig config = GetNextConfig();
 
             Asteroid asteroid = _asteroidPool.Get(spawnPosition);
 
             asteroid.Initialize(config);
             asteroid.Launch(direction);
+        }
+
+        private AsteroidConfig GetNextConfig()
+        {
+            if (_nextConfigIndex >= _configOrder.Length)
+            {
+                ShuffleConfigs();
+            }
+
+            int configIndex = _configOrder[_nextConfigIndex++];
+            _lastConfigIndex = configIndex;
+
+            return _asteroidConfigs[configIndex];
+        }
+
+        private void ShuffleConfigs()
+        {
+            for (int i = 0; i < _configOrder.Length; i++)
+            {
+                _configOrder[i] = i;
+            }
+
+            for (int i = _configOrder.Length - 1; i > 0; i--)
+            {
+                int randomIndex = Random.Range(0, i + 1);
+
+                (_configOrder[i], _configOrder[randomIndex]) =
+                    (_configOrder[randomIndex], _configOrder[i]);
+            }
+
+            if (_configOrder.Length > 1 && _configOrder[0] == _lastConfigIndex)
+            {
+                int swapIndex = Random.Range(1, _configOrder.Length);
+                (_configOrder[0], _configOrder[swapIndex]) = (_configOrder[swapIndex], _configOrder[0]);
+            }
+
+            _nextConfigIndex = 0;
         }
 
         private Vector2 GetRandomSpawnPosition()
@@ -132,6 +146,52 @@ namespace Game.Gameplay
             float targetY = bottomLeft.y - _targetOffset;
 
             return new Vector2(randomX, targetY);
+        }
+
+        private bool ValidateSetup()
+        {
+            if (_camera == null)
+            {
+                Debug.LogError("Camera reference is missing", this);
+                return false;
+            }
+
+            if (_asteroidPool == null)
+            {
+                Debug.LogError("Asteroid pool reference is missing", this);
+                return false;
+            }
+
+            if (_asteroidConfigs == null || _asteroidConfigs.Length == 0)
+            {
+                Debug.LogError("Asteroid configs are missing", this);
+                return false;
+            }
+
+            for (int i = 0; i < _asteroidConfigs.Length; i++)
+            {
+                if (_asteroidConfigs[i] != null)
+                {
+                    continue;
+                }
+
+                Debug.LogError(
+                    $"Asteroid config at index {i} is missing",
+                    this);
+
+                return false;
+            }
+
+            if (_minimumSpawnInterval > _spawnInterval)
+            {
+                Debug.LogError(
+                    "Minimum spawn interval cannot exceed initial interval",
+                    this);
+
+                return false;
+            }
+
+            return true;
         }
     }
 }

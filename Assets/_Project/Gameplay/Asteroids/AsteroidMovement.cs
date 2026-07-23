@@ -12,14 +12,16 @@ namespace Game.Gameplay
             _rigidbody = GetComponent<Rigidbody2D>();
         }
 
-        public void Launch(Vector2 direction, float speed)
+        public void Launch(Vector2 direction, float speed, float angularSpeed)
         {
             _rigidbody.velocity = direction.normalized * speed;
+            _rigidbody.angularVelocity = angularSpeed;
         }
 
         public void Stop()
         {
             _rigidbody.velocity = Vector2.zero;
+            _rigidbody.angularVelocity = 0f;
         }
     }
 }

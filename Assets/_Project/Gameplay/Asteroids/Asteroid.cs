@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Game.Gameplay
 {
@@ -12,6 +13,7 @@ namespace Game.Gameplay
 
         [SerializeField] private AsteroidMovement _movement;
         [SerializeField] private SpriteRenderer _spriteRenderer;
+        [SerializeField] private AsteroidSpriteAnimator _spriteAnimator;
 
         private readonly Health _health = new();
 
@@ -33,12 +35,25 @@ namespace Game.Gameplay
             {
                 Debug.LogError("Asteroid sprite renderer reference is missing", this);
                 enabled = false;
+                return;
+            }
+
+            if (_spriteAnimator == null)
+            {
+                Debug.LogError("Asteroid sprite animator reference is missing", this);
+                enabled = false;
             }
         }
 
         private void OnDestroy()
         {
             _health.Died -= OnHealthDied;
+        }
+
+
+        public void SetSortingOrder(int sortingOrder)
+        {
+            _spriteRenderer.sortingOrder = sortingOrder;
         }
 
         public void Initialize(AsteroidConfig config)
@@ -52,7 +67,33 @@ namespace Game.Gameplay
             _shouldGrantScore = false;
 
             _health.Initialize(config.MaxHealth);
-            _spriteRenderer.sprite = config.Sprite;
+            _spriteAnimator.Stop();
+
+            if (config.AnimationVariantCount > 0)
+            {
+                int animationIndex =
+                    UnityEngine.Random.Range(0, config.AnimationVariantCount);
+
+                AsteroidAnimationConfig animation =
+                    config.GetAnimationVariant(animationIndex);
+
+                if (config.UseFrameAnimation)
+                {
+                    _spriteAnimator.Play(animation);
+                }
+                else
+                {
+                    int frameIndex =
+                        UnityEngine.Random.Range(0, animation.FrameCount);
+
+                    _spriteAnimator.ShowFrame(animation, frameIndex);
+                }
+            }
+            else
+            {
+                _spriteRenderer.sprite = config.Sprite;
+            }
+
             transform.localScale = Vector3.one * config.Scale;
         }
 
@@ -60,10 +101,16 @@ namespace Game.Gameplay
         {
             if (_config == null)
             {
-                throw new InvalidOperationException("Asteroid must be initialized before launch");
+                throw new InvalidOperationException(
+                    "Asteroid must be initialized before launch");
             }
 
-            _movement.Launch(direction, _config.MovementSpeed);
+            float angularSpeed = GetAngularSpeed();
+
+            _movement.Launch(
+                direction,
+                _config.MovementSpeed,
+                angularSpeed);
         }
 
         public void TakeDamage(int damage)
@@ -81,6 +128,25 @@ namespace Game.Gameplay
         public void Stop()
         {
             _movement.Stop();
+            _spriteAnimator.Stop();
+        }
+
+        private float GetAngularSpeed()
+        {
+            if (_config.UseFrameAnimation)
+            {
+                return 0f;
+            }
+
+            float angularSpeed = UnityEngine.Random.Range(
+                _config.MinAngularSpeed,
+                _config.MaxAngularSpeed);
+
+            bool rotateClockwise = Random.value < 0.5f;
+
+            return rotateClockwise
+                ? -angularSpeed
+                : angularSpeed;
         }
 
         private void OnHealthDied()

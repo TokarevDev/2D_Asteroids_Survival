@@ -6,6 +6,8 @@ namespace Game.Gameplay
 {
     public class AsteroidPool : MonoBehaviour
     {
+        private const int AsteroidSortingOrderBase = 100;
+
         public event Action<int> AsteroidDestroyedByPlayer;
 
         [SerializeField] private Asteroid _asteroidPrefab;
@@ -83,8 +85,13 @@ namespace Game.Gameplay
         {
             Asteroid asteroid = Instantiate(_asteroidPrefab, transform);
 
+            int sortingOrder = AsteroidSortingOrderBase + _createdAsteroids.Count;
+
+            asteroid.SetSortingOrder(sortingOrder);
+
             asteroid.Died += Return;
             asteroid.DestroyedByPlayer += OnAsteroidDestroyedByPlayer;
+
             _createdAsteroids.Add(asteroid);
             asteroid.gameObject.SetActive(false);
 
