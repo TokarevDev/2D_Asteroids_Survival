@@ -9,13 +9,10 @@ namespace Game.Gameplay
 
         private void Awake()
         {
-            if (_asteroid != null)
+            if (!ValidateSerializedReferences())
             {
-                return;
+                enabled = false;
             }
-
-            Debug.LogError("Asteroid reference is missing", this);
-            enabled = false;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -29,6 +26,17 @@ namespace Game.Gameplay
 
             damageable.TakeDamage(impactDamage);
             _asteroid.Kill();
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            if (_asteroid != null)
+            {
+                return true;
+            }
+
+            Debug.LogError("Asteroid reference is missing", this);
+            return false;
         }
     }
 }

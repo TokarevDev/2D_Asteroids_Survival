@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Game.Gameplay
 {
-    public class PlayerScreenBounds : MonoBehaviour
+    public sealed class PlayerScreenBounds : MonoBehaviour
     {
         [SerializeField] private Camera _camera;
 
@@ -19,7 +19,7 @@ namespace Game.Gameplay
 
         private void Awake()
         {
-            if (!CheckReferences())
+            if (!ValidateSerializedReferences())
             {
                 enabled = false;
                 return;
@@ -43,23 +43,6 @@ namespace Game.Gameplay
                 _maxAllowedPosition.y);
 
             return new Vector2(clampedX, clampedY);
-        }
-
-        private bool CheckReferences()
-        {
-            if (_camera == null)
-            {
-                Debug.LogError("Camera reference is missing", this);
-                return false;
-            }
-
-            if (_collider2D == null)
-            {
-                Debug.LogError("Collider2D reference is missing", this);
-                return false;
-            }
-
-            return true;
         }
 
         private void RefreshBounds()
@@ -94,6 +77,25 @@ namespace Game.Gameplay
                 return;
 
             RefreshBounds();
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            bool isValid = true;
+
+            if (_camera == null)
+            {
+                Debug.LogError("Camera reference is missing", this);
+                isValid = false;
+            }
+
+            if (_collider2D == null)
+            {
+                Debug.LogError("Collider2D reference is missing", this);
+                isValid = false;
+            }
+
+            return isValid;
         }
     }
 }

@@ -5,7 +5,7 @@ using Zenject;
 
 namespace Game.Infrastructure
 {
-    public class Bootstrapper : MonoBehaviour
+    public sealed class Bootstrapper : MonoBehaviour
     {
         private ISceneLoader _sceneLoader;
 

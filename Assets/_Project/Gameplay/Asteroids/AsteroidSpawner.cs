@@ -3,7 +3,7 @@ using Zenject;
 
 namespace Game.Gameplay
 {
-    public class AsteroidSpawner : MonoBehaviour
+    public sealed class AsteroidSpawner : MonoBehaviour
     {
         [SerializeField] private Camera _camera;
         [SerializeField] private AsteroidPool _asteroidPool;
@@ -31,7 +31,7 @@ namespace Game.Gameplay
 
         private void Awake()
         {
-            if (!ValidateSetup())
+            if (!ValidateSerializedReferences() || !ValidateConfiguration())
             {
                 enabled = false;
                 return;
@@ -148,18 +148,34 @@ namespace Game.Gameplay
             return new Vector2(randomX, targetY);
         }
 
-        private bool ValidateSetup()
+        private bool ValidateConfiguration()
         {
+            if (_minimumSpawnInterval <= _spawnInterval)
+            {
+                return true;
+            }
+
+            Debug.LogError(
+                "Minimum spawn interval cannot exceed initial interval",
+                this);
+
+            return false;
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            bool isValid = true;
+
             if (_camera == null)
             {
                 Debug.LogError("Camera reference is missing", this);
-                return false;
+                isValid = false;
             }
 
             if (_asteroidPool == null)
             {
                 Debug.LogError("Asteroid pool reference is missing", this);
-                return false;
+                isValid = false;
             }
 
             if (_asteroidConfigs == null || _asteroidConfigs.Length == 0)
@@ -179,19 +195,10 @@ namespace Game.Gameplay
                     $"Asteroid config at index {i} is missing",
                     this);
 
-                return false;
+                isValid = false;
             }
 
-            if (_minimumSpawnInterval > _spawnInterval)
-            {
-                Debug.LogError(
-                    "Minimum spawn interval cannot exceed initial interval",
-                    this);
-
-                return false;
-            }
-
-            return true;
+            return isValid;
         }
     }
 }

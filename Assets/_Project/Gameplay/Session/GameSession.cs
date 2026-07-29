@@ -1,24 +1,24 @@
 using System;
-using UnityEngine;
 using Zenject;
 
 namespace Game.Gameplay
 {
     public sealed class GameSession : IInitializable, IDisposable
     {
+        private readonly GamePauseService _gamePauseService;
         private readonly SignalBus _signalBus;
 
         private bool _isEnded;
 
-        public GameSession(SignalBus signalBus)
+        public GameSession(SignalBus signalBus, GamePauseService gamePauseService)
         {
+            _gamePauseService = gamePauseService;
             _signalBus = signalBus;
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
         public void Initialize()
         {
-            Time.timeScale = 1f;
             _signalBus.Subscribe<PlayerDiedSignal>(OnPlayerDied);
         }
 
@@ -26,7 +26,6 @@ namespace Game.Gameplay
         public void Dispose()
         {
             _signalBus.Unsubscribe<PlayerDiedSignal>(OnPlayerDied);
-            Time.timeScale = 1f;
         }
 
         private void OnPlayerDied()
@@ -37,7 +36,7 @@ namespace Game.Gameplay
             }
 
             _isEnded = true;
-            Time.timeScale = 0f;
+            _gamePauseService.Pause();
         }
     }
 }

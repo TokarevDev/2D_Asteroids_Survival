@@ -5,7 +5,7 @@ using Zenject;
 
 namespace Game.Infrastructure
 {
-    public class InputReader : IInputReader, IInitializable, IDisposable
+    public sealed class InputReader : IInputReader, IInitializable, IDisposable
     {
         private readonly PlayerInputActions _inputActions = new();
 

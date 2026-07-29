@@ -3,14 +3,20 @@ using Zenject;
 
 namespace Game.Infrastructure
 {
-    public class Installer : MonoInstaller
+    public sealed class ProjectInfrastructureInstaller : MonoInstaller
     {
         // ReSharper disable Unity.PerformanceAnalysis
         public override void InstallBindings()
         {
             BindSceneLoader();
+            BindApplicationQuitService();
             BindInput();
             BindAdvertisement();
+        }
+
+        private void BindApplicationQuitService()
+        {
+            Container.Bind<IApplicationQuitService>().To<ApplicationQuitService>().AsSingle();
         }
 
         private void BindAdvertisement()

@@ -15,10 +15,10 @@ namespace Game.Gameplay
 
         private void Awake()
         {
-            if (_movement != null) return;
-
-            Debug.LogError("Projectile movement reference is missing", this);
-            enabled = false;
+            if (!ValidateSerializedReferences())
+            {
+                enabled = false;
+            }
         }
 
         public void Launch(Vector2 direction, float speed, int damage)
@@ -55,6 +55,17 @@ namespace Game.Gameplay
 
             damageable.TakeDamage(_damage);
             Hit?.Invoke(this);
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            if (_movement != null)
+            {
+                return true;
+            }
+
+            Debug.LogError("Projectile movement reference is missing", this);
+            return false;
         }
     }
 }

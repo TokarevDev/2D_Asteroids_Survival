@@ -3,7 +3,7 @@ using UnityEngine;
 namespace Game.Gameplay
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public class AsteroidMovement : MonoBehaviour
+    public sealed class AsteroidMovement : MonoBehaviour
     {
         private Rigidbody2D _rigidbody;
 

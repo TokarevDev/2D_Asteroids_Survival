@@ -8,19 +8,37 @@ namespace Game.Gameplay
         [SerializeField] private Projectile _projectilePrefab;
         [SerializeField, Min(1)] private int _initialSize = 30;
 
+        private readonly List<Projectile> _createdProjectiles = new();
         private readonly Queue<Projectile> _availableProjectiles = new();
         private readonly HashSet<Projectile> _availableProjectileSet = new();
 
         private void Awake()
         {
-            if (_projectilePrefab == null)
+            if (!ValidateSerializedReferences())
             {
-                Debug.LogError("Projectile prefab reference is missing", this);
                 enabled = false;
                 return;
             }
 
             Prewarm();
+        }
+
+        private void OnDestroy()
+        {
+            for (int i = 0; i < _createdProjectiles.Count; i++)
+            {
+                Projectile projectile = _createdProjectiles[i];
+                if (projectile == null)
+                {
+                    continue;
+                }
+
+                projectile.Hit -= Return;
+            }
+
+            _createdProjectiles.Clear();
+            _availableProjectiles.Clear();
+            _availableProjectileSet.Clear();
         }
 
         public Projectile Get(Vector2 position)
@@ -77,8 +95,20 @@ namespace Game.Gameplay
             Projectile projectile = Instantiate(_projectilePrefab, transform);
 
             projectile.Hit += Return;
+            _createdProjectiles.Add(projectile);
             projectile.gameObject.SetActive(false);
             return projectile;
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            if (_projectilePrefab != null)
+            {
+                return true;
+            }
+
+            Debug.LogError("Projectile prefab reference is missing", this);
+            return false;
         }
     }
 }

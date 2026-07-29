@@ -16,16 +16,8 @@ namespace Game.Gameplay
 
         private void Awake()
         {
-            if (_spawnPoint == null)
+            if (!ValidateSerializedReferences())
             {
-                Debug.LogError("Projectile spawn point reference is missing", this);
-                enabled = false;
-                return;
-            }
-
-            if (_projectilePool == null)
-            {
-                Debug.LogError("Projectile pool reference is missing", this);
                 enabled = false;
             }
         }
@@ -48,6 +40,25 @@ namespace Game.Gameplay
             Projectile projectile = _projectilePool.Get(_spawnPoint.position);
 
             projectile.Launch(Vector2.up, _projectileSpeed, _damage);
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            bool isValid = true;
+
+            if (_spawnPoint == null)
+            {
+                Debug.LogError("Projectile spawn point reference is missing", this);
+                isValid = false;
+            }
+
+            if (_projectilePool == null)
+            {
+                Debug.LogError("Projectile pool reference is missing", this);
+                isValid = false;
+            }
+
+            return isValid;
         }
     }
 }

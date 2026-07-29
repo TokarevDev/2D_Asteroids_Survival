@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Game.Gameplay
 {
-    public class AsteroidPool : MonoBehaviour
+    public sealed class AsteroidPool : MonoBehaviour
     {
         private const int AsteroidSortingOrderBase = 100;
 
@@ -20,9 +20,8 @@ namespace Game.Gameplay
 
         private void Awake()
         {
-            if (_asteroidPrefab == null)
+            if (!ValidateSerializedReferences())
             {
-                Debug.LogError("Asteroid prefab reference is missing", this);
                 enabled = false;
                 return;
             }
@@ -120,6 +119,17 @@ namespace Game.Gameplay
         private void OnAsteroidDestroyedByPlayer(int scoreReward)
         {
             AsteroidDestroyedByPlayer?.Invoke(scoreReward);
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            if (_asteroidPrefab != null)
+            {
+                return true;
+            }
+
+            Debug.LogError("Asteroid prefab reference is missing", this);
+            return false;
         }
     }
 }

@@ -18,11 +18,9 @@ namespace Game.UI
 
         private void Awake()
         {
-            if (_healthText == null)
+            if (!ValidateSerializedReferences())
             {
-                Debug.LogError("Health text reference is missing", this);
                 enabled = false;
-                return;
             }
         }
 
@@ -51,6 +49,17 @@ namespace Game.UI
         private void OnHealthChanged(int currentHealth, int maxHealth)
         {
             _healthText.SetText("HP: {0}/{1}", currentHealth, maxHealth);
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            if (_healthText != null)
+            {
+                return true;
+            }
+
+            Debug.LogError("Health text reference is missing", this);
+            return false;
         }
     }
 }

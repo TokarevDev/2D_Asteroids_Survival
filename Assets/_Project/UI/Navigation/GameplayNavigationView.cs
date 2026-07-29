@@ -21,13 +21,10 @@ namespace Game.UI
 
         private void Awake()
         {
-            if (_mainMenuButton != null)
+            if (!ValidateSerializedReferences())
             {
-                return;
+                enabled = false;
             }
-
-            Debug.LogError("Main menu button reference is missing", this);
-            enabled = false;
         }
 
         private void OnEnable()
@@ -69,6 +66,17 @@ namespace Game.UI
 
                 throw;
             }
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            if (_mainMenuButton != null)
+            {
+                return true;
+            }
+
+            Debug.LogError("Main menu button reference is missing", this);
+            return false;
         }
     }
 }

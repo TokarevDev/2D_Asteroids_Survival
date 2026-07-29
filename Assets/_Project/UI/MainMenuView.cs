@@ -1,23 +1,18 @@
+using Cysharp.Threading.Tasks;
 using Game.Core;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
-using Cysharp.Threading.Tasks;
 
 namespace Game.UI
 {
-    public class MainMenuView : MonoBehaviour
+    public sealed class MainMenuView : MonoBehaviour
     {
         [SerializeField] private Button _startButton;
         [SerializeField] private Button _exitButton;
+        private IApplicationQuitService _applicationQuitService;
 
         private ISceneLoader _sceneLoader;
-
-        [Inject]
-        private void Construct(ISceneLoader sceneLoader)
-        {
-            _sceneLoader = sceneLoader;
-        }
 
         private void OnEnable()
         {
@@ -29,6 +24,13 @@ namespace Game.UI
         {
             _startButton.onClick.RemoveListener(LoadGameScene);
             _exitButton.onClick.RemoveListener(ExitGame);
+        }
+
+        [Inject]
+        private void Construct(ISceneLoader sceneLoader, IApplicationQuitService applicationQuitService)
+        {
+            _applicationQuitService = applicationQuitService;
+            _sceneLoader = sceneLoader;
         }
 
         private void LoadGameScene()
@@ -46,14 +48,17 @@ namespace Game.UI
             catch
             {
                 if (_startButton != null)
+                {
                     _startButton.interactable = true;
+                }
+
                 throw;
             }
         }
 
         private void ExitGame()
         {
-            Application.Quit();
+            _applicationQuitService.Quit();
         }
     }
 }

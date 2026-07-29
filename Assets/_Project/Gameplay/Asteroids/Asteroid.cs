@@ -23,26 +23,13 @@ namespace Game.Gameplay
 
         private void Awake()
         {
+            if (!ValidateSerializedReferences())
+            {
+                enabled = false;
+                return;
+            }
+
             _health.Died += OnHealthDied;
-            if (_movement == null)
-            {
-                Debug.LogError("Asteroid movement reference is missing", this);
-                enabled = false;
-                return;
-            }
-
-            if (_spriteRenderer == null)
-            {
-                Debug.LogError("Asteroid sprite renderer reference is missing", this);
-                enabled = false;
-                return;
-            }
-
-            if (_spriteAnimator == null)
-            {
-                Debug.LogError("Asteroid sprite animator reference is missing", this);
-                enabled = false;
-            }
         }
 
         private void OnDestroy()
@@ -72,7 +59,7 @@ namespace Game.Gameplay
             if (config.AnimationVariantCount > 0)
             {
                 int animationIndex =
-                    UnityEngine.Random.Range(0, config.AnimationVariantCount);
+                    Random.Range(0, config.AnimationVariantCount);
 
                 AsteroidAnimationConfig animation =
                     config.GetAnimationVariant(animationIndex);
@@ -84,7 +71,7 @@ namespace Game.Gameplay
                 else
                 {
                     int frameIndex =
-                        UnityEngine.Random.Range(0, animation.FrameCount);
+                        Random.Range(0, animation.FrameCount);
 
                     _spriteAnimator.ShowFrame(animation, frameIndex);
                 }
@@ -138,7 +125,7 @@ namespace Game.Gameplay
                 return 0f;
             }
 
-            float angularSpeed = UnityEngine.Random.Range(
+            float angularSpeed = Random.Range(
                 _config.MinAngularSpeed,
                 _config.MaxAngularSpeed);
 
@@ -157,6 +144,31 @@ namespace Game.Gameplay
             }
 
             Died?.Invoke(this);
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            bool isValid = true;
+
+            if (_movement == null)
+            {
+                Debug.LogError("Asteroid movement reference is missing", this);
+                isValid = false;
+            }
+
+            if (_spriteRenderer == null)
+            {
+                Debug.LogError("Asteroid sprite renderer reference is missing", this);
+                isValid = false;
+            }
+
+            if (_spriteAnimator == null)
+            {
+                Debug.LogError("Asteroid sprite animator reference is missing", this);
+                isValid = false;
+            }
+
+            return isValid;
         }
     }
 }

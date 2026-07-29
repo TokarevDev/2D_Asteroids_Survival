@@ -9,13 +9,10 @@ namespace Game.Gameplay
 
         private void Awake()
         {
-            if (_projectilePool != null)
+            if (!ValidateSerializedReferences())
             {
-                return;
+                enabled = false;
             }
-
-            Debug.LogError("Projectile pool reference is missing", this);
-            enabled = false;
         }
 
         private void OnTriggerEnter2D(Collider2D other)
@@ -26,6 +23,17 @@ namespace Game.Gameplay
             }
 
             _projectilePool.Return(projectile);
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            if (_projectilePool != null)
+            {
+                return true;
+            }
+
+            Debug.LogError("Projectile pool reference is missing", this);
+            return false;
         }
     }
 }

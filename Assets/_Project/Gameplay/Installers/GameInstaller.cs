@@ -1,22 +1,30 @@
-using UnityEngine;
 using Zenject;
 
 namespace Game.Gameplay
 {
     public sealed class GameInstaller : MonoInstaller
     {
-        [SerializeField] private PlayerHealth _playerHealth;
-        [SerializeField] private AsteroidPool _asteroidPool;
-
         // ReSharper disable Unity.PerformanceAnalysis
         public override void InstallBindings()
         {
             BindSignals();
             BindPlayerHealth();
+            BindPlayerDeathSignalService();
             BindAsteroidPool();
             BindSurvivalTimer();
             BindScoreCounter();
+            BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindGamePauseService()
+        {
+            Container.BindInterfacesAndSelfTo<GamePauseService>().AsSingle().NonLazy();
+        }
+
+        private void BindPlayerDeathSignalService()
+        {
+            Container.BindInterfacesTo<PlayerDeathSignalService>().AsSingle().NonLazy();
         }
 
         private void BindScoreCounter()
@@ -26,12 +34,7 @@ namespace Game.Gameplay
 
         private void BindAsteroidPool()
         {
-            if (_asteroidPool == null)
-            {
-                throw new MissingReferenceException("AsteroidPool reference is missing in GameInstaller");
-            }
-
-            Container.Bind<AsteroidPool>().FromInstance(_asteroidPool).AsSingle();
+            Container.Bind<AsteroidPool>().FromComponentInHierarchy().AsSingle();
         }
 
         private void BindSignals()
@@ -43,12 +46,7 @@ namespace Game.Gameplay
 
         private void BindPlayerHealth()
         {
-            if (_playerHealth == null)
-            {
-                throw new MissingReferenceException("PlayerHealth reference is missing in GameInstaller");
-            }
-
-            Container.Bind<PlayerHealth>().FromInstance(_playerHealth).AsSingle();
+            Container.Bind<PlayerHealth>().FromComponentInHierarchy().AsSingle();
         }
 
         private void BindSurvivalTimer()

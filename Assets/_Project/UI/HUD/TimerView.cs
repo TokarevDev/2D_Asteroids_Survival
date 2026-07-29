@@ -18,11 +18,9 @@ namespace Game.UI
 
         private void Awake()
         {
-            if (_timerText == null)
+            if (!ValidateSerializedReferences())
             {
-                Debug.LogError("Timer text reference is missing", this);
                 enabled = false;
-                return;
             }
         }
 
@@ -51,6 +49,17 @@ namespace Game.UI
         private void OnTimeChanged(int minutes, int seconds)
         {
             _timerText.SetText("{0:00}:{1:00}", minutes, seconds);
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            if (_timerText != null)
+            {
+                return true;
+            }
+
+            Debug.LogError("Timer text reference is missing", this);
+            return false;
         }
     }
 }

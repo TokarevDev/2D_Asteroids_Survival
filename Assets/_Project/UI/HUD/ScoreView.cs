@@ -18,11 +18,9 @@ namespace Game.UI
 
         private void Awake()
         {
-            if (_scoreText == null)
+            if (!ValidateSerializedReferences())
             {
-                Debug.LogError("Score text reference is missing", this);
                 enabled = false;
-                return;
             }
         }
 
@@ -50,6 +48,17 @@ namespace Game.UI
         private void OnScoreChanged(int score)
         {
             _scoreText.SetText("Score: {0}", score);
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            if (_scoreText != null)
+            {
+                return true;
+            }
+
+            Debug.LogError("Score text reference is missing", this);
+            return false;
         }
     }
 }

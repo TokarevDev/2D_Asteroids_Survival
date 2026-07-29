@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 
 namespace Game.Infrastructure
 {
-    public class SceneLoader : ISceneLoader
+    public sealed class SceneLoader : ISceneLoader
     {
         private const string MainMenuScene = "MainMenu";
         private const string GameScene = "Game";

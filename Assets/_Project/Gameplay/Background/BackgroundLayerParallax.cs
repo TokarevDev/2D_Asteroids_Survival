@@ -17,9 +17,8 @@ namespace Game.Gameplay
 
         private void Awake()
         {
-            if (_target == null)
+            if (!ValidateSerializedReferences())
             {
-                Debug.LogError("Parallax target is missing", this);
                 enabled = false;
                 return;
             }
@@ -59,6 +58,17 @@ namespace Game.Gameplay
             {
                 Destroy(_runtimeMaterial);
             }
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            if (_target != null)
+            {
+                return true;
+            }
+
+            Debug.LogError("Parallax target reference is missing", this);
+            return false;
         }
     }
 }

@@ -6,13 +6,12 @@ using Zenject;
 
 namespace Game.UI
 {
-    public class GameOverView : MonoBehaviour
+    public sealed class GameOverView : MonoBehaviour
     {
         [SerializeField] private GameObject _gameOverPanel;
         [SerializeField] private Button _restartButton;
         [SerializeField] private Button _mainMenuButton;
         [SerializeField] private TMP_Text _finalScoreText;
-        [SerializeField] private GameObject _hudRoot;
 
         private GameOverViewModel _viewModel;
 
@@ -24,37 +23,9 @@ namespace Game.UI
 
         private void Awake()
         {
-            if (_gameOverPanel == null)
+            if (!ValidateSerializedReferences())
             {
-                Debug.LogError("Game over panel reference is missing", this);
                 enabled = false;
-            }
-
-            if (_restartButton == null)
-            {
-                Debug.LogError("Restart button reference is missing", this);
-                enabled = false;
-                return;
-            }
-
-            if (_mainMenuButton == null)
-            {
-                Debug.LogError("Main menu button reference is missing", this);
-                enabled = false;
-                return;
-            }
-
-            if (_finalScoreText == null)
-            {
-                Debug.LogError("Final score text reference is missing", this);
-                enabled = false;
-            }
-
-            if (_hudRoot == null)
-            {
-                Debug.LogError("HUD root reference is missing", this);
-                enabled = false;
-                return;
             }
         }
 
@@ -96,7 +67,6 @@ namespace Game.UI
                 _finalScoreText.SetText("Score: {0}", _viewModel.FinalScore);
             }
 
-            _hudRoot.SetActive(!isVisible);
             _gameOverPanel.SetActive(isVisible);
         }
 
@@ -104,6 +74,37 @@ namespace Game.UI
         {
             _restartButton.interactable = isInteractable;
             _mainMenuButton.interactable = isInteractable;
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            bool isValid = true;
+
+            if (_gameOverPanel == null)
+            {
+                Debug.LogError("Game over panel reference is missing", this);
+                isValid = false;
+            }
+
+            if (_restartButton == null)
+            {
+                Debug.LogError("Restart button reference is missing", this);
+                isValid = false;
+            }
+
+            if (_mainMenuButton == null)
+            {
+                Debug.LogError("Main menu button reference is missing", this);
+                isValid = false;
+            }
+
+            if (_finalScoreText == null)
+            {
+                Debug.LogError("Final score text reference is missing", this);
+                isValid = false;
+            }
+
+            return isValid;
         }
     }
 }

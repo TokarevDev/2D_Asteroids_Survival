@@ -5,7 +5,7 @@ using Zenject;
 namespace Game.Gameplay
 {
     [RequireComponent(typeof(Rigidbody2D))]
-    public class PlayerController : MonoBehaviour
+    public sealed class PlayerController : MonoBehaviour
     {
         [SerializeField, Min(0f)] private float _moveSpeed = 5f;
 
@@ -22,13 +22,13 @@ namespace Game.Gameplay
 
         private void Awake()
         {
-            _rigidbody = GetComponent<Rigidbody2D>();
-
-            if (_screenBounds == null)
+            if (!ValidateSerializedReferences())
             {
-                Debug.LogError("Player screen bound reference is missing", this);
                 enabled = false;
+                return;
             }
+
+            _rigidbody = GetComponent<Rigidbody2D>();
         }
 
         private void FixedUpdate()
@@ -42,6 +42,17 @@ namespace Game.Gameplay
             Vector2 clampedPosition = _screenBounds.Clamp(desiredPosition);
 
             _rigidbody.velocity = (clampedPosition - _rigidbody.position) / Time.fixedDeltaTime;
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            if (_screenBounds != null)
+            {
+                return true;
+            }
+
+            Debug.LogError("Player screen bounds reference is missing", this);
+            return false;
         }
     }
 }
