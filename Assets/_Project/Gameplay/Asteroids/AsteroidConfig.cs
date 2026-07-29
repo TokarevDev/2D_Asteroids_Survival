@@ -9,7 +9,6 @@ namespace Game.Gameplay
         [SerializeField, Min(0f)] private float _movementSpeed = 1f;
         [SerializeField, Min(0)] private int _scoreReward = 100;
 
-
         [SerializeField] private Sprite _sprite;
         [SerializeField] private AsteroidAnimationConfig[] _animationVariants;
 

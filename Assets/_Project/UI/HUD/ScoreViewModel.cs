@@ -6,9 +6,9 @@ namespace Game.UI
 {
     public sealed class ScoreViewModel : IInitializable, IDisposable
     {
-        private readonly ScoreCounter _scoreCounter;
-
         public event Action<int> ScoreChanged;
+
+        private readonly ScoreCounter _scoreCounter;
 
         public int Score { get; private set; }
 

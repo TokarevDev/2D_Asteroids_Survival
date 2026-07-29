@@ -8,14 +8,14 @@ namespace Game.UI
 {
     public sealed class GameOverViewModel : IInitializable, IDisposable
     {
+        public event Action<bool> VisibilityChanged;
+        public event Action<bool> InteractabilityChanged;
+
         private readonly SignalBus _signalBus;
         private readonly ISceneLoader _sceneLoader;
         private readonly ScoreCounter _scoreCounter;
 
         private bool _isTransitionInProgress;
-
-        public event Action<bool> VisibilityChanged;
-        public event Action<bool> InteractabilityChanged;
 
         public int FinalScore { get; private set; }
 

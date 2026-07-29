@@ -5,7 +5,6 @@ namespace Game.Gameplay
 {
     public sealed class AsteroidSpawner : MonoBehaviour
     {
-        [SerializeField] private Camera _camera;
         [SerializeField] private AsteroidPool _asteroidPool;
         [SerializeField] private AsteroidConfig[] _asteroidConfigs;
 
@@ -19,13 +18,13 @@ namespace Game.Gameplay
         private SurvivalTimer _survivalTimer;
         private float _timeUntilNextSpawn;
 
-        private int[] _configOrder;
-        private int _nextConfigIndex;
-        private int _lastConfigIndex = -1;
+        private AsteroidConfigSelector _configSelector;
+        private Camera _camera;
 
         [Inject]
-        private void Construct(SurvivalTimer survivalTimer)
+        private void Construct(SurvivalTimer survivalTimer, CameraProvider cameraProvider)
         {
+            _camera = cameraProvider.Camera;
             _survivalTimer = survivalTimer;
         }
 
@@ -37,13 +36,7 @@ namespace Game.Gameplay
                 return;
             }
 
-            InitializeConfigOrder();
-        }
-
-        private void InitializeConfigOrder()
-        {
-            _configOrder = new int[_asteroidConfigs.Length];
-            _nextConfigIndex = _configOrder.Length;
+            _configSelector = new AsteroidConfigSelector(_asteroidConfigs);
         }
 
         private void Start()
@@ -81,49 +74,12 @@ namespace Game.Gameplay
 
             Vector2 direction = targetPosition - spawnPosition;
 
-            AsteroidConfig config = GetNextConfig();
+            AsteroidConfig config = _configSelector.GetNextConfig();
 
             Asteroid asteroid = _asteroidPool.Get(spawnPosition);
 
             asteroid.Initialize(config);
             asteroid.Launch(direction);
-        }
-
-        private AsteroidConfig GetNextConfig()
-        {
-            if (_nextConfigIndex >= _configOrder.Length)
-            {
-                ShuffleConfigs();
-            }
-
-            int configIndex = _configOrder[_nextConfigIndex++];
-            _lastConfigIndex = configIndex;
-
-            return _asteroidConfigs[configIndex];
-        }
-
-        private void ShuffleConfigs()
-        {
-            for (int i = 0; i < _configOrder.Length; i++)
-            {
-                _configOrder[i] = i;
-            }
-
-            for (int i = _configOrder.Length - 1; i > 0; i--)
-            {
-                int randomIndex = Random.Range(0, i + 1);
-
-                (_configOrder[i], _configOrder[randomIndex]) =
-                    (_configOrder[randomIndex], _configOrder[i]);
-            }
-
-            if (_configOrder.Length > 1 && _configOrder[0] == _lastConfigIndex)
-            {
-                int swapIndex = Random.Range(1, _configOrder.Length);
-                (_configOrder[0], _configOrder[swapIndex]) = (_configOrder[swapIndex], _configOrder[0]);
-            }
-
-            _nextConfigIndex = 0;
         }
 
         private Vector2 GetRandomSpawnPosition()
@@ -165,12 +121,6 @@ namespace Game.Gameplay
         private bool ValidateSerializedReferences()
         {
             bool isValid = true;
-
-            if (_camera == null)
-            {
-                Debug.LogError("Camera reference is missing", this);
-                isValid = false;
-            }
 
             if (_asteroidPool == null)
             {

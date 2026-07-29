@@ -32,6 +32,9 @@ csharp_indent_switch_labels = true
 resharper_csharp_force_attribute_style = join
 resharper_csharp_extra_spaces = remove_all
 resharper_csharp_space_after_attributes = true
+resharper_csharp_keep_blank_lines_in_declarations = 0
+resharper_csharp_blank_lines_around_invocable = 1
+resharper_csharp_blank_lines_around_single_line_invocable = 1
 csharp_using_directive_placement = outside_namespace:suggestion
 dotnet_sort_system_directives_first = true
 dotnet_separate_import_directive_groups = false
@@ -58,7 +61,7 @@ dotnet_style_qualification_for_property = false:suggestion
 dotnet_style_qualification_for_method = false:suggestion
 dotnet_style_qualification_for_event = false:suggestion
 
-# Naming. Private and serialized private fields use _camelCase.
+# Naming. Parameters use camelCase; private and serialized private fields use _camelCase.
 dotnet_diagnostic.IDE1006.severity = suggestion
 
 dotnet_naming_rule.interfaces_should_start_with_i.severity = suggestion
@@ -102,6 +105,15 @@ dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 
 dotnet_naming_style.underscore_camel_case.required_prefix = _
 dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+
+dotnet_naming_rule.parameters_should_be_camel_case.severity = suggestion
+dotnet_naming_rule.parameters_should_be_camel_case.symbols = parameters
+dotnet_naming_rule.parameters_should_be_camel_case.style = camel_case
+
+dotnet_naming_symbols.parameters.applicable_kinds = parameter
+dotnet_naming_symbols.parameters.applicable_accessibilities = *
+
+dotnet_naming_style.camel_case.capitalization = camel_case
 
 dotnet_naming_rule.members_should_be_pascal_case.severity = suggestion
 dotnet_naming_rule.members_should_be_pascal_case.symbols = members

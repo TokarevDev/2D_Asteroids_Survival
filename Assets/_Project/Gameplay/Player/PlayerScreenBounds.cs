@@ -1,12 +1,13 @@
 using UnityEngine;
+using Zenject;
 
 namespace Game.Gameplay
 {
     public sealed class PlayerScreenBounds : MonoBehaviour
     {
-        [SerializeField] private Camera _camera;
-
         [SerializeField] private Collider2D _collider2D;
+
+        private Camera _camera;
 
         private Vector3 _viewportMin;
         private Vector3 _viewportMax;
@@ -16,6 +17,12 @@ namespace Game.Gameplay
 
         private float _cachedAspect;
         private float _cachedOrthographicSize;
+
+        [Inject]
+        private void Construct(CameraProvider cameraProvider)
+        {
+            _camera = cameraProvider.Camera;
+        }
 
         private void Awake()
         {
@@ -74,7 +81,9 @@ namespace Game.Gameplay
             bool sizeChanged = !Mathf.Approximately(_cachedOrthographicSize, _camera.orthographicSize);
 
             if (!aspectChanged && !sizeChanged)
+            {
                 return;
+            }
 
             RefreshBounds();
         }
@@ -82,12 +91,6 @@ namespace Game.Gameplay
         private bool ValidateSerializedReferences()
         {
             bool isValid = true;
-
-            if (_camera == null)
-            {
-                Debug.LogError("Camera reference is missing", this);
-                isValid = false;
-            }
 
             if (_collider2D == null)
             {

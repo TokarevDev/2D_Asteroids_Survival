@@ -6,9 +6,9 @@ namespace Game.UI
 {
     public sealed class HealthViewModel : IInitializable, IDisposable
     {
-        private readonly PlayerHealth _playerHealth;
-
         public event Action<int, int> HealthChanged;
+
+        private readonly PlayerHealth _playerHealth;
 
         public int CurrentHealth { get; private set; }
         public int MaxHealth { get; private set; }

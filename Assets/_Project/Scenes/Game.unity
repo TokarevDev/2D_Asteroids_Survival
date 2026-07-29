@@ -1359,7 +1359,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0ae0bd3a63fe4a9c8952e70da66bd5ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 519420031}
   _collider2D: {fileID: 641266820}
 --- !u!114 &641266822
 MonoBehaviour:
@@ -3162,7 +3161,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0844011ca9059554c9c0d18b4f395887, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _camera: {fileID: 519420031}
   _asteroidPool: {fileID: 224833650}
   _asteroidConfigs:
   - {fileID: 11400000, guid: 6491eac89bd52a6439c84117fbc96a1e, type: 2}

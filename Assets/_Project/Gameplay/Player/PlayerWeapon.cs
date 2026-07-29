@@ -13,7 +13,6 @@ namespace Game.Gameplay
 
         private float _timeUntilNextShot;
 
-
         private void Awake()
         {
             if (!ValidateSerializedReferences())

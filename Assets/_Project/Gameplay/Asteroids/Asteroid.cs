@@ -7,9 +7,7 @@ namespace Game.Gameplay
     [RequireComponent(typeof(AsteroidMovement))]
     public sealed class Asteroid : MonoBehaviour, IDamageable
     {
-        public event Action<Asteroid> Died;
-        public event Action<int> DestroyedByPlayer;
-        public int CurrentHealth => _health.CurrentHealth;
+        public event Action<Asteroid, DeathSource> Died;
 
         [SerializeField] private AsteroidMovement _movement;
         [SerializeField] private SpriteRenderer _spriteRenderer;
@@ -17,9 +15,19 @@ namespace Game.Gameplay
 
         private readonly Health _health = new();
 
-        private bool _shouldGrantScore;
-
         private AsteroidConfig _config;
+
+        private DeathSource _deathSource;
+
+        public int CurrentHealth
+        {
+            get { return _health.CurrentHealth; }
+        }
+
+        public int ScoreReward
+        {
+            get { return _config.ScoreReward; }
+        }
 
         private void Awake()
         {
@@ -37,6 +45,11 @@ namespace Game.Gameplay
             _health.Died -= OnHealthDied;
         }
 
+        public void TakeDamage(int damage)
+        {
+            _deathSource = DeathSource.Player;
+            _health.TakeDamage(damage);
+        }
 
         public void SetSortingOrder(int sortingOrder)
         {
@@ -51,7 +64,7 @@ namespace Game.Gameplay
             }
 
             _config = config;
-            _shouldGrantScore = false;
+            _deathSource = DeathSource.Environment;
 
             _health.Initialize(config.MaxHealth);
             _spriteAnimator.Stop();
@@ -61,19 +74,19 @@ namespace Game.Gameplay
                 int animationIndex =
                     Random.Range(0, config.AnimationVariantCount);
 
-                AsteroidAnimationConfig animation =
+                AsteroidAnimationConfig animationConfig =
                     config.GetAnimationVariant(animationIndex);
 
                 if (config.UseFrameAnimation)
                 {
-                    _spriteAnimator.Play(animation);
+                    _spriteAnimator.Play(animationConfig);
                 }
                 else
                 {
                     int frameIndex =
-                        Random.Range(0, animation.FrameCount);
+                        Random.Range(0, animationConfig.FrameCount);
 
-                    _spriteAnimator.ShowFrame(animation, frameIndex);
+                    _spriteAnimator.ShowFrame(animationConfig, frameIndex);
                 }
             }
             else
@@ -100,15 +113,9 @@ namespace Game.Gameplay
                 angularSpeed);
         }
 
-        public void TakeDamage(int damage)
-        {
-            _shouldGrantScore = true;
-            _health.TakeDamage(damage);
-        }
-
         public void Kill()
         {
-            _shouldGrantScore = false;
+            _deathSource = DeathSource.Environment;
             _health.TakeDamage(_health.CurrentHealth);
         }
 
@@ -138,12 +145,7 @@ namespace Game.Gameplay
 
         private void OnHealthDied()
         {
-            if (_shouldGrantScore)
-            {
-                DestroyedByPlayer?.Invoke(_config.ScoreReward);
-            }
-
-            Died?.Invoke(this);
+            Died?.Invoke(this, _deathSource);
         }
 
         private bool ValidateSerializedReferences()

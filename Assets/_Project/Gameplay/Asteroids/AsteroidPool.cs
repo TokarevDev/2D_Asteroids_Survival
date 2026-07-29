@@ -6,17 +6,17 @@ namespace Game.Gameplay
 {
     public sealed class AsteroidPool : MonoBehaviour
     {
-        private const int AsteroidSortingOrderBase = 100;
-
-        public event Action<int> AsteroidDestroyedByPlayer;
+        public event Action<Asteroid, DeathSource> AsteroidDied;
 
         [SerializeField] private Asteroid _asteroidPrefab;
 
         [SerializeField, Min(1)] private int _initialSize = 5;
+        private readonly HashSet<Asteroid> _availableAsteroidSet = new();
+        private readonly Queue<Asteroid> _availableAsteroids = new();
 
         private readonly List<Asteroid> _createdAsteroids = new();
-        private readonly Queue<Asteroid> _availableAsteroids = new();
-        private readonly HashSet<Asteroid> _availableAsteroidSet = new();
+
+        private const int AsteroidSortingOrderBase = 100;
 
         private void Awake()
         {
@@ -27,6 +27,24 @@ namespace Game.Gameplay
             }
 
             Prewarm();
+        }
+
+        private void OnDestroy()
+        {
+            for (int i = 0; i < _createdAsteroids.Count; i++)
+            {
+                Asteroid asteroid = _createdAsteroids[i];
+                if (asteroid == null)
+                {
+                    continue;
+                }
+
+                asteroid.Died -= OnAsteroidDied;
+            }
+
+            _createdAsteroids.Clear();
+            _availableAsteroids.Clear();
+            _availableAsteroidSet.Clear();
         }
 
         public Asteroid Get(Vector2 position)
@@ -88,8 +106,7 @@ namespace Game.Gameplay
 
             asteroid.SetSortingOrder(sortingOrder);
 
-            asteroid.Died += Return;
-            asteroid.DestroyedByPlayer += OnAsteroidDestroyedByPlayer;
+            asteroid.Died += OnAsteroidDied;
 
             _createdAsteroids.Add(asteroid);
             asteroid.gameObject.SetActive(false);
@@ -97,28 +114,10 @@ namespace Game.Gameplay
             return asteroid;
         }
 
-        private void OnDestroy()
+        private void OnAsteroidDied(Asteroid asteroid, DeathSource deathSource)
         {
-            for (int i = 0; i < _createdAsteroids.Count; i++)
-            {
-                Asteroid asteroid = _createdAsteroids[i];
-                if (asteroid == null)
-                {
-                    continue;
-                }
-
-                asteroid.Died -= Return;
-                asteroid.DestroyedByPlayer -= OnAsteroidDestroyedByPlayer;
-            }
-
-            _createdAsteroids.Clear();
-            _availableAsteroids.Clear();
-            _availableAsteroidSet.Clear();
-        }
-
-        private void OnAsteroidDestroyedByPlayer(int scoreReward)
-        {
-            AsteroidDestroyedByPlayer?.Invoke(scoreReward);
+            Return(asteroid);
+            AsteroidDied?.Invoke(asteroid, deathSource);
         }
 
         private bool ValidateSerializedReferences()

@@ -14,6 +14,13 @@ namespace Game.UI
 
         private ISceneLoader _sceneLoader;
 
+        [Inject]
+        private void Construct(ISceneLoader sceneLoader, IApplicationQuitService applicationQuitService)
+        {
+            _applicationQuitService = applicationQuitService;
+            _sceneLoader = sceneLoader;
+        }
+
         private void OnEnable()
         {
             _startButton.onClick.AddListener(LoadGameScene);
@@ -24,13 +31,6 @@ namespace Game.UI
         {
             _startButton.onClick.RemoveListener(LoadGameScene);
             _exitButton.onClick.RemoveListener(ExitGame);
-        }
-
-        [Inject]
-        private void Construct(ISceneLoader sceneLoader, IApplicationQuitService applicationQuitService)
-        {
-            _applicationQuitService = applicationQuitService;
-            _sceneLoader = sceneLoader;
         }
 
         private void LoadGameScene()

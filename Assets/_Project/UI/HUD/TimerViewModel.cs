@@ -6,9 +6,9 @@ namespace Game.UI
 {
     public sealed class TimerViewModel : IInitializable, IDisposable
     {
-        private readonly SurvivalTimer _survivalTimer;
-
         public event Action<int, int> TimeChanged;
+
+        private readonly SurvivalTimer _survivalTimer;
 
         public int Minutes { get; private set; }
         public int Seconds { get; private set; }

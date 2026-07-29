@@ -1,3 +1,4 @@
+using UnityEngine;
 using Zenject;
 
 namespace Game.Gameplay
@@ -8,13 +9,26 @@ namespace Game.Gameplay
         public override void InstallBindings()
         {
             BindSignals();
+            BindCameraProvider();
             BindPlayerHealth();
             BindPlayerDeathSignalService();
             BindAsteroidPool();
             BindSurvivalTimer();
             BindScoreCounter();
+            BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindAsteroidRewardService()
+        {
+            Container.BindInterfacesTo<AsteroidRewardService>().AsSingle().NonLazy();
+        }
+
+        private void BindCameraProvider()
+        {
+            Container.Bind<Camera>().FromComponentInHierarchy().AsSingle();
+            Container.Bind<CameraProvider>().AsSingle();
         }
 
         private void BindGamePauseService()
@@ -29,7 +43,7 @@ namespace Game.Gameplay
 
         private void BindScoreCounter()
         {
-            Container.BindInterfacesAndSelfTo<ScoreCounter>().AsSingle().NonLazy();
+            Container.Bind<ScoreCounter>().AsSingle().NonLazy();
         }
 
         private void BindAsteroidPool()

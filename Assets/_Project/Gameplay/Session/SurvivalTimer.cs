@@ -6,9 +6,9 @@ namespace Game.Gameplay
 {
     public sealed class SurvivalTimer : ITickable
     {
-        private float _elapsedTime;
-
         public event Action<int> ElapsedSecondsChanged;
+
+        private float _elapsedTime;
 
         public int ElapsedSeconds { get; private set; }
 
