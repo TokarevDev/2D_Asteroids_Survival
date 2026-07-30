@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game.Gameplay
@@ -7,10 +6,7 @@ namespace Game.Gameplay
     {
         [SerializeField] private Projectile _projectilePrefab;
         [SerializeField, Min(1)] private int _initialSize = 30;
-
-        private readonly List<Projectile> _createdProjectiles = new();
-        private readonly Queue<Projectile> _availableProjectiles = new();
-        private readonly HashSet<Projectile> _availableProjectileSet = new();
+        private ObjectPool<Projectile> _pool;
 
         private void Awake()
         {
@@ -20,14 +16,20 @@ namespace Game.Gameplay
                 return;
             }
 
-            Prewarm();
+            _pool = new ObjectPool<Projectile>(CreateProjectile, _initialSize);
         }
 
         private void OnDestroy()
         {
-            for (int i = 0; i < _createdProjectiles.Count; i++)
+            if (_pool == null)
             {
-                Projectile projectile = _createdProjectiles[i];
+                return;
+            }
+
+            for (int i = 0; i < _pool.CreatedItems.Count; i++)
+            {
+                Projectile projectile = _pool.CreatedItems[i];
+
                 if (projectile == null)
                 {
                     continue;
@@ -36,23 +38,12 @@ namespace Game.Gameplay
                 projectile.Hit -= Return;
             }
 
-            _createdProjectiles.Clear();
-            _availableProjectiles.Clear();
-            _availableProjectileSet.Clear();
+            _pool.Clear();
         }
 
         public Projectile Get(Vector2 position)
         {
-            Projectile projectile;
-            if (_availableProjectiles.Count > 0)
-            {
-                projectile = _availableProjectiles.Dequeue();
-                _availableProjectileSet.Remove(projectile);
-            }
-            else
-            {
-                projectile = CreateProjectile();
-            }
+            Projectile projectile = _pool.Get();
 
             projectile.transform.SetPositionAndRotation(position, Quaternion.identity);
 
@@ -69,7 +60,7 @@ namespace Game.Gameplay
                 return;
             }
 
-            if (!_availableProjectileSet.Add(projectile))
+            if (!_pool.Return(projectile))
             {
                 Debug.LogWarning("Projectile is already in the pool", projectile);
                 return;
@@ -77,17 +68,6 @@ namespace Game.Gameplay
 
             projectile.Stop();
             projectile.gameObject.SetActive(false);
-
-            _availableProjectiles.Enqueue(projectile);
-        }
-
-        private void Prewarm()
-        {
-            for (int i = 0; i < _initialSize; i++)
-            {
-                Projectile projectile = CreateProjectile();
-                Return(projectile);
-            }
         }
 
         private Projectile CreateProjectile()
@@ -95,7 +75,6 @@ namespace Game.Gameplay
             Projectile projectile = Instantiate(_projectilePrefab, transform);
 
             projectile.Hit += Return;
-            _createdProjectiles.Add(projectile);
             projectile.gameObject.SetActive(false);
             return projectile;
         }

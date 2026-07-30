@@ -1,0 +1,11 @@
+<Project>
+  <PropertyGroup>
+    <!-- Unity Bee supplies this file, but generated IDE projects do not. -->
+    <NoWarn>$(NoWarn);USG0001</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
+    <!-- This project is intentionally empty because project code uses asmdefs. -->
+    <NoWarn>$(NoWarn);CS2008;CS8021</NoWarn>
+  </PropertyGroup>
+</Project>

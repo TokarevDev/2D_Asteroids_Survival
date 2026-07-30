@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game.Gameplay
@@ -8,15 +7,13 @@ namespace Game.Gameplay
     {
         public event Action<Asteroid, DeathSource> AsteroidDied;
 
-        [SerializeField] private Asteroid _asteroidPrefab;
-
-        [SerializeField, Min(1)] private int _initialSize = 5;
-        private readonly HashSet<Asteroid> _availableAsteroidSet = new();
-        private readonly Queue<Asteroid> _availableAsteroids = new();
-
-        private readonly List<Asteroid> _createdAsteroids = new();
-
         private const int AsteroidSortingOrderBase = 100;
+
+        [SerializeField] private Asteroid _asteroidPrefab;
+        [SerializeField, Min(1)] private int _initialSize = 5;
+
+        private ObjectPool<Asteroid> _pool;
+        private int _nextSortingOrder = AsteroidSortingOrderBase;
 
         private void Awake()
         {
@@ -26,14 +23,19 @@ namespace Game.Gameplay
                 return;
             }
 
-            Prewarm();
+            _pool = new ObjectPool<Asteroid>(CreateAsteroid, _initialSize);
         }
 
         private void OnDestroy()
         {
-            for (int i = 0; i < _createdAsteroids.Count; i++)
+            if (_pool == null)
             {
-                Asteroid asteroid = _createdAsteroids[i];
+                return;
+            }
+
+            for (int i = 0; i < _pool.CreatedItems.Count; i++)
+            {
+                Asteroid asteroid = _pool.CreatedItems[i];
                 if (asteroid == null)
                 {
                     continue;
@@ -42,24 +44,12 @@ namespace Game.Gameplay
                 asteroid.Died -= OnAsteroidDied;
             }
 
-            _createdAsteroids.Clear();
-            _availableAsteroids.Clear();
-            _availableAsteroidSet.Clear();
+            _pool.Clear();
         }
 
         public Asteroid Get(Vector2 position)
         {
-            Asteroid asteroid;
-
-            if (_availableAsteroids.Count > 0)
-            {
-                asteroid = _availableAsteroids.Dequeue();
-                _availableAsteroidSet.Remove(asteroid);
-            }
-            else
-            {
-                asteroid = CreateAsteroid();
-            }
+            Asteroid asteroid = _pool.Get();
 
             asteroid.transform.SetPositionAndRotation(position, Quaternion.identity);
 
@@ -76,7 +66,7 @@ namespace Game.Gameplay
                 return;
             }
 
-            if (!_availableAsteroidSet.Add(asteroid))
+            if (!_pool.Return(asteroid))
             {
                 Debug.LogWarning("Asteroid is already in the pool", asteroid);
                 return;
@@ -84,31 +74,16 @@ namespace Game.Gameplay
 
             asteroid.Stop();
             asteroid.gameObject.SetActive(false);
-
-            _availableAsteroids.Enqueue(asteroid);
-        }
-
-        private void Prewarm()
-        {
-            for (int i = 0; i < _initialSize; i++)
-            {
-                Asteroid asteroid = CreateAsteroid();
-
-                Return(asteroid);
-            }
         }
 
         private Asteroid CreateAsteroid()
         {
             Asteroid asteroid = Instantiate(_asteroidPrefab, transform);
 
-            int sortingOrder = AsteroidSortingOrderBase + _createdAsteroids.Count;
-
-            asteroid.SetSortingOrder(sortingOrder);
+            asteroid.SetSortingOrder(_nextSortingOrder);
+            _nextSortingOrder++;
 
             asteroid.Died += OnAsteroidDied;
-
-            _createdAsteroids.Add(asteroid);
             asteroid.gameObject.SetActive(false);
 
             return asteroid;
