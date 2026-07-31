@@ -47,7 +47,7 @@ csharp_style_var_elsewhere = false:suggestion
 csharp_prefer_braces = true:suggestion
 csharp_style_expression_bodied_methods = false:silent
 csharp_style_expression_bodied_constructors = false:silent
-csharp_style_expression_bodied_properties = false:silent
+csharp_style_expression_bodied_properties = true:silent
 csharp_style_expression_bodied_accessors = false:silent
 
 # Useful low-noise C# suggestions.
