@@ -1,0 +1,9 @@
+﻿{
+  "width": 1000.0,
+  "height": 1000.0,
+  "maxEnemies": 40,
+  "spawnOutsideOffset": 25.0,
+  "initialAsteroidPoolSize": 20,
+  "initialUfoPoolSize": 5,
+  "initialProjectilePoolSize": 50
+}
