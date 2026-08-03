@@ -1,6 +1,8 @@
 using Game.Core;
 using Game.Core.Configuration;
+using Game.Core.Input;
 using Game.Infrastructure.Configuration;
+using Game.Infrastructure.Controls;
 using Zenject;
 
 namespace Game.Infrastructure
@@ -40,9 +42,10 @@ namespace Game.Infrastructure
 
         private void BindInput()
         {
-            Container.BindInterfacesTo<InputReader>()
-                .AsSingle()
-                .NonLazy();
+            Container.Bind<IPlayerInputStrategy>().To<KeyboardMouseInputStrategy>().AsSingle();
+
+            Container.Bind<IInputReader>().To<InputReader>()
+                .AsSingle();
         }
 
         private void BindSceneLoader()

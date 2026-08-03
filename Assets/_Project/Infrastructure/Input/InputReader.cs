@@ -1,26 +1,27 @@
 using System;
-using UnityEngine;
 using Game.Core;
-using Zenject;
+using Game.Core.Input;
+using UnityEngine;
 
 namespace Game.Infrastructure
 {
-    public sealed class InputReader : IInputReader, IInitializable, IDisposable
+    public sealed class InputReader : IInputReader
     {
-        private readonly PlayerInputActions _inputActions = new();
+        private readonly IPlayerInputStrategy _inputStrategy;
 
-        public Vector2 MoveDirection =>
-            _inputActions.Player.Move.ReadValue<Vector2>();
-
-        public void Initialize()
+        public InputReader(IPlayerInputStrategy inputStrategy)
         {
-            _inputActions.Player.Enable();
+            _inputStrategy = inputStrategy ?? throw new ArgumentNullException(nameof(inputStrategy));
         }
 
-        public void Dispose()
+        public Vector2 MoveDirection
         {
-            _inputActions.Player.Disable();
-            _inputActions.Dispose();
+            get
+            {
+                PlayerInputState inputState = _inputStrategy.Read();
+
+                return new Vector2(inputState.Turn, inputState.Thrust - inputState.Brake);
+            }
         }
     }
 }
