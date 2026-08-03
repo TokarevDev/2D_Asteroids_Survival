@@ -1,3 +1,5 @@
+using Game.Core.Physics;
+using Game.Gameplay.Physics;
 using UnityEngine;
 using Zenject;
 
@@ -8,6 +10,7 @@ namespace Game.Gameplay
         // ReSharper disable Unity.PerformanceAnalysis
         public override void InstallBindings()
         {
+            BindCustomPhysics();
             BindSignals();
             BindCameraProvider();
             BindPlayerHealth();
@@ -18,6 +21,14 @@ namespace Game.Gameplay
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindCustomPhysics()
+        {
+            Container.Bind<CustomPhysicsIntegrator2D>().AsSingle();
+            Container.Bind<CustomPhysicsWorld2D>().AsSingle();
+
+            Container.BindInterfacesTo<CustomPhysicsFixedTickRunner>().AsSingle().NonLazy();
         }
 
         private void BindAsteroidRewardService()
