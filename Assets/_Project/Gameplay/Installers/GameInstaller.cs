@@ -1,5 +1,6 @@
 using Game.Core.Physics;
 using Game.Gameplay.Physics;
+using Game.Gameplay.Player;
 using UnityEngine;
 using Zenject;
 
@@ -11,6 +12,9 @@ namespace Game.Gameplay
         public override void InstallBindings()
         {
             BindCustomPhysics();
+            BindPlayerPhysicsView();
+            BindPlayerPhysicsController();
+            BindPlayerPhysicsViewSynchronizer();
             BindSignals();
             BindCameraProvider();
             BindPlayerHealth();
@@ -21,6 +25,25 @@ namespace Game.Gameplay
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindPlayerPhysicsViewSynchronizer()
+        {
+            Container.BindInterfacesTo<PlayerPhysicsViewSynchronizer>().AsSingle().NonLazy();
+
+            Container.BindFixedTickableExecutionOrder<PlayerPhysicsViewSynchronizer>(100);
+        }
+
+        private void BindPlayerPhysicsController()
+        {
+            Container.BindInterfacesAndSelfTo<PlayerPhysicsController>().AsSingle().NonLazy();
+
+            Container.BindFixedTickableExecutionOrder<PlayerPhysicsController>(-100);
+        }
+
+        private void BindPlayerPhysicsView()
+        {
+            Container.Bind<PlayerPhysicsView>().FromComponentInHierarchy().AsSingle();
         }
 
         private void BindCustomPhysics()

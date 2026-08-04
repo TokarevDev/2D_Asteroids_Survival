@@ -22,6 +22,16 @@ namespace Game.Core.Physics
             Position = position;
         }
 
+        internal void SetVelocity(Vector2 velocity)
+        {
+            Velocity = velocity;
+        }
+
+        internal void SetRotation(float rotationDegrees)
+        {
+            RotationDegrees = rotationDegrees;
+        }
+
         public void Reset(Vector2 position, Vector2 velocity, float rotationDegrees, float collisionRadius, float mass)
         {
             if (collisionRadius <= 0f)
