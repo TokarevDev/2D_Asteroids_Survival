@@ -1,10 +1,12 @@
+using Game.Core.Configuration;
 using Game.Core.Physics;
+using Game.Core.World;
 using Game.Gameplay.Physics;
 using Game.Gameplay.Player;
 using UnityEngine;
 using Zenject;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Installers
 {
     public sealed class GameInstaller : MonoInstaller
     {
@@ -12,8 +14,10 @@ namespace Game.Gameplay
         public override void InstallBindings()
         {
             BindCustomPhysics();
+            BindToroidalWorld();
             BindPlayerPhysicsView();
             BindPlayerPhysicsController();
+            BindPlayerWorldWrapController();
             BindPlayerPhysicsViewSynchronizer();
             BindSignals();
             BindCameraProvider();
@@ -25,6 +29,23 @@ namespace Game.Gameplay
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindPlayerWorldWrapController()
+        {
+            Container.BindInterfacesTo<PlayerWorldWrapController>().AsSingle().NonLazy();
+
+            Container.BindFixedTickableExecutionOrder<PlayerWorldWrapController>(50);
+        }
+
+        private void BindToroidalWorld()
+        {
+            Container.Bind<ToroidalWorld2D>().FromMethod(context =>
+            {
+                WorldConfig config = context.Container.Resolve<IGameConfigProvider>().World;
+
+                return new ToroidalWorld2D(config.Width, config.Height);
+            }).AsSingle();
         }
 
         private void BindPlayerPhysicsViewSynchronizer()

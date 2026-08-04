@@ -1,22 +1,22 @@
 ﻿{
   "largeAsteroid": {
     "maxHealth": 1,
-    "speed": 60.0,
-    "collisionRadius": 28.0,
+    "speed": 1.5,
+    "collisionRadius": 1.5,
     "mass": 3.0,
     "scoreReward": 20
   },
   "fragment": {
     "maxHealth": 1,
-    "speed": 110.0,
-    "collisionRadius": 12.0,
+    "speed": 3.0,
+    "collisionRadius": 0.65,
     "mass": 1.0,
     "scoreReward": 50
   },
   "ufo": {
     "maxHealth": 1,
-    "speed": 80.0,
-    "collisionRadius": 18.0,
+    "speed": 2.25,
+    "collisionRadius": 1.0,
     "mass": 2.0,
     "scoreReward": 100
   },
