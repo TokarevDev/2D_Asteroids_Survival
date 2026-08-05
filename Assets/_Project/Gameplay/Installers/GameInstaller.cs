@@ -20,6 +20,7 @@ namespace Game.Gameplay.Installers
             BindEnemyEntityFactory();
             BindEnemyEntityPool();
             BindEnemyLifecycleService();
+            BindEnemyPhysicsViewSynchronizer();
             BindToroidalWorld();
             BindPlayerPhysicsView();
             BindPlayerPhysicsController();
@@ -35,6 +36,13 @@ namespace Game.Gameplay.Installers
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindEnemyPhysicsViewSynchronizer()
+        {
+            Container.BindInterfacesAndSelfTo<EnemyPhysicsViewSynchronizer>().AsSingle().NonLazy();
+
+            Container.BindFixedTickableExecutionOrder<EnemyPhysicsViewSynchronizer>(100);
         }
 
         private void BindEnemyLifecycleService()

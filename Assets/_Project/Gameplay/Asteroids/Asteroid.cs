@@ -1,13 +1,16 @@
 using System;
+using Game.Gameplay.Enemies;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Game.Gameplay
 {
-    [RequireComponent(typeof(AsteroidMovement))]
+    [RequireComponent(typeof(AsteroidMovement)), RequireComponent(typeof(EnemyPhysicsView))]
     public sealed class Asteroid : MonoBehaviour, IDamageable
     {
         public event Action<Asteroid, DeathSource> Died;
+
+        [SerializeField] private EnemyPhysicsView _physicsView;
 
         [SerializeField] private AsteroidMovement _movement;
         [SerializeField] private SpriteRenderer _spriteRenderer;
@@ -19,15 +22,11 @@ namespace Game.Gameplay
 
         private DeathSource _deathSource;
 
-        public int CurrentHealth
-        {
-            get { return _health.CurrentHealth; }
-        }
+        public EnemyPhysicsView PhysicsView => _physicsView;
 
-        public int ScoreReward
-        {
-            get { return _config.ScoreReward; }
-        }
+        public int CurrentHealth => _health.CurrentHealth;
+
+        public int ScoreReward => _config.ScoreReward;
 
         private void Awake()
         {
@@ -151,6 +150,13 @@ namespace Game.Gameplay
         private bool ValidateSerializedReferences()
         {
             bool isValid = true;
+
+            if (_physicsView == null)
+            {
+                Debug.LogError("Enemy physics view reference is missing", this);
+
+                isValid = false;
+            }
 
             if (_movement == null)
             {
