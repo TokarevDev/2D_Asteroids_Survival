@@ -29,6 +29,14 @@ namespace Game.Core.World
             _halfHeight = height * 0.5f;
         }
 
+        public bool Contains(Vector2 position)
+        {
+            return position.x >= -_halfWidth &&
+                   position.x < _halfWidth &&
+                   position.y >= -_halfHeight &&
+                   position.y < _halfHeight;
+        }
+
         public void Wrap(CustomPhysicsBody2D body)
         {
             if (body == null)

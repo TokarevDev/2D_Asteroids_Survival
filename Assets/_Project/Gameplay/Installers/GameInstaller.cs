@@ -22,6 +22,7 @@ namespace Game.Gameplay.Installers
             BindEnemyLifecycleService();
             BindEnemyPhysicsViewSynchronizer();
             BindToroidalWorld();
+            BindEnemyWorldWrapController();
             BindPlayerPhysicsView();
             BindPlayerPhysicsController();
             BindPlayerWorldWrapController();
@@ -36,6 +37,13 @@ namespace Game.Gameplay.Installers
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindEnemyWorldWrapController()
+        {
+            Container.BindInterfacesTo<EnemyWorldWrapController>().AsSingle().NonLazy();
+
+            Container.BindFixedTickableExecutionOrder<EnemyWorldWrapController>(50);
         }
 
         private void BindEnemyPhysicsViewSynchronizer()

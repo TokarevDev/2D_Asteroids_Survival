@@ -1,5 +1,8 @@
 using System;
+using Game.Core.Enemies;
+using Game.Gameplay.Enemies;
 using UnityEngine;
+using Zenject;
 
 namespace Game.Gameplay
 {
@@ -12,8 +15,17 @@ namespace Game.Gameplay
         [SerializeField] private Asteroid _asteroidPrefab;
         [SerializeField, Min(1)] private int _initialSize = 5;
 
+        private EnemyLifecycleService _enemyLifecycleService;
+
         private ObjectPool<Asteroid> _pool;
         private int _nextSortingOrder = AsteroidSortingOrderBase;
+
+        [Inject]
+        private void Construct(EnemyLifecycleService enemyLifecycleService)
+        {
+            _enemyLifecycleService =
+                enemyLifecycleService ?? throw new ArgumentNullException(nameof(enemyLifecycleService));
+        }
 
         private void Awake()
         {
@@ -47,11 +59,22 @@ namespace Game.Gameplay
             _pool.Clear();
         }
 
-        public Asteroid Get(Vector2 position)
+        public Asteroid Get(AsteroidConfig config, EnemyType type, Vector2 position, Vector2 velocity)
         {
             Asteroid asteroid = _pool.Get();
+            try
+            {
+                asteroid.transform.SetPositionAndRotation(position, Quaternion.identity);
 
-            asteroid.transform.SetPositionAndRotation(position, Quaternion.identity);
+                asteroid.Initialize(config);
+
+                _enemyLifecycleService.Spawn(asteroid.PhysicsView, type, position, velocity, 0f);
+            }
+            catch
+            {
+                Return(asteroid);
+                throw;
+            }
 
             asteroid.gameObject.SetActive(true);
 
@@ -64,6 +87,11 @@ namespace Game.Gameplay
             {
                 Debug.LogError("Cannot return a null asteroid", this);
                 return;
+            }
+
+            if (asteroid.PhysicsView.IsBound && !_enemyLifecycleService.Despawn(asteroid.PhysicsView))
+            {
+                Debug.LogError("Bound asteroid physics view was not active", asteroid);
             }
 
             if (!_pool.Return(asteroid))

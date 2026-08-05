@@ -1,3 +1,5 @@
+using Game.Core.Configuration;
+using Game.Core.Enemies;
 using UnityEngine;
 using Zenject;
 
@@ -18,14 +20,21 @@ namespace Game.Gameplay
         private SurvivalTimer _survivalTimer;
         private float _timeUntilNextSpawn;
 
+        private IGameConfigProvider _configProvider;
+        private EnemyRegistry _enemyRegistry;
+
         private AsteroidConfigSelector _configSelector;
         private Camera _camera;
 
         [Inject]
-        private void Construct(SurvivalTimer survivalTimer, CameraProvider cameraProvider)
+        private void Construct(EnemyRegistry enemyRegistry, IGameConfigProvider configProvider,
+            SurvivalTimer survivalTimer,
+            CameraProvider cameraProvider)
         {
             _camera = cameraProvider.Camera;
             _survivalTimer = survivalTimer;
+            _configProvider = configProvider;
+            _enemyRegistry = enemyRegistry;
         }
 
         private void Awake()
@@ -69,17 +78,23 @@ namespace Game.Gameplay
 
         private void SpawnOne()
         {
+            if (_enemyRegistry.Count >= _configProvider.World.MaxEnemies)
+            {
+                return;
+            }
+
             Vector2 spawnPosition = GetRandomSpawnPosition();
             Vector2 targetPosition = GetRandomTargetPosition();
 
             Vector2 direction = targetPosition - spawnPosition;
 
+            EnemyParameters parameters = _configProvider.Enemy.GetParameters(EnemyType.LargeAsteroid);
+
+            Vector2 velocity = direction.normalized * parameters.Speed;
+
             AsteroidConfig config = _configSelector.GetNextConfig();
 
-            Asteroid asteroid = _asteroidPool.Get(spawnPosition);
-
-            asteroid.Initialize(config);
-            asteroid.Launch(direction);
+            _asteroidPool.Get(config, EnemyType.LargeAsteroid, spawnPosition, velocity);
         }
 
         private Vector2 GetRandomSpawnPosition()

@@ -9,7 +9,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3533026848700977651}
-  - component: {fileID: 4102358589412555731}
   - component: {fileID: 8670939499448598359}
   - component: {fileID: 8140185836797966332}
   - component: {fileID: 5770451751622029939}
@@ -38,18 +37,6 @@ Transform:
   - {fileID: 5346793269330243214}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4102358589412555731
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4316461395029907897}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 35db3e96fce3c23419265b8f31197965, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8670939499448598359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -60,8 +47,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5e0b6a4866c687d45999365b6ec59c0b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   _asteroid: {fileID: 8140185836797966332}
 --- !u!114 &8140185836797966332
 MonoBehaviour:
@@ -73,10 +60,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 090fcf8f744f1c547a3988b26bbc295e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  m_Name:
+  m_EditorClassIdentifier:
   _physicsView: {fileID: 4439338520859390942}
-  _movement: {fileID: 4102358589412555731}
   _spriteRenderer: {fileID: 8677763129696955735}
   _spriteAnimator: {fileID: 6690088627211001744}
 --- !u!58 &5770451751622029939
@@ -122,9 +108,9 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4316461395029907897}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
-  m_UseFullKinematicContacts: 0
+  m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
