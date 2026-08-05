@@ -1,6 +1,8 @@
 using Game.Core.Configuration;
+using Game.Core.Enemies;
 using Game.Core.Physics;
 using Game.Core.World;
+using Game.Gameplay.Enemies;
 using Game.Gameplay.Physics;
 using Game.Gameplay.Player;
 using UnityEngine;
@@ -14,6 +16,10 @@ namespace Game.Gameplay.Installers
         public override void InstallBindings()
         {
             BindCustomPhysics();
+            BindEnemyRegistry();
+            BindEnemyEntityFactory();
+            BindEnemyEntityPool();
+            BindEnemyLifecycleService();
             BindToroidalWorld();
             BindPlayerPhysicsView();
             BindPlayerPhysicsController();
@@ -29,6 +35,26 @@ namespace Game.Gameplay.Installers
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindEnemyLifecycleService()
+        {
+            Container.Bind<EnemyLifecycleService>().AsSingle();
+        }
+
+        private void BindEnemyEntityPool()
+        {
+            Container.Bind<EnemyEntityPool>().AsSingle();
+        }
+
+        private void BindEnemyEntityFactory()
+        {
+            Container.Bind<EnemyEntityFactory>().AsSingle();
+        }
+
+        private void BindEnemyRegistry()
+        {
+            Container.Bind<EnemyRegistry>().AsSingle();
         }
 
         private void BindPlayerWorldWrapController()
