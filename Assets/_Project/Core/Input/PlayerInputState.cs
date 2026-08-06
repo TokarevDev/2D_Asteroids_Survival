@@ -6,15 +6,15 @@ namespace Game.Core.Input
         public float Thrust { get; }
         public float Brake { get; }
 
-        public bool FireBulletPressed { get; }
+        public bool FireBulletHeld { get; }
         public bool FireLaserPressed { get; }
 
-        public PlayerInputState(float turn, float thrust, float brake, bool fireBulletPressed, bool fireLaserPressed)
+        public PlayerInputState(float turn, float thrust, float brake, bool fireBulletHeld, bool fireLaserPressed)
         {
             Turn = turn;
             Thrust = thrust;
             Brake = brake;
-            FireBulletPressed = fireBulletPressed;
+            FireBulletHeld = fireBulletHeld;
             FireLaserPressed = fireLaserPressed;
         }
     }

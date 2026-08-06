@@ -13,6 +13,10 @@ namespace Game.Core.Configuration
         public float FragmentSpreadDegrees { get; set; }
 
         public float AsteroidSpawnIntervalSeconds { get; set; }
+
+        public float MinimumAsteroidSpawnIntervalSeconds { get; set; }
+
+        public float AsteroidSpawnIntervalReductionPerMinute { get; set; }
         public float UfoSpawnIntervalSeconds { get; set; }
 
         public EnemyParameters GetParameters(EnemyType type)

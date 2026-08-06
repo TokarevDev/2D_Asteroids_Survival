@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using Zenject;
@@ -13,7 +14,7 @@ namespace Game.UI
         [Inject]
         private void Construct(HealthViewModel viewModel)
         {
-            _viewModel = viewModel;
+            _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
         }
 
         private void Awake()

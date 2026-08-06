@@ -1,3 +1,4 @@
+using System;
 using Cysharp.Threading.Tasks;
 using TMPro;
 using UnityEngine;
@@ -18,7 +19,7 @@ namespace Game.UI
         [Inject]
         private void Construct(GameOverViewModel viewModel)
         {
-            _viewModel = viewModel;
+            _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
         }
 
         private void Awake()

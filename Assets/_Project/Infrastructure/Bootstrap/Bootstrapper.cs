@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Core;
@@ -15,8 +16,8 @@ namespace Game.Infrastructure
         [Inject]
         private void Construct(ISceneLoader sceneLoader, IGameConfigLoader gameConfigLoader)
         {
-            _gameConfigLoader = gameConfigLoader;
-            _sceneLoader = sceneLoader;
+            _sceneLoader = sceneLoader ?? throw new ArgumentNullException(nameof(sceneLoader));
+            _gameConfigLoader = gameConfigLoader ?? throw new ArgumentNullException(nameof(gameConfigLoader));
         }
 
         private void Start()

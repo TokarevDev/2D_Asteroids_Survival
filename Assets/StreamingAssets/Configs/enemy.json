@@ -23,5 +23,7 @@
   "fragmentCount": 2,
   "fragmentSpreadDegrees": 60.0,
   "asteroidSpawnIntervalSeconds": 3.0,
+  "minimumAsteroidSpawnIntervalSeconds": 0.5,
+  "asteroidSpawnIntervalReductionPerMinute": 0.1,
   "ufoSpawnIntervalSeconds": 8.0
 }

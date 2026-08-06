@@ -12,6 +12,9 @@ namespace Game.Core.Configuration
         public float CollisionRadius { get; set; }
         public float Mass { get; set; }
 
+        public float BulletCollisionRadius { get; set; }
+        public float BulletMass { get; set; }
+
         public int MaxActiveBullets { get; set; }
         public float BulletSpeed { get; set; }
         public int BulletDamage { get; set; }

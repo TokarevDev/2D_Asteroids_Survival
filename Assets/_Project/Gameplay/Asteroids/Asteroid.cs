@@ -25,8 +25,6 @@ namespace Game.Gameplay
 
         public int CurrentHealth => _health.CurrentHealth;
 
-        public int ScoreReward => _config.ScoreReward;
-
         private void Awake()
         {
             if (!ValidateSerializedReferences())
@@ -54,17 +52,23 @@ namespace Game.Gameplay
             _spriteRenderer.sortingOrder = sortingOrder;
         }
 
-        public void Initialize(AsteroidConfig config)
+        public void Initialize(AsteroidConfig config, int maxHealth)
         {
             if (config == null)
             {
                 throw new ArgumentNullException(nameof(config));
             }
 
+            if (maxHealth <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(maxHealth), maxHealth,
+                    "Maximum health must be greater than zero");
+            }
+
             _config = config;
             _deathSource = DeathSource.Environment;
 
-            _health.Initialize(config.MaxHealth);
+            _health.Initialize(maxHealth);
             _spriteAnimator.Stop();
 
             if (config.AnimationVariantCount > 0)

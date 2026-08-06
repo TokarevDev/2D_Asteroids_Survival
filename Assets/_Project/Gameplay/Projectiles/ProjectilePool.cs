@@ -1,12 +1,22 @@
+using System;
+using Game.Core.Configuration;
 using UnityEngine;
+using Zenject;
 
 namespace Game.Gameplay
 {
     public sealed class ProjectilePool : MonoBehaviour
     {
         [SerializeField] private Projectile _projectilePrefab;
-        [SerializeField, Min(1)] private int _initialSize = 30;
+
+        private IGameConfigProvider _configProvider;
         private ObjectPool<Projectile> _pool;
+
+        [Inject]
+        private void Construct(IGameConfigProvider configProvider)
+        {
+            _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
+        }
 
         private void Awake()
         {
@@ -16,7 +26,9 @@ namespace Game.Gameplay
                 return;
             }
 
-            _pool = new ObjectPool<Projectile>(CreateProjectile, _initialSize);
+            _pool = new ObjectPool<Projectile>(
+                CreateProjectile,
+                _configProvider.World.InitialProjectilePoolSize);
         }
 
         private void OnDestroy()

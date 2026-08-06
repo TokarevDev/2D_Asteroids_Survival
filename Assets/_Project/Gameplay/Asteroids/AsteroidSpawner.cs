@@ -1,7 +1,9 @@
+using System;
 using Game.Core.Configuration;
 using Game.Core.Enemies;
 using UnityEngine;
 using Zenject;
+using Random = UnityEngine.Random;
 
 namespace Game.Gameplay
 {
@@ -9,13 +11,6 @@ namespace Game.Gameplay
     {
         [SerializeField] private AsteroidPool _asteroidPool;
         [SerializeField] private AsteroidConfig[] _asteroidConfigs;
-
-        [SerializeField, Min(0f)] private float _spawnOffset = 2f;
-        [SerializeField, Min(0f)] private float _targetOffset = 2f;
-
-        [SerializeField, Min(0.1f)] private float _spawnInterval = 1f;
-        [SerializeField, Min(0.1f)] private float _minimumSpawnInterval = 0.5f;
-        [SerializeField, Min(0f)] private float _spawnIntervalReductionPerMinute = 0.1f;
 
         private SurvivalTimer _survivalTimer;
         private float _timeUntilNextSpawn;
@@ -31,10 +26,10 @@ namespace Game.Gameplay
             SurvivalTimer survivalTimer,
             CameraProvider cameraProvider)
         {
-            _camera = cameraProvider.Camera;
-            _survivalTimer = survivalTimer;
-            _configProvider = configProvider;
-            _enemyRegistry = enemyRegistry;
+            _enemyRegistry = enemyRegistry ?? throw new ArgumentNullException(nameof(enemyRegistry));
+            _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
+            _survivalTimer = survivalTimer ?? throw new ArgumentNullException(nameof(survivalTimer));
+            _camera = (cameraProvider ?? throw new ArgumentNullException(nameof(cameraProvider))).Camera;
         }
 
         private void Awake()
@@ -71,9 +66,11 @@ namespace Game.Gameplay
         private float GetCurrentSpawnInterval()
         {
             float elapsedMinutes = _survivalTimer.ElapsedSeconds / 60f;
-            float intervalReduction = elapsedMinutes * _spawnIntervalReductionPerMinute;
+            float intervalReduction = elapsedMinutes * _configProvider.Enemy.AsteroidSpawnIntervalReductionPerMinute;
+            float initialInterval = _configProvider.Enemy.AsteroidSpawnIntervalSeconds;
+            float minimumInterval = _configProvider.Enemy.MinimumAsteroidSpawnIntervalSeconds;
 
-            return Mathf.Max(_minimumSpawnInterval, _spawnInterval - intervalReduction);
+            return Mathf.Max(minimumInterval, initialInterval - intervalReduction);
         }
 
         private void SpawnOne()
@@ -94,7 +91,7 @@ namespace Game.Gameplay
 
             AsteroidConfig config = _configSelector.GetNextConfig();
 
-            _asteroidPool.Get(config, EnemyType.LargeAsteroid, spawnPosition, velocity);
+            _asteroidPool.Get(config, EnemyType.LargeAsteroid, spawnPosition, velocity, parameters.MaxHealth);
         }
 
         private Vector2 GetRandomSpawnPosition()
@@ -102,8 +99,10 @@ namespace Game.Gameplay
             Vector3 topLeft = _camera.ViewportToWorldPoint(new Vector3(0f, 1f, 0f));
             Vector3 topRight = _camera.ViewportToWorldPoint(new Vector3(1f, 1f, 0f));
 
+            float outsideOffset = _configProvider.World.SpawnOutsideOffset;
+
             float randomX = Random.Range(topLeft.x, topRight.x);
-            float spawnY = topLeft.y + _spawnOffset;
+            float spawnY = topLeft.y + outsideOffset;
 
             return new Vector2(randomX, spawnY);
         }
@@ -113,15 +112,19 @@ namespace Game.Gameplay
             Vector3 bottomLeft = _camera.ViewportToWorldPoint(new Vector3(0f, 0f, 0f));
             Vector3 bottomRight = _camera.ViewportToWorldPoint(new Vector3(1f, 0f, 0f));
 
+            float outsideOffset = _configProvider.World.SpawnOutsideOffset;
+
             float randomX = Random.Range(bottomLeft.x, bottomRight.x);
-            float targetY = bottomLeft.y - _targetOffset;
+            float targetY = bottomLeft.y - outsideOffset;
 
             return new Vector2(randomX, targetY);
         }
 
         private bool ValidateConfiguration()
         {
-            if (_minimumSpawnInterval <= _spawnInterval)
+            float initialInterval = _configProvider.Enemy.AsteroidSpawnIntervalSeconds;
+            float minimumInterval = _configProvider.Enemy.MinimumAsteroidSpawnIntervalSeconds;
+            if (minimumInterval <= initialInterval)
             {
                 return true;
             }

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Zenject;
 
@@ -12,7 +13,8 @@ namespace Game.UI
         [Inject]
         private void Construct(GameOverViewModel gameOverViewModel)
         {
-            _gameOverViewModel = gameOverViewModel;
+            _gameOverViewModel = gameOverViewModel
+                ?? throw new ArgumentNullException(nameof(gameOverViewModel));
         }
 
         private void Awake()

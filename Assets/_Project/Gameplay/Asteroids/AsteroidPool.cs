@@ -1,4 +1,5 @@
 using System;
+using Game.Core.Configuration;
 using Game.Core.Enemies;
 using Game.Gameplay.Enemies;
 using UnityEngine;
@@ -8,23 +9,24 @@ namespace Game.Gameplay
 {
     public sealed class AsteroidPool : MonoBehaviour
     {
-        public event Action<Asteroid, DeathSource> AsteroidDied;
+        public event Action<EnemyType, DeathSource> AsteroidDied;
 
         private const int AsteroidSortingOrderBase = 100;
 
         [SerializeField] private Asteroid _asteroidPrefab;
-        [SerializeField, Min(1)] private int _initialSize = 5;
 
         private EnemyLifecycleService _enemyLifecycleService;
+        private IGameConfigProvider _configProvider;
 
         private ObjectPool<Asteroid> _pool;
         private int _nextSortingOrder = AsteroidSortingOrderBase;
 
         [Inject]
-        private void Construct(EnemyLifecycleService enemyLifecycleService)
+        private void Construct(EnemyLifecycleService enemyLifecycleService, IGameConfigProvider configProvider)
         {
             _enemyLifecycleService =
                 enemyLifecycleService ?? throw new ArgumentNullException(nameof(enemyLifecycleService));
+            _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
         }
 
         private void Awake()
@@ -35,7 +37,7 @@ namespace Game.Gameplay
                 return;
             }
 
-            _pool = new ObjectPool<Asteroid>(CreateAsteroid, _initialSize);
+            _pool = new ObjectPool<Asteroid>(CreateAsteroid, _configProvider.World.InitialAsteroidPoolSize);
         }
 
         private void OnDestroy()
@@ -59,14 +61,14 @@ namespace Game.Gameplay
             _pool.Clear();
         }
 
-        public Asteroid Get(AsteroidConfig config, EnemyType type, Vector2 position, Vector2 velocity)
+        public Asteroid Get(AsteroidConfig config, EnemyType type, Vector2 position, Vector2 velocity, int maxHealth)
         {
             Asteroid asteroid = _pool.Get();
             try
             {
                 asteroid.transform.SetPositionAndRotation(position, Quaternion.identity);
 
-                asteroid.Initialize(config);
+                asteroid.Initialize(config, maxHealth);
 
                 _enemyLifecycleService.Spawn(asteroid.PhysicsView, type, position, velocity, 0f);
             }
@@ -119,8 +121,11 @@ namespace Game.Gameplay
 
         private void OnAsteroidDied(Asteroid asteroid, DeathSource deathSource)
         {
+            EnemyType enemyType = asteroid.PhysicsView.Entity.Type;
+
             Return(asteroid);
-            AsteroidDied?.Invoke(asteroid, deathSource);
+
+            AsteroidDied?.Invoke(enemyType, deathSource);
         }
 
         private bool ValidateSerializedReferences()

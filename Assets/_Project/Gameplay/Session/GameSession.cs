@@ -12,8 +12,8 @@ namespace Game.Gameplay
 
         public GameSession(SignalBus signalBus, GamePauseService gamePauseService)
         {
-            _gamePauseService = gamePauseService;
-            _signalBus = signalBus;
+            _signalBus = signalBus ?? throw new ArgumentNullException(nameof(signalBus));
+            _gamePauseService = gamePauseService ?? throw new ArgumentNullException(nameof(gamePauseService));
         }
 
         // ReSharper disable Unity.PerformanceAnalysis

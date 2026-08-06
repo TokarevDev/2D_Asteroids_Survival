@@ -15,7 +15,7 @@ namespace Game.UI
 
         public HealthViewModel(PlayerHealth playerHealth)
         {
-            _playerHealth = playerHealth;
+            _playerHealth = playerHealth ?? throw new ArgumentNullException(nameof(playerHealth));
         }
 
         public void Initialize()

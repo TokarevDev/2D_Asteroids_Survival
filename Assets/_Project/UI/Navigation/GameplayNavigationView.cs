@@ -1,3 +1,4 @@
+using System;
 using Cysharp.Threading.Tasks;
 using Game.Core;
 using UnityEngine;
@@ -16,7 +17,7 @@ namespace Game.UI
         [Inject]
         private void Construct(ISceneLoader sceneLoader)
         {
-            _sceneLoader = sceneLoader;
+            _sceneLoader = sceneLoader ?? throw new ArgumentNullException(nameof(sceneLoader));
         }
 
         private void Awake()

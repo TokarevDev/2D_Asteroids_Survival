@@ -15,7 +15,7 @@ namespace Game.UI
 
         public TimerViewModel(SurvivalTimer survivalTimer)
         {
-            _survivalTimer = survivalTimer;
+            _survivalTimer = survivalTimer ?? throw new ArgumentNullException(nameof(survivalTimer));
         }
 
         public void Initialize()

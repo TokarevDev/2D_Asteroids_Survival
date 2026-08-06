@@ -10,8 +10,8 @@ namespace Game.Gameplay
 
         public PlayerDeathSignalService(PlayerHealth playerHealth, SignalBus signalBus)
         {
-            _playerHealth = playerHealth;
-            _signalBus = signalBus;
+            _playerHealth = playerHealth ?? throw new ArgumentNullException(nameof(playerHealth));
+            _signalBus = signalBus ?? throw new ArgumentNullException(nameof(signalBus));
         }
 
         public void Dispose()

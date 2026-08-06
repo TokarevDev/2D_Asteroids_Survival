@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Game.Core.Configuration;
@@ -16,9 +17,9 @@ namespace Game.Infrastructure.Configuration
 
         public GameConfigLoader(JsonConfigReader reader, GameConfigValidator validator, GameConfigProvider provider)
         {
-            _reader = reader;
-            _validator = validator;
-            _provider = provider;
+            _reader = reader ?? throw new ArgumentNullException(nameof(reader));
+            _validator = validator ?? throw new ArgumentNullException(nameof(validator));
+            _provider = provider ?? throw new ArgumentNullException(nameof(provider));
         }
 
         public async UniTask LoadAsync(CancellationToken cancellationToken)

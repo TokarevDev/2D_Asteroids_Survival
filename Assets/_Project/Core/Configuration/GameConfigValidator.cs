@@ -11,14 +11,17 @@ namespace Game.Core.Configuration
                 throw new ArgumentNullException(nameof(config));
             }
 
-            EnsurePositive(config.MaxHealth, nameof(config.MaxHealth));
+            EnsurePositive(config.MaxHealth,
+                nameof(config.MaxHealth));
 
-            EnsurePositive(config.ThrustAcceleration, nameof(config.ThrustAcceleration));
-            EnsurePositive(
-                config.BrakingAcceleration,
+            EnsurePositive(config.ThrustAcceleration,
+                nameof(config.ThrustAcceleration));
+
+            EnsurePositive(config.BrakingAcceleration,
                 nameof(config.BrakingAcceleration));
 
-            EnsurePositive(config.MaxSpeed, nameof(config.MaxSpeed));
+            EnsurePositive(config.MaxSpeed,
+                nameof(config.MaxSpeed));
 
             EnsurePositive(
                 config.TurnSpeedDegreesPerSecond,
@@ -28,15 +31,26 @@ namespace Game.Core.Configuration
                 config.CollisionRadius,
                 nameof(config.CollisionRadius));
 
-            EnsurePositive(config.Mass, nameof(config.Mass));
+            EnsurePositive(config.Mass,
+                nameof(config.Mass));
+
+            EnsurePositive(config.BulletCollisionRadius,
+                nameof(config.BulletCollisionRadius));
+
+            EnsurePositive(config.BulletMass, nameof(config.BulletMass));
 
             EnsurePositive(
                 config.MaxActiveBullets,
                 nameof(config.MaxActiveBullets));
 
-            EnsurePositive(config.BulletSpeed, nameof(config.BulletSpeed));
-            EnsurePositive(config.BulletDamage, nameof(config.BulletDamage));
-            EnsurePositive(config.ShotsPerSecond, nameof(config.ShotsPerSecond));
+            EnsurePositive(config.BulletSpeed,
+                nameof(config.BulletSpeed));
+
+            EnsurePositive(config.BulletDamage,
+                nameof(config.BulletDamage));
+
+            EnsurePositive(config.ShotsPerSecond,
+                nameof(config.ShotsPerSecond));
 
             EnsurePositive(
                 config.BulletLifetimeSeconds,
@@ -50,7 +64,8 @@ namespace Game.Core.Configuration
                 config.LaserRechargeSeconds,
                 nameof(config.LaserRechargeSeconds));
 
-            EnsurePositive(config.LaserLength, nameof(config.LaserLength));
+            EnsurePositive(config.LaserLength,
+                nameof(config.LaserLength));
 
             EnsurePositive(
                 config.InvulnerabilitySeconds,
@@ -75,6 +90,12 @@ namespace Game.Core.Configuration
             ValidateEnemyParameters(
                 config.Ufo,
                 nameof(config.Ufo));
+
+            EnsurePositive(config.MinimumAsteroidSpawnIntervalSeconds,
+                nameof(config.MinimumAsteroidSpawnIntervalSeconds));
+
+            EnsureNonNegative(config.AsteroidSpawnIntervalReductionPerMinute,
+                nameof(config.AsteroidSpawnIntervalReductionPerMinute));
 
             EnsurePositive(config.FragmentCount, nameof(config.FragmentCount));
 
@@ -177,6 +198,17 @@ namespace Game.Core.Configuration
             EnsurePositive(
                 parameters.ScoreReward,
                 $"{parameterName}.{nameof(parameters.ScoreReward)}");
+        }
+
+        private static void EnsureNonNegative(float value, string parameterName)
+        {
+            if (value < 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    parameterName,
+                    value,
+                    "Value cannot be negative");
+            }
         }
 
         private static void EnsureNonNegative(int value, string parameterName)

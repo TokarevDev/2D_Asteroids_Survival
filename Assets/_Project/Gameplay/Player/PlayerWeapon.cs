@@ -1,4 +1,8 @@
+using System;
+using Game.Core.Configuration;
+using Game.Core.Input;
 using UnityEngine;
+using Zenject;
 
 namespace Game.Gameplay
 {
@@ -7,11 +11,17 @@ namespace Game.Gameplay
         [SerializeField] private Transform _spawnPoint;
         [SerializeField] private ProjectilePool _projectilePool;
 
-        [SerializeField, Min(0.01f)] private float _fireInterval = 0.2f;
-        [SerializeField, Min(0.01f)] private float _projectileSpeed = 15f;
-        [SerializeField, Min(1)] private int _damage = 1;
+        private IGameConfigProvider _configProvider;
+        private IPlayerInputStrategy _inputStrategy;
 
         private float _timeUntilNextShot;
+
+        [Inject]
+        private void Construct(IGameConfigProvider configProvider, IPlayerInputStrategy inputStrategy)
+        {
+            _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
+            _inputStrategy = inputStrategy ?? throw new ArgumentNullException(nameof(inputStrategy));
+        }
 
         private void Awake()
         {
@@ -30,15 +40,22 @@ namespace Game.Gameplay
                 return;
             }
 
+            PlayerInputState input = _inputStrategy.Read();
+
+            if (!input.FireBulletHeld)
+            {
+                return;
+            }
+
             Shoot();
-            _timeUntilNextShot = _fireInterval;
+            _timeUntilNextShot = 1f / _configProvider.Player.ShotsPerSecond;
         }
 
         private void Shoot()
         {
             Projectile projectile = _projectilePool.Get(_spawnPoint.position);
 
-            projectile.Launch(Vector2.up, _projectileSpeed, _damage);
+            projectile.Launch(_spawnPoint.up, _configProvider.Player.BulletSpeed, _configProvider.Player.BulletDamage);
         }
 
         private bool ValidateSerializedReferences()

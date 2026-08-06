@@ -3045,8 +3045,6 @@ MonoBehaviour:
   _asteroidPool: {fileID: 224833650}
   _asteroidConfigs:
   - {fileID: 11400000, guid: 6491eac89bd52a6439c84117fbc96a1e, type: 2}
-  - {fileID: 11400000, guid: 4a753d5eb39830048bd7af5624363a22, type: 2}
-  - {fileID: 11400000, guid: d0d6bc2e02d566a41bb97c86d271faa5, type: 2}
   _spawnOffset: 2
   _targetOffset: 2
   _spawnInterval: 1

@@ -1,3 +1,4 @@
+using System;
 using Game.Core;
 using UnityEngine;
 using Zenject;
@@ -11,7 +12,8 @@ namespace Game.UI
         [Inject]
         private void Construct(IAdvertisementService advertisementService)
         {
-            _advertisementService = advertisementService;
+            _advertisementService = advertisementService
+                ?? throw new ArgumentNullException(nameof(advertisementService));
         }
 
         private void Start()

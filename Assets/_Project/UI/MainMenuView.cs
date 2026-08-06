@@ -1,3 +1,4 @@
+using System;
 using Cysharp.Threading.Tasks;
 using Game.Core;
 using UnityEngine;
@@ -17,8 +18,9 @@ namespace Game.UI
         [Inject]
         private void Construct(ISceneLoader sceneLoader, IApplicationQuitService applicationQuitService)
         {
-            _applicationQuitService = applicationQuitService;
-            _sceneLoader = sceneLoader;
+            _sceneLoader = sceneLoader ?? throw new ArgumentNullException(nameof(sceneLoader));
+            _applicationQuitService = applicationQuitService
+                ?? throw new ArgumentNullException(nameof(applicationQuitService));
         }
 
         private void OnEnable()

@@ -24,9 +24,9 @@ namespace Game.UI
 
         public GameOverViewModel(SignalBus signalBus, ISceneLoader sceneLoader, ScoreCounter scoreCounter)
         {
-            _signalBus = signalBus;
-            _sceneLoader = sceneLoader;
-            _scoreCounter = scoreCounter;
+            _signalBus = signalBus ?? throw new ArgumentNullException(nameof(signalBus));
+            _sceneLoader = sceneLoader ?? throw new ArgumentNullException(nameof(sceneLoader));
+            _scoreCounter = scoreCounter ?? throw new ArgumentNullException(nameof(scoreCounter));
         }
 
         // ReSharper disable Unity.PerformanceAnalysis

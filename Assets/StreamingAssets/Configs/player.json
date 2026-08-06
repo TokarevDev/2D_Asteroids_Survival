@@ -6,6 +6,8 @@
   "turnSpeedDegreesPerSecond": 180.0,
   "collisionRadius": 1.0,
   "mass": 1.0,
+  "bulletCollisionRadius": 0.1,
+  "bulletMass": 1.0,
   "maxActiveBullets": 8,
   "bulletSpeed": 14.0,
   "bulletDamage": 1,

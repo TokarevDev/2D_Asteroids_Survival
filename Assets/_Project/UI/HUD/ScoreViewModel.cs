@@ -14,7 +14,7 @@ namespace Game.UI
 
         public ScoreViewModel(ScoreCounter scoreCounter)
         {
-            _scoreCounter = scoreCounter;
+            _scoreCounter = scoreCounter ?? throw new ArgumentNullException(nameof(scoreCounter));
         }
 
         public void Initialize()
