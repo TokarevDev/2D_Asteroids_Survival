@@ -8,7 +8,7 @@
   "mass": 1.0,
   "bulletCollisionRadius": 0.1,
   "bulletMass": 1.0,
-  "maxActiveBullets": 8,
+  "maxActiveBullets": 12,
   "bulletSpeed": 14.0,
   "bulletDamage": 1,
   "shotsPerSecond": 5.0,

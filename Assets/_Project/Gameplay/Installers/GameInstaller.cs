@@ -74,6 +74,10 @@ namespace Game.Gameplay.Installers
 
             Container.BindFixedTickableExecutionOrder<ProjectileLifetimeController>(10);
 
+            Container.BindInterfacesTo<ProjectileWorldExitController>().AsSingle().NonLazy();
+
+            Container.BindFixedTickableExecutionOrder<ProjectileWorldExitController>(25);
+
             Container.BindInterfacesAndSelfTo<ProjectilePhysicsViewSynchronizer>().AsSingle().NonLazy();
 
             Container.BindFixedTickableExecutionOrder<ProjectilePhysicsViewSynchronizer>(100);
