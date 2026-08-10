@@ -94,9 +94,9 @@ GameObject:
   m_Component:
   - component: {fileID: 628479017100717715}
   - component: {fileID: 7275068416826999146}
-  - component: {fileID: 6027987795434962343}
   - component: {fileID: 903022219224270150}
   - component: {fileID: 7483789139963686027}
+  - component: {fileID: 2488382622869631279}
   m_Layer: 10
   m_Name: Projectile
   m_TagString: Untagged
@@ -132,19 +132,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1bc217dce3630ac4ea1a4da0baeef77c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _movement: {fileID: 6027987795434962343}
---- !u!114 &6027987795434962343
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8412841053337560519}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 386f673db0b70384dbee497697d666d0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  _physicsView: {fileID: 2488382622869631279}
 --- !u!70 &903022219224270150
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -188,9 +176,9 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8412841053337560519}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
-  m_UseFullKinematicContacts: 0
+  m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
@@ -207,3 +195,15 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 1
   m_Constraints: 4
+--- !u!114 &2488382622869631279
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8412841053337560519}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa63353e844ac0745a5615e9e29e76eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

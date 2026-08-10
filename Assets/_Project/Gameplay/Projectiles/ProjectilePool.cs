@@ -1,5 +1,7 @@
 using System;
 using Game.Core.Configuration;
+using Game.Core.Projectiles;
+using Game.Gameplay.Projectiles;
 using UnityEngine;
 using Zenject;
 
@@ -10,12 +12,15 @@ namespace Game.Gameplay
         [SerializeField] private Projectile _projectilePrefab;
 
         private IGameConfigProvider _configProvider;
+        private ProjectileLifecycleService _lifecycleService;
         private ObjectPool<Projectile> _pool;
 
         [Inject]
-        private void Construct(IGameConfigProvider configProvider)
+        private void Construct(IGameConfigProvider configProvider, ProjectileLifecycleService lifecycleService)
         {
             _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
+
+            _lifecycleService = lifecycleService ?? throw new ArgumentNullException(nameof(lifecycleService));
         }
 
         private void Awake()
@@ -38,30 +43,30 @@ namespace Game.Gameplay
                 return;
             }
 
-            for (int i = 0; i < _pool.CreatedItems.Count; i++)
-            {
-                Projectile projectile = _pool.CreatedItems[i];
-
-                if (projectile == null)
-                {
-                    continue;
-                }
-
-                projectile.Hit -= Return;
-            }
-
             _pool.Clear();
         }
 
-        public Projectile Get(Vector2 position)
+        public bool TrySpawn(Vector2 position, Vector2 direction, float rotationDegrees)
         {
             Projectile projectile = _pool.Get();
 
-            projectile.transform.SetPositionAndRotation(position, Quaternion.identity);
+            try
+            {
+                if (!_lifecycleService.TrySpawn(projectile.PhysicsView, position, direction, rotationDegrees, out _))
+                {
+                    Return(projectile);
+                    return false;
+                }
 
-            projectile.gameObject.SetActive(true);
+                projectile.gameObject.SetActive(true);
 
-            return projectile;
+                return true;
+            }
+            catch
+            {
+                Return(projectile);
+                throw;
+            }
         }
 
         public void Return(Projectile projectile)
@@ -72,21 +77,68 @@ namespace Game.Gameplay
                 return;
             }
 
+            if (projectile.PhysicsView.IsBound && !_lifecycleService.Despawn(projectile.PhysicsView.Entity))
+            {
+                Debug.LogError("Bound projectile physics view was not active", projectile);
+                return;
+            }
+
             if (!_pool.Return(projectile))
             {
                 Debug.LogWarning("Projectile is already in the pool", projectile);
                 return;
             }
 
-            projectile.Stop();
             projectile.gameObject.SetActive(false);
+        }
+
+        public bool Return(ProjectileEntity entity)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            if (!TryGetByEntity(entity, out Projectile projectile))
+            {
+                return false;
+            }
+
+            Return(projectile);
+            return true;
+        }
+
+        private bool TryGetByEntity(ProjectileEntity entity, out Projectile projectile)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            for (int i = 0; i < _pool.CreatedItems.Count; i++)
+            {
+                Projectile candidate = _pool.CreatedItems[i];
+
+                if (candidate == null || !candidate.PhysicsView.IsBound)
+                {
+                    continue;
+                }
+
+                if (ReferenceEquals(candidate.PhysicsView.Entity, entity))
+                {
+                    projectile = candidate;
+                    return true;
+                }
+            }
+
+            projectile = null;
+            return false;
         }
 
         private Projectile CreateProjectile()
         {
             Projectile projectile = Instantiate(_projectilePrefab, transform);
 
-            projectile.Hit += Return;
             projectile.gameObject.SetActive(false);
             return projectile;
         }

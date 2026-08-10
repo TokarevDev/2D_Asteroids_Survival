@@ -106,6 +106,32 @@ namespace Game.Gameplay
             asteroid.gameObject.SetActive(false);
         }
 
+        public bool TryGetByEntity(EnemyEntity entity, out Asteroid asteroid)
+        {
+            if (entity == null)
+            {
+                throw new ArgumentNullException(nameof(entity));
+            }
+
+            for (int i = 0; i < _pool.CreatedItems.Count; i++)
+            {
+                Asteroid candidate = _pool.CreatedItems[i];
+                if (candidate == null || !candidate.PhysicsView.IsBound)
+                {
+                    continue;
+                }
+
+                if (ReferenceEquals(candidate.PhysicsView.Entity, entity))
+                {
+                    asteroid = candidate;
+                    return true;
+                }
+            }
+
+            asteroid = null;
+            return false;
+        }
+
         private Asteroid CreateAsteroid()
         {
             Asteroid asteroid = Instantiate(_asteroidPrefab, transform);

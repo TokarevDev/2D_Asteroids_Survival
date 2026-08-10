@@ -18,6 +18,8 @@ namespace Game.Gameplay.Installers
         public override void InstallBindings()
         {
             BindCustomPhysics();
+            BindProjectileCollisionDetection();
+            BindProjectilePool();
             BindProjectileEntities();
             BindEnemyRegistry();
             BindEnemyEntityFactory();
@@ -42,6 +44,22 @@ namespace Game.Gameplay.Installers
             BindGameSession();
         }
 
+        private void BindProjectileCollisionDetection()
+        {
+            Container.Bind<CircleCollisionDetector2D>().AsSingle();
+
+            Container.BindInterfacesAndSelfTo<ProjectileEnemyCollisionController>().AsSingle().NonLazy();
+
+            Container.BindInterfacesTo<ProjectileImpactService>().AsSingle().NonLazy();
+
+            Container.BindFixedTickableExecutionOrder<ProjectileEnemyCollisionController>(75);
+        }
+
+        private void BindProjectilePool()
+        {
+            Container.Bind<ProjectilePool>().FromComponentInHierarchy().AsSingle();
+        }
+
         private void BindProjectileEntities()
         {
             Container.Bind<ProjectileEntityFactory>().AsSingle();
@@ -55,6 +73,10 @@ namespace Game.Gameplay.Installers
             Container.BindInterfacesTo<ProjectileLifetimeController>().AsSingle().NonLazy();
 
             Container.BindFixedTickableExecutionOrder<ProjectileLifetimeController>(10);
+
+            Container.BindInterfacesAndSelfTo<ProjectilePhysicsViewSynchronizer>().AsSingle().NonLazy();
+
+            Container.BindFixedTickableExecutionOrder<ProjectilePhysicsViewSynchronizer>(100);
         }
 
         private void BindEnemyWorldWrapController()
@@ -133,6 +155,7 @@ namespace Game.Gameplay.Installers
             Container.Bind<CustomPhysicsWorld2D>().AsSingle();
 
             Container.BindInterfacesTo<CustomPhysicsFixedTickRunner>().AsSingle().NonLazy();
+            Container.BindFixedTickableExecutionOrder<CustomPhysicsFixedTickRunner>(0);
         }
 
         private void BindAsteroidRewardService()

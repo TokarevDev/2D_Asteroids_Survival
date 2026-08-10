@@ -9,13 +9,13 @@ namespace Game.Gameplay.Projectiles
     public sealed class ProjectileLifetimeController : IFixedTickable
     {
         private readonly ProjectileRegistry _registry;
-        private readonly ProjectileLifecycleService _lifecycleService;
+        private readonly ProjectilePool _projectilePool;
 
-        public ProjectileLifetimeController(ProjectileRegistry registry, ProjectileLifecycleService lifecycleService)
+        public ProjectileLifetimeController(ProjectileRegistry registry, ProjectilePool projectilePool)
         {
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
 
-            _lifecycleService = lifecycleService ?? throw new ArgumentNullException(nameof(lifecycleService));
+            _projectilePool = projectilePool ?? throw new ArgumentNullException(nameof(projectilePool));
         }
 
         public void FixedTick()
@@ -30,7 +30,10 @@ namespace Game.Gameplay.Projectiles
 
                 if (projectile.IsExpired)
                 {
-                    _lifecycleService.Despawn(projectile);
+                    if (!_projectilePool.Return(projectile))
+                    {
+                        throw new InvalidOperationException("Expired projectile has no associated visual");
+                    }
                 }
             }
         }

@@ -11,17 +11,21 @@ namespace Game.Gameplay.Projectiles
         private readonly ProjectileEntityPool _pool;
         private readonly ProjectileRegistry _registry;
         private readonly CustomPhysicsWorld2D _physicsWorld;
+        private readonly ProjectilePhysicsViewSynchronizer _viewSynchronizer;
 
         private readonly int _maxActiveProjectiles;
 
         public ProjectileLifecycleService(ProjectileEntityPool pool, ProjectileRegistry registry,
-            CustomPhysicsWorld2D physicsWorld, IGameConfigProvider configProvider)
+            CustomPhysicsWorld2D physicsWorld, ProjectilePhysicsViewSynchronizer viewSynchronizer,
+            IGameConfigProvider configProvider)
         {
             _pool = pool ?? throw new ArgumentNullException(nameof(pool));
 
             _registry = registry ?? throw new ArgumentNullException(nameof(registry));
 
             _physicsWorld = physicsWorld ?? throw new ArgumentNullException(nameof(physicsWorld));
+
+            _viewSynchronizer = viewSynchronizer ?? throw new ArgumentNullException(nameof(viewSynchronizer));
 
             if (configProvider == null)
             {
@@ -31,9 +35,19 @@ namespace Game.Gameplay.Projectiles
             _maxActiveProjectiles = configProvider.Player.MaxActiveBullets;
         }
 
-        public bool TrySpawn(Vector2 position, Vector2 direction, float rotationDegrees,
+        public bool TrySpawn(ProjectilePhysicsView view, Vector2 position, Vector2 direction, float rotationDegrees,
             out ProjectileEntity projectile)
         {
+            if (view == null)
+            {
+                throw new ArgumentNullException(nameof(view));
+            }
+
+            if (view.IsBound)
+            {
+                throw new InvalidOperationException("Projectile physics view is already bound");
+            }
+
             projectile = null;
 
             if (_registry.Count >= _maxActiveProjectiles)
@@ -58,6 +72,28 @@ namespace Game.Gameplay.Projectiles
                 throw new InvalidOperationException("Projectile physics body is already registered");
             }
 
+            try
+            {
+                view.Bind(candidate);
+
+                if (!_viewSynchronizer.Register(view))
+                {
+                    throw new InvalidOperationException("Projectile physics view is already registered");
+                }
+            }
+            catch
+            {
+                if (view.IsBound && ReferenceEquals(view.Entity, candidate))
+                {
+                    view.Unbind();
+                }
+
+                _physicsWorld.Unregister(candidate.PhysicsBody);
+                _registry.Unregister(candidate);
+                ReturnToPool(candidate);
+                throw;
+            }
+
             projectile = candidate;
             return true;
         }
@@ -68,6 +104,18 @@ namespace Game.Gameplay.Projectiles
             {
                 throw new ArgumentNullException(nameof(projectile));
             }
+
+            if (!_viewSynchronizer.TryGetView(projectile, out ProjectilePhysicsView view))
+            {
+                return false;
+            }
+
+            if (!_viewSynchronizer.Unregister(view))
+            {
+                throw new InvalidOperationException("Projectile physics view is not registered");
+            }
+
+            view.Unbind();
 
             bool removedFromRegistry = _registry.Unregister(projectile);
 

@@ -53,9 +53,7 @@ namespace Game.Gameplay
 
         private void Shoot()
         {
-            Projectile projectile = _projectilePool.Get(_spawnPoint.position);
-
-            projectile.Launch(_spawnPoint.up, _configProvider.Player.BulletSpeed, _configProvider.Player.BulletDamage);
+            _projectilePool.TrySpawn(_spawnPoint.position, _spawnPoint.up, _spawnPoint.eulerAngles.z);
         }
 
         private bool ValidateSerializedReferences()
