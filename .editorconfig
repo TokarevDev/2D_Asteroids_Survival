@@ -50,6 +50,11 @@ csharp_style_expression_bodied_constructors = false:silent
 csharp_style_expression_bodied_properties = true:silent
 csharp_style_expression_bodied_accessors = false:silent
 
+# Unity serializes fields, not ordinary auto-properties. Keep explicit backing fields so
+# cleanup-on-save and full cleanup cannot remove SerializeField references.
+dotnet_style_prefer_auto_properties = false:silent
+resharper_convert_to_auto_property_highlighting = none
+
 # Useful low-noise C# suggestions.
 dotnet_style_object_initializer = true:suggestion
 dotnet_style_collection_initializer = true:suggestion
