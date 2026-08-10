@@ -7,6 +7,7 @@ using Game.Gameplay.Enemies;
 using Game.Gameplay.Physics;
 using Game.Gameplay.Player;
 using Game.Gameplay.Projectiles;
+using Game.Gameplay.World;
 using UnityEngine;
 using Zenject;
 
@@ -27,6 +28,7 @@ namespace Game.Gameplay.Installers
             BindEnemyLifecycleService();
             BindEnemyPhysicsViewSynchronizer();
             BindToroidalWorld();
+            BindRandomWorldSpawnPointProvider();
             BindEnemyWorldWrapController();
             BindPlayerPhysicsView();
             BindPlayerPhysicsController();
@@ -42,6 +44,11 @@ namespace Game.Gameplay.Installers
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindRandomWorldSpawnPointProvider()
+        {
+            Container.Bind<RandomWorldSpawnPointProvider>().AsSingle();
         }
 
         private void BindProjectileCollisionDetection()

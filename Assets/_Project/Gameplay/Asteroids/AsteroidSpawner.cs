@@ -1,9 +1,9 @@
 using System;
 using Game.Core.Configuration;
 using Game.Core.Enemies;
+using Game.Gameplay.World;
 using UnityEngine;
 using Zenject;
-using Random = UnityEngine.Random;
 
 namespace Game.Gameplay
 {
@@ -19,17 +19,17 @@ namespace Game.Gameplay
         private EnemyRegistry _enemyRegistry;
 
         private AsteroidConfigSelector _configSelector;
-        private Camera _camera;
+        private RandomWorldSpawnPointProvider _spawnPointProvider;
 
         [Inject]
         private void Construct(EnemyRegistry enemyRegistry, IGameConfigProvider configProvider,
             SurvivalTimer survivalTimer,
-            CameraProvider cameraProvider)
+            RandomWorldSpawnPointProvider spawnPointProvider)
         {
             _enemyRegistry = enemyRegistry ?? throw new ArgumentNullException(nameof(enemyRegistry));
             _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
             _survivalTimer = survivalTimer ?? throw new ArgumentNullException(nameof(survivalTimer));
-            _camera = (cameraProvider ?? throw new ArgumentNullException(nameof(cameraProvider))).Camera;
+            _spawnPointProvider = spawnPointProvider ?? throw new ArgumentNullException(nameof(spawnPointProvider));
         }
 
         private void Awake()
@@ -80,8 +80,8 @@ namespace Game.Gameplay
                 return;
             }
 
-            Vector2 spawnPosition = GetRandomSpawnPosition();
-            Vector2 targetPosition = GetRandomTargetPosition();
+            Vector2 spawnPosition = _spawnPointProvider.GetSpawnPosition();
+            Vector2 targetPosition = _spawnPointProvider.GetTargetPosition();
 
             Vector2 direction = targetPosition - spawnPosition;
 
@@ -92,32 +92,6 @@ namespace Game.Gameplay
             AsteroidConfig config = _configSelector.GetNextConfig();
 
             _asteroidPool.Get(config, EnemyType.LargeAsteroid, spawnPosition, velocity, parameters.MaxHealth);
-        }
-
-        private Vector2 GetRandomSpawnPosition()
-        {
-            Vector3 topLeft = _camera.ViewportToWorldPoint(new Vector3(0f, 1f, 0f));
-            Vector3 topRight = _camera.ViewportToWorldPoint(new Vector3(1f, 1f, 0f));
-
-            float outsideOffset = _configProvider.World.SpawnOutsideOffset;
-
-            float randomX = Random.Range(topLeft.x, topRight.x);
-            float spawnY = topLeft.y + outsideOffset;
-
-            return new Vector2(randomX, spawnY);
-        }
-
-        private Vector2 GetRandomTargetPosition()
-        {
-            Vector3 bottomLeft = _camera.ViewportToWorldPoint(new Vector3(0f, 0f, 0f));
-            Vector3 bottomRight = _camera.ViewportToWorldPoint(new Vector3(1f, 0f, 0f));
-
-            float outsideOffset = _configProvider.World.SpawnOutsideOffset;
-
-            float randomX = Random.Range(bottomLeft.x, bottomRight.x);
-            float targetY = bottomLeft.y - outsideOffset;
-
-            return new Vector2(randomX, targetY);
         }
 
         private bool ValidateConfiguration()
