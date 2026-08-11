@@ -14,6 +14,7 @@ namespace Game.Gameplay
         private const int AsteroidSortingOrderBase = 100;
 
         [SerializeField] private Asteroid _asteroidPrefab;
+        [SerializeField] private AsteroidConfig _fragmentConfig;
 
         private EnemyLifecycleService _enemyLifecycleService;
         private IGameConfigProvider _configProvider;
@@ -59,6 +60,13 @@ namespace Game.Gameplay
             }
 
             _pool.Clear();
+        }
+
+        public Asteroid GetFragment(Vector2 position, Vector2 velocity)
+        {
+            EnemyParameters parameters = _configProvider.Enemy.GetParameters(EnemyType.Fragment);
+
+            return Get(_fragmentConfig, EnemyType.Fragment, position, velocity, parameters.MaxHealth);
         }
 
         public Asteroid Get(AsteroidConfig config, EnemyType type, Vector2 position, Vector2 velocity, int maxHealth)
@@ -156,13 +164,21 @@ namespace Game.Gameplay
 
         private bool ValidateSerializedReferences()
         {
-            if (_asteroidPrefab != null)
+            bool isValid = true;
+
+            if (_asteroidPrefab == null)
             {
-                return true;
+                Debug.LogError("Asteroid prefab reference is missing", this);
+                isValid = false;
             }
 
-            Debug.LogError("Asteroid prefab reference is missing", this);
-            return false;
+            if (_fragmentConfig == null)
+            {
+                Debug.LogError("Fragment asteroid config reference is missing", this);
+                isValid = false;
+            }
+
+            return isValid;
         }
     }
 }

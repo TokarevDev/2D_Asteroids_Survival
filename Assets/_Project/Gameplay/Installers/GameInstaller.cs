@@ -39,11 +39,17 @@ namespace Game.Gameplay.Installers
             BindPlayerHealth();
             BindPlayerDeathSignalService();
             BindAsteroidPool();
+            BindAsteroidFragmentSpawner();
             BindSurvivalTimer();
             BindScoreCounter();
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindAsteroidFragmentSpawner()
+        {
+            Container.Bind<AsteroidFragmentSpawner>().AsSingle();
         }
 
         private void BindRandomWorldSpawnPointProvider()

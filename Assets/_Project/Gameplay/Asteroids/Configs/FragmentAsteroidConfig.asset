@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 0fbcf567dae02e24a8c6cb2b71d30c3c, type: 3}
-  m_Name: SmallAsteroidConfig
+  m_Name: FragmentAsteroidConfig
   m_EditorClassIdentifier: 
   _maxHealth: 1
   _movementSpeed: 5
