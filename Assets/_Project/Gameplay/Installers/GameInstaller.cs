@@ -41,12 +41,20 @@ namespace Game.Gameplay.Installers
             BindPlayerDeathSignalService();
             BindAsteroidPool();
             BindUfoPool();
+            BindUfoPursuitController();
             BindAsteroidFragmentSpawner();
             BindSurvivalTimer();
             BindScoreCounter();
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindUfoPursuitController()
+        {
+            Container.BindInterfacesTo<UfoPursuitController>().AsSingle().NonLazy();
+
+            Container.BindFixedTickableExecutionOrder<UfoPursuitController>(-50);
         }
 
         private void BindUfoPool()

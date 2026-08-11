@@ -37,6 +37,15 @@ namespace Game.Core.World
                    position.y < _halfHeight;
         }
 
+        public Vector2 GetShortestDisplacement(Vector2 from, Vector2 to)
+        {
+            float displacementX = WrapCoordinate(to.x - from.x, _halfWidth, _width);
+
+            float displacementY = WrapCoordinate(to.y - from.y, _halfHeight, _height);
+
+            return new Vector2(displacementX, displacementY);
+        }
+
         public void Wrap(CustomPhysicsBody2D body)
         {
             if (body == null)
