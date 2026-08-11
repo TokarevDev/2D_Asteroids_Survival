@@ -4,6 +4,7 @@ using Game.Core.Physics;
 using Game.Core.Projectiles;
 using Game.Core.World;
 using Game.Gameplay.Enemies;
+using Game.Gameplay.Enemies.Ufo;
 using Game.Gameplay.Physics;
 using Game.Gameplay.Player;
 using Game.Gameplay.Projectiles;
@@ -39,12 +40,18 @@ namespace Game.Gameplay.Installers
             BindPlayerHealth();
             BindPlayerDeathSignalService();
             BindAsteroidPool();
+            BindUfoPool();
             BindAsteroidFragmentSpawner();
             BindSurvivalTimer();
             BindScoreCounter();
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindUfoPool()
+        {
+            Container.Bind<UfoPool>().FromComponentInHierarchy().AsSingle();
         }
 
         private void BindAsteroidFragmentSpawner()
