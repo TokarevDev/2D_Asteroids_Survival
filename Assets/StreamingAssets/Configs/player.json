@@ -4,7 +4,7 @@
   "brakingAcceleration": 10.0,
   "maxSpeed": 7.0,
   "turnSpeedDegreesPerSecond": 180.0,
-  "collisionRadius": 1.0,
+  "collisionRadius": 0.80,
   "mass": 1.0,
   "bulletCollisionRadius": 0.1,
   "bulletMass": 1.0,
