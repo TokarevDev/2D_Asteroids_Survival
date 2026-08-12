@@ -21,6 +21,7 @@ namespace Game.Gameplay.Installers
         {
             BindCustomPhysics();
             BindProjectileCollisionDetection();
+            BindPlayerEnemyCollisionDetection();
             BindProjectilePool();
             BindProjectileEntities();
             BindEnemyRegistry();
@@ -48,6 +49,13 @@ namespace Game.Gameplay.Installers
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindPlayerEnemyCollisionDetection()
+        {
+            Container.BindInterfacesAndSelfTo<PlayerEnemyCollisionController>().AsSingle().NonLazy();
+
+            Container.BindFixedTickableExecutionOrder<PlayerEnemyCollisionController>(75);
         }
 
         private void BindUfoPursuitController()
