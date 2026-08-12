@@ -3,12 +3,14 @@ using Game.Core.Enemies;
 using Game.Core.Physics;
 using Game.Core.Player;
 using Game.Core.Projectiles;
+using Game.Core.Weapons;
 using Game.Core.World;
 using Game.Gameplay.Enemies;
 using Game.Gameplay.Enemies.Ufo;
 using Game.Gameplay.Physics;
 using Game.Gameplay.Player;
 using Game.Gameplay.Projectiles;
+using Game.Gameplay.Weapons;
 using Game.Gameplay.World;
 using UnityEngine;
 using Zenject;
@@ -37,6 +39,7 @@ namespace Game.Gameplay.Installers
             BindPlayerPhysicsView();
             BindPlayerPhysicsController();
             BindPlayerInvulnerability();
+            BindLaserSystem();
             BindPlayerCollisionVfx();
             BindPlayerWorldWrapController();
             BindPlayerPhysicsViewSynchronizer();
@@ -54,6 +57,27 @@ namespace Game.Gameplay.Installers
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindLaserSystem()
+        {
+            Container.Bind<LaserChargeMagazine>().FromMethod(context =>
+            {
+                PlayerConfig config = context.Container.Resolve<IGameConfigProvider>().Player;
+                return new LaserChargeMagazine(config.LaserMaxCharges, config.LaserRechargeSeconds);
+            }).AsSingle();
+
+            Container.BindInterfacesTo<LaserRechargeController>().AsSingle().NonLazy();
+
+            Container.Bind<SegmentCircleIntersectionDetector2D>().AsSingle();
+
+            Container.Bind<LaserTargetQuery>().AsSingle();
+
+            Container.Bind<EnemyDestructionService>().AsSingle();
+
+            Container.Bind<LaserShotService>().AsSingle().NonLazy();
+
+            Container.BindInterfacesTo<PlayerLaserWeapon>().AsSingle().NonLazy();
         }
 
         private void BindPlayerCollisionVfx()
