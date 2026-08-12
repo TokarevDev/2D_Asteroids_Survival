@@ -1,6 +1,7 @@
 using Game.Core.Configuration;
 using Game.Core.Enemies;
 using Game.Core.Physics;
+using Game.Core.Player;
 using Game.Core.Projectiles;
 using Game.Core.World;
 using Game.Gameplay.Enemies;
@@ -35,11 +36,13 @@ namespace Game.Gameplay.Installers
             BindEnemyWorldWrapController();
             BindPlayerPhysicsView();
             BindPlayerPhysicsController();
+            BindPlayerInvulnerability();
             BindPlayerWorldWrapController();
             BindPlayerPhysicsViewSynchronizer();
             BindSignals();
             BindCameraProvider();
             BindPlayerHealth();
+            BindPlayerCollisionDamage();
             BindPlayerDeathSignalService();
             BindAsteroidPool();
             BindUfoPool();
@@ -50,6 +53,25 @@ namespace Game.Gameplay.Installers
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindPlayerCollisionDamage()
+        {
+            Container.BindInterfacesTo<PlayerCollisionDamageService>().AsSingle().NonLazy();
+        }
+
+        private void BindPlayerInvulnerability()
+        {
+            Container.Bind<PlayerInvulnerability>().FromMethod(context =>
+            {
+                PlayerConfig config = context.Container.Resolve<IGameConfigProvider>().Player;
+
+                return new PlayerInvulnerability(config.InvulnerabilitySeconds);
+            }).AsSingle();
+
+            Container.BindInterfacesTo<PlayerInvulnerabilityController>().AsSingle().NonLazy();
+
+            Container.BindFixedTickableExecutionOrder<PlayerInvulnerabilityController>(-110);
         }
 
         private void BindPlayerEnemyBounce()

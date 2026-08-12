@@ -1,6 +1,7 @@
 using System;
 using Game.Core.Configuration;
 using Game.Core.Input;
+using Game.Core.Player;
 using UnityEngine;
 using Zenject;
 
@@ -13,14 +14,19 @@ namespace Game.Gameplay
 
         private IGameConfigProvider _configProvider;
         private IPlayerInputStrategy _inputStrategy;
+        private PlayerInvulnerability _invulnerability;
 
         private float _timeUntilNextShot;
 
         [Inject]
-        private void Construct(IGameConfigProvider configProvider, IPlayerInputStrategy inputStrategy)
+        private void Construct(IGameConfigProvider configProvider, IPlayerInputStrategy inputStrategy,
+            PlayerInvulnerability invulnerability)
         {
             _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
+
             _inputStrategy = inputStrategy ?? throw new ArgumentNullException(nameof(inputStrategy));
+
+            _invulnerability = invulnerability ?? throw new ArgumentNullException(nameof(invulnerability));
         }
 
         private void Awake()
@@ -34,6 +40,11 @@ namespace Game.Gameplay
         private void Update()
         {
             _timeUntilNextShot -= Time.deltaTime;
+
+            if (_invulnerability.IsActive)
+            {
+                return;
+            }
 
             if (_timeUntilNextShot > 0)
             {

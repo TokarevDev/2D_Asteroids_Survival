@@ -14,6 +14,7 @@ namespace Game.Gameplay.Player
         private readonly IGameConfigProvider _configProvider;
         private readonly CustomPhysicsWorld2D _physicsWorld;
         private readonly IPlayerInputStrategy _inputStrategy;
+        private readonly PlayerInvulnerability _invulnerability;
 
         private CustomPhysicsBody2D _body;
         private ShipMovement _movement;
@@ -23,7 +24,7 @@ namespace Game.Gameplay.Player
 
         public PlayerPhysicsController(PlayerPhysicsView view, IGameConfigProvider configProvider,
             IPlayerInputStrategy inputStrategy,
-            CustomPhysicsWorld2D physicsWorld)
+            CustomPhysicsWorld2D physicsWorld, PlayerInvulnerability invulnerability)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
 
@@ -32,6 +33,8 @@ namespace Game.Gameplay.Player
             _inputStrategy = inputStrategy ?? throw new ArgumentNullException(nameof(inputStrategy));
 
             _physicsWorld = physicsWorld ?? throw new ArgumentNullException(nameof(physicsWorld));
+
+            _invulnerability = invulnerability ?? throw new ArgumentNullException(nameof(invulnerability));
         }
 
         public void Initialize()
@@ -56,7 +59,7 @@ namespace Game.Gameplay.Player
                 throw new InvalidOperationException("Player movement has not been initialized");
             }
 
-            PlayerInputState input = _inputStrategy.Read();
+            PlayerInputState input = _invulnerability.IsActive ? default : _inputStrategy.Read();
 
             _movement.Step(input, Time.fixedDeltaTime);
         }

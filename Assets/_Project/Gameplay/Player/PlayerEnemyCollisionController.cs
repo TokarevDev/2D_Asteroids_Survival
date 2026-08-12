@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Game.Core.Enemies;
 using Game.Core.Physics;
+using Game.Core.Player;
 using Game.Core.World;
 using UnityEngine;
 using Zenject;
@@ -16,11 +17,15 @@ namespace Game.Gameplay.Player
         private readonly EnemyRegistry _enemyRegistry;
         private readonly CircleCollisionDetector2D _collisionDetector;
         private readonly ToroidalWorld2D _world;
+        private readonly PlayerInvulnerability _invulnerability;
 
-        public PlayerEnemyCollisionController(PlayerPhysicsController playerController, EnemyRegistry enemyRegistry,
+        public PlayerEnemyCollisionController(PlayerPhysicsController playerController,
+            PlayerInvulnerability invulnerability, EnemyRegistry enemyRegistry,
             CircleCollisionDetector2D collisionDetector, ToroidalWorld2D world)
         {
             _playerController = playerController ?? throw new ArgumentNullException(nameof(playerController));
+
+            _invulnerability = invulnerability ?? throw new ArgumentNullException(nameof(invulnerability));
 
             _enemyRegistry = enemyRegistry ?? throw new ArgumentNullException(nameof(enemyRegistry));
 
@@ -31,6 +36,11 @@ namespace Game.Gameplay.Player
 
         public void FixedTick()
         {
+            if (_invulnerability.IsActive)
+            {
+                return;
+            }
+
             CustomPhysicsBody2D playerBody = _playerController.Body;
             IReadOnlyList<EnemyEntity> enemies = _enemyRegistry.Enemies;
 
@@ -52,6 +62,7 @@ namespace Game.Gameplay.Player
                 }
 
                 CollisionDetected?.Invoke(enemy, displacement);
+                return;
             }
         }
     }
