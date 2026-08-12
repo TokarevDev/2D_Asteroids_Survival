@@ -152,6 +152,8 @@ namespace Game.Core.Configuration
             EnsureNonNegative(
                 config.InitialProjectilePoolSize,
                 nameof(config.InitialProjectilePoolSize));
+
+            EnsureNonNegative(config.InitialCollisionVfxPoolSize, nameof(config.InitialCollisionVfxPoolSize));
         }
 
         private static void EnsurePositive(int value, string parameterName)

@@ -37,6 +37,7 @@ namespace Game.Gameplay.Installers
             BindPlayerPhysicsView();
             BindPlayerPhysicsController();
             BindPlayerInvulnerability();
+            BindPlayerCollisionVfx();
             BindPlayerWorldWrapController();
             BindPlayerPhysicsViewSynchronizer();
             BindSignals();
@@ -53,6 +54,13 @@ namespace Game.Gameplay.Installers
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindPlayerCollisionVfx()
+        {
+            Container.Bind<PlayerCollisionVfxPool>().FromComponentInHierarchy().AsSingle();
+
+            Container.BindInterfacesTo<PlayerCollisionVfxService>().AsSingle().NonLazy();
         }
 
         private void BindPlayerCollisionDamage()

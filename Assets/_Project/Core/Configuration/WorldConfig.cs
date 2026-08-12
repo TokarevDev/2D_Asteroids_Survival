@@ -11,5 +11,6 @@ namespace Game.Core.Configuration
         public int InitialAsteroidPoolSize { get; set; }
         public int InitialUfoPoolSize { get; set; }
         public int InitialProjectilePoolSize { get; set; }
+        public int InitialCollisionVfxPoolSize { get; set; }
     }
 }

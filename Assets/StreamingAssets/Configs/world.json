@@ -5,5 +5,6 @@
   "spawnOutsideOffset": 2.0,
   "initialAsteroidPoolSize": 20,
   "initialUfoPoolSize": 5,
-  "initialProjectilePoolSize": 50
+  "initialProjectilePoolSize": 50,
+  "initialCollisionVfxPoolSize": 1
 }
