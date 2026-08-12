@@ -10,7 +10,7 @@ namespace Game.Gameplay.Player
 {
     public sealed class PlayerEnemyCollisionController : IFixedTickable
     {
-        public event Action<EnemyEntity> CollisionDetected;
+        public event Action<EnemyEntity, Vector2> CollisionDetected;
 
         private readonly PlayerPhysicsController _playerController;
         private readonly EnemyRegistry _enemyRegistry;
@@ -51,7 +51,7 @@ namespace Game.Gameplay.Player
                     continue;
                 }
 
-                CollisionDetected?.Invoke(enemy);
+                CollisionDetected?.Invoke(enemy, displacement);
             }
         }
     }

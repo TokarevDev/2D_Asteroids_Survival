@@ -22,6 +22,7 @@ namespace Game.Gameplay.Installers
             BindCustomPhysics();
             BindProjectileCollisionDetection();
             BindPlayerEnemyCollisionDetection();
+            BindPlayerEnemyBounce();
             BindProjectilePool();
             BindProjectileEntities();
             BindEnemyRegistry();
@@ -49,6 +50,13 @@ namespace Game.Gameplay.Installers
             BindAsteroidRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindPlayerEnemyBounce()
+        {
+            Container.Bind<ElasticCollisionResolver2D>().AsSingle();
+
+            Container.BindInterfacesTo<PlayerEnemyBounceService>().AsSingle().NonLazy();
         }
 
         private void BindPlayerEnemyCollisionDetection()
