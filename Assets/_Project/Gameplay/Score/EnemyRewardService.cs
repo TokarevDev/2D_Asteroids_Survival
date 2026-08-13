@@ -2,21 +2,22 @@ using System;
 using System.Collections.Generic;
 using Game.Core.Configuration;
 using Game.Core.Enemies;
+using Game.Gameplay.Signals;
 using Zenject;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Score
 {
-    public sealed class AsteroidRewardService : IInitializable, IDisposable
+    public sealed class EnemyRewardService : IInitializable, IDisposable
     {
         private readonly Dictionary<EnemyType, int> _rewardByEnemyType;
 
-        private readonly AsteroidPool _asteroidPool;
+        private readonly SignalBus _signalBus;
         private readonly ScoreCounter _scoreCounter;
 
-        public AsteroidRewardService(AsteroidPool asteroidPool, ScoreCounter scoreCounter,
+        public EnemyRewardService(SignalBus signalBus, ScoreCounter scoreCounter,
             IGameConfigProvider configProvider)
         {
-            _asteroidPool = asteroidPool ?? throw new ArgumentNullException(nameof(asteroidPool));
+            _signalBus = signalBus ?? throw new ArgumentNullException(nameof(signalBus));
             _scoreCounter = scoreCounter ?? throw new ArgumentNullException(nameof(scoreCounter));
 
             if (configProvider == null)
@@ -36,24 +37,24 @@ namespace Game.Gameplay
 
         public void Initialize()
         {
-            _asteroidPool.AsteroidDied += OnAsteroidDied;
+            _signalBus.Subscribe<EnemyDiedSignal>(OnEnemyDied);
         }
 
         public void Dispose()
         {
-            _asteroidPool.AsteroidDied -= OnAsteroidDied;
+            _signalBus.Unsubscribe<EnemyDiedSignal>(OnEnemyDied);
         }
 
-        private void OnAsteroidDied(EnemyType enemyType, DeathSource deathSource)
+        private void OnEnemyDied(EnemyDiedSignal signal)
         {
-            if (deathSource != DeathSource.Player)
+            if (signal.DeathSource != DeathSource.Player)
             {
                 return;
             }
 
-            if (!_rewardByEnemyType.TryGetValue(enemyType, out int reward))
+            if (!_rewardByEnemyType.TryGetValue(signal.EnemyType, out int reward))
             {
-                throw new InvalidOperationException($"Reward is not configured for enemy type {enemyType}");
+                throw new InvalidOperationException($"Reward is not configured for enemy type {signal.EnemyType}");
             }
 
             _scoreCounter.AddScore(reward);

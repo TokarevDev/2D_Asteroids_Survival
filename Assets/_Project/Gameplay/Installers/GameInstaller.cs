@@ -10,6 +10,8 @@ using Game.Gameplay.Enemies.Ufo;
 using Game.Gameplay.Physics;
 using Game.Gameplay.Player;
 using Game.Gameplay.Projectiles;
+using Game.Gameplay.Score;
+using Game.Gameplay.Signals;
 using Game.Gameplay.Weapons;
 using Game.Gameplay.World;
 using UnityEngine;
@@ -50,13 +52,19 @@ namespace Game.Gameplay.Installers
             BindPlayerDeathSignalService();
             BindAsteroidPool();
             BindUfoPool();
+            BindEnemyDeathSignalService();
             BindUfoPursuitController();
             BindAsteroidFragmentSpawner();
             BindSurvivalTimer();
             BindScoreCounter();
-            BindAsteroidRewardService();
+            BindEnemyRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindEnemyDeathSignalService()
+        {
+            Container.BindInterfacesTo<EnemyDeathSignalService>().AsSingle().NonLazy();
         }
 
         private void BindLaserSystem()
@@ -266,9 +274,9 @@ namespace Game.Gameplay.Installers
             Container.BindFixedTickableExecutionOrder<CustomPhysicsFixedTickRunner>(0);
         }
 
-        private void BindAsteroidRewardService()
+        private void BindEnemyRewardService()
         {
-            Container.BindInterfacesTo<AsteroidRewardService>().AsSingle().NonLazy();
+            Container.BindInterfacesTo<EnemyRewardService>().AsSingle().NonLazy();
         }
 
         private void BindCameraProvider()
@@ -302,6 +310,7 @@ namespace Game.Gameplay.Installers
             SignalBusInstaller.Install(Container);
 
             Container.DeclareSignal<PlayerDiedSignal>();
+            Container.DeclareSignal<EnemyDiedSignal>();
         }
 
         private void BindPlayerHealth()
