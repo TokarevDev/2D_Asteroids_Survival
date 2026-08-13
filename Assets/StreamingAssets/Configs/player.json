@@ -16,5 +16,6 @@
   "laserMaxCharges": 3,
   "laserRechargeSeconds": 5.0,
   "laserLength": 40.0,
+  "laserVisualDurationSeconds": 0.1,
   "invulnerabilitySeconds": 3.0
 }

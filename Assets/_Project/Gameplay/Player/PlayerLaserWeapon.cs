@@ -3,7 +3,6 @@ using Game.Core.Input;
 using Game.Core.Player;
 using Game.Core.Weapons;
 using Game.Gameplay.Weapons;
-using UnityEngine;
 using Zenject;
 
 namespace Game.Gameplay.Player
@@ -12,18 +11,18 @@ namespace Game.Gameplay.Player
     {
         private readonly IPlayerInputStrategy _inputStrategy;
         private readonly PlayerInvulnerability _invulnerability;
-        private readonly PlayerPhysicsController _physicsController;
+        private readonly WeaponOrigin _weaponOrigin;
         private readonly LaserChargeMagazine _chargeMagazine;
         private readonly LaserShotService _shotService;
 
         public PlayerLaserWeapon(IPlayerInputStrategy inputStrategy, PlayerInvulnerability invulnerability,
-            PlayerPhysicsController physicsController, LaserChargeMagazine chargeMagazine, LaserShotService shotService)
+            WeaponOrigin weaponOrigin, LaserChargeMagazine chargeMagazine, LaserShotService shotService)
         {
             _inputStrategy = inputStrategy ?? throw new ArgumentNullException(nameof(inputStrategy));
 
             _invulnerability = invulnerability ?? throw new ArgumentNullException(nameof(invulnerability));
 
-            _physicsController = physicsController ?? throw new ArgumentNullException(nameof(physicsController));
+            _weaponOrigin = weaponOrigin ?? throw new ArgumentNullException(nameof(weaponOrigin));
 
             _chargeMagazine = chargeMagazine ?? throw new ArgumentNullException(nameof(chargeMagazine));
 
@@ -44,10 +43,7 @@ namespace Game.Gameplay.Player
                 return;
             }
 
-            float rotationRadians = _physicsController.Body.RotationDegrees * Mathf.Deg2Rad;
-            Vector2 direction = new(-Mathf.Sin(rotationRadians), Mathf.Cos(rotationRadians));
-
-            _shotService.Fire(_physicsController.Body.Position, direction);
+            _shotService.Fire(_weaponOrigin.Position, _weaponOrigin.Direction);
         }
     }
 }

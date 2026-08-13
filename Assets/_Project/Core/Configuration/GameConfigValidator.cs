@@ -67,6 +67,9 @@ namespace Game.Core.Configuration
             EnsurePositive(config.LaserLength,
                 nameof(config.LaserLength));
 
+            EnsurePositive(config.LaserVisualDurationSeconds,
+                nameof(config.LaserVisualDurationSeconds));
+
             EnsurePositive(
                 config.InvulnerabilitySeconds,
                 nameof(config.InvulnerabilitySeconds));
@@ -166,7 +169,7 @@ namespace Game.Core.Configuration
 
         private static void EnsurePositive(float value, string parameterName)
         {
-            if (value <= 0)
+            if (value <= 0f)
             {
                 throw new ArgumentOutOfRangeException(parameterName, value, "Value must be greater than zero");
             }

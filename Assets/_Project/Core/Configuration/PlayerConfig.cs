@@ -24,6 +24,7 @@ namespace Game.Core.Configuration
         public int LaserMaxCharges { get; set; }
         public float LaserRechargeSeconds { get; set; }
         public float LaserLength { get; set; }
+        public float LaserVisualDurationSeconds { get; set; }
 
         public float InvulnerabilitySeconds { get; set; }
     }

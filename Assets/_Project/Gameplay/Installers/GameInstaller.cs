@@ -77,7 +77,13 @@ namespace Game.Gameplay.Installers
 
             Container.Bind<LaserShotService>().AsSingle().NonLazy();
 
+            Container.Bind<WeaponOrigin>().FromComponentInHierarchy().AsSingle();
+
             Container.BindInterfacesTo<PlayerLaserWeapon>().AsSingle().NonLazy();
+
+            Container.Bind<LaserView>().FromComponentInHierarchy().AsSingle();
+
+            Container.BindInterfacesTo<LaserViewController>().AsSingle().NonLazy();
         }
 
         private void BindPlayerCollisionVfx()

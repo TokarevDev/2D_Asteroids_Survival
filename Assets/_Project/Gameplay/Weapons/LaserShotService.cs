@@ -10,6 +10,8 @@ namespace Game.Gameplay.Weapons
 {
     public sealed class LaserShotService
     {
+        public event Action<Vector2, Vector2> Fired;
+
         private readonly LaserTargetQuery _targetQuery;
         private readonly EnemyDestructionService _destructionService;
         private readonly List<EnemyEntity> _targets;
@@ -49,6 +51,8 @@ namespace Game.Gameplay.Weapons
             {
                 _destructionService.DestroyByPlayer(_targets[i]);
             }
+
+            Fired?.Invoke(start, end);
 
             return destroyedCount;
         }
