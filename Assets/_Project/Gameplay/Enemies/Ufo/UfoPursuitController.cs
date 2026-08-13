@@ -46,7 +46,7 @@ namespace Game.Gameplay.Enemies.Ufo
             {
                 EnemyEntity enemy = enemies[i];
 
-                if (enemy.Type != EnemyType.Ufo)
+                if (enemy.Type != EnemyType.Ufo || !enemy.HasEnteredWorld)
                 {
                     continue;
                 }
