@@ -6,6 +6,8 @@ namespace Game.Gameplay.Weapons
     {
         [SerializeField] private LineRenderer _lineRenderer;
 
+        private float _maximumWidth;
+
         private void Awake()
         {
             if (_lineRenderer == null)
@@ -17,6 +19,7 @@ namespace Game.Gameplay.Weapons
 
             _lineRenderer.useWorldSpace = true;
             _lineRenderer.positionCount = 2;
+            _maximumWidth = _lineRenderer.widthMultiplier;
             _lineRenderer.enabled = false;
         }
 
@@ -24,7 +27,13 @@ namespace Game.Gameplay.Weapons
         {
             _lineRenderer.SetPosition(0, start);
             _lineRenderer.SetPosition(1, end);
+            _lineRenderer.widthMultiplier = _maximumWidth;
             _lineRenderer.enabled = true;
+        }
+
+        public void SetWidthScale(float normalizedScale)
+        {
+            _lineRenderer.widthMultiplier = _maximumWidth * Mathf.Clamp01(normalizedScale);
         }
 
         public void Hide()

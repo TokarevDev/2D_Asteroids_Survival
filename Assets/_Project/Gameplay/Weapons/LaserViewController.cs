@@ -47,6 +47,9 @@ namespace Game.Gameplay.Weapons
 
             _remainingSeconds -= Time.deltaTime;
 
+            float widthScale = _remainingSeconds / _visualDurationSeconds;
+            _view.SetWidthScale(widthScale);
+
             if (_remainingSeconds > 0f)
             {
                 return;
