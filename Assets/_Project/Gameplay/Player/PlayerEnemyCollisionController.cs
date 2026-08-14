@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Game.Core.Enemies;
 using Game.Core.Physics;
 using Game.Core.Player;
-using Game.Core.World;
 using UnityEngine;
 using Zenject;
 
@@ -16,12 +15,11 @@ namespace Game.Gameplay.Player
         private readonly PlayerPhysicsController _playerController;
         private readonly EnemyRegistry _enemyRegistry;
         private readonly CircleCollisionDetector2D _collisionDetector;
-        private readonly ToroidalWorld2D _world;
         private readonly PlayerInvulnerability _invulnerability;
 
         public PlayerEnemyCollisionController(PlayerPhysicsController playerController,
             PlayerInvulnerability invulnerability, EnemyRegistry enemyRegistry,
-            CircleCollisionDetector2D collisionDetector, ToroidalWorld2D world)
+            CircleCollisionDetector2D collisionDetector)
         {
             _playerController = playerController ?? throw new ArgumentNullException(nameof(playerController));
 
@@ -30,8 +28,6 @@ namespace Game.Gameplay.Player
             _enemyRegistry = enemyRegistry ?? throw new ArgumentNullException(nameof(enemyRegistry));
 
             _collisionDetector = collisionDetector ?? throw new ArgumentNullException(nameof(collisionDetector));
-
-            _world = world ?? throw new ArgumentNullException(nameof(world));
         }
 
         public void FixedTick()
@@ -54,7 +50,7 @@ namespace Game.Gameplay.Player
 
                 CustomPhysicsBody2D enemyBody = enemy.PhysicsBody;
 
-                Vector2 displacement = _world.GetShortestDisplacement(playerBody.Position, enemyBody.Position);
+                Vector2 displacement = enemyBody.Position - playerBody.Position;
 
                 if (!_collisionDetector.Intersects(playerBody, enemyBody, displacement))
                 {
