@@ -21,8 +21,26 @@ namespace Game.Core.Player
         {
             ValidateDeltaTime(deltaTime);
 
+            if (input.MovementDirection.sqrMagnitude > 0f)
+            {
+                ApplyDirectionalMovement(input.MovementDirection, deltaTime);
+                return;
+            }
+
             ApplyRotation(input.Turn, deltaTime);
             ApplyVelocity(input.Thrust, input.Brake, deltaTime);
+        }
+
+        private void ApplyDirectionalMovement(Vector2 movementDirection, float deltaTime)
+        {
+            float targetRotation = Mathf.Atan2(-movementDirection.x, movementDirection.y) * Mathf.Rad2Deg;
+
+            float nextRotation = Mathf.MoveTowardsAngle(_body.RotationDegrees, targetRotation,
+                _config.TurnSpeedDegreesPerSecond * deltaTime);
+
+            _body.SetRotation(Mathf.Repeat(nextRotation, 360f));
+
+            ApplyVelocity(movementDirection.magnitude, 0f, deltaTime);
         }
 
         private void ApplyRotation(float turnInput, float deltaTime)

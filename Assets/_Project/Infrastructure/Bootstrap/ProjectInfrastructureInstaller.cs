@@ -3,6 +3,8 @@ using Game.Core.Configuration;
 using Game.Core.Input;
 using Game.Infrastructure.Configuration;
 using Game.Infrastructure.Controls;
+using Game.Infrastructure.Performance;
+using UnityEngine;
 using Zenject;
 
 namespace Game.Infrastructure
@@ -15,8 +17,14 @@ namespace Game.Infrastructure
             BindGameConfiguration();
             BindSceneLoader();
             BindApplicationQuitService();
+            BindPerformance();
             BindInput();
             BindAdvertisement();
+        }
+
+        private void BindPerformance()
+        {
+            Container.BindInterfacesTo<MobileFrameRateService>().AsSingle();
         }
 
         private void BindGameConfiguration()
@@ -42,7 +50,20 @@ namespace Game.Infrastructure
 
         private void BindInput()
         {
-            Container.Bind<IPlayerInputStrategy>().To<KeyboardMouseInputStrategy>().AsSingle();
+            Container.Bind<MobileInputBuffer>().AsSingle();
+
+            Container.Bind<KeyboardMouseInputStrategy>().AsSingle();
+            Container.Bind<MobileInputStrategy>().AsSingle();
+
+            Container.Bind<IPlayerInputStrategy>().FromMethod(context =>
+            {
+                if (Application.isMobilePlatform)
+                {
+                    return context.Container.Resolve<MobileInputStrategy>();
+                }
+
+                return context.Container.Resolve<KeyboardMouseInputStrategy>();
+            }).AsSingle();
 
             Container.Bind<IInputReader>().To<InputReader>()
                 .AsSingle();
