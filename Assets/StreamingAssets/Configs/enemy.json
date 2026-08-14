@@ -2,7 +2,7 @@
   "largeAsteroid": {
     "maxHealth": 1,
     "speed": 1.5,
-    "collisionRadius": 1.5,
+    "collisionRadius": 0.9,
     "mass": 3.0,
     "scoreReward": 20
   },

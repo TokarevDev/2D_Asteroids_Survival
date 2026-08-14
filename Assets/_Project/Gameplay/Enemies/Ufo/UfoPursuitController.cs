@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Game.Core.Configuration;
 using Game.Core.Enemies;
+using Game.Core.Player;
 using Game.Core.World;
 using Game.Gameplay.Player;
 using UnityEngine;
@@ -14,13 +15,17 @@ namespace Game.Gameplay.Enemies.Ufo
         private readonly EnemyRegistry _enemyRegistry;
         private readonly PlayerPhysicsController _playerController;
         private readonly UfoPursuitMovement _movement;
+        private readonly PlayerInvulnerability _invulnerability;
 
         public UfoPursuitController(EnemyRegistry enemyRegistry, PlayerPhysicsController playerController,
+            PlayerInvulnerability invulnerability,
             ToroidalWorld2D world, IGameConfigProvider configProvider)
         {
             _enemyRegistry = enemyRegistry ?? throw new ArgumentNullException(nameof(enemyRegistry));
 
             _playerController = playerController ?? throw new ArgumentNullException(nameof(playerController));
+
+            _invulnerability = invulnerability ?? throw new ArgumentNullException(nameof(invulnerability));
 
             if (world == null)
             {
@@ -39,6 +44,11 @@ namespace Game.Gameplay.Enemies.Ufo
 
         public void FixedTick()
         {
+            if (_invulnerability.IsActive)
+            {
+                return;
+            }
+
             IReadOnlyList<EnemyEntity> enemies = _enemyRegistry.Enemies;
             Vector2 playerPosition = _playerController.Body.Position;
 
