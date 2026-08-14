@@ -13,7 +13,7 @@ namespace Game.UI
         private void Construct(IAdvertisementService advertisementService)
         {
             _advertisementService = advertisementService
-                ?? throw new ArgumentNullException(nameof(advertisementService));
+                                    ?? throw new ArgumentNullException(nameof(advertisementService));
         }
 
         private void Start()

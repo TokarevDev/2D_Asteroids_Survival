@@ -5,6 +5,7 @@ namespace Game.Core
     public interface ISceneLoader
     {
         UniTask LoadMainMenuAsync();
+
         UniTask LoadGameAsync();
     }
 }

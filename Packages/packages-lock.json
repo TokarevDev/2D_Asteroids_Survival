@@ -8,7 +8,7 @@
       "hash": "2e993ff18f28c931602a07292df0b0804eebef99"
     },
     "com.google.ads.mobile": {
-      "version": "11.3.0",
+      "version": "11.2.0",
       "depth": 0,
       "source": "registry",
       "dependencies": {
