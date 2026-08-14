@@ -20,7 +20,7 @@ namespace Game.UI
         {
             _sceneLoader = sceneLoader ?? throw new ArgumentNullException(nameof(sceneLoader));
             _applicationQuitService = applicationQuitService
-                                      ?? throw new ArgumentNullException(nameof(applicationQuitService));
+                ?? throw new ArgumentNullException(nameof(applicationQuitService));
         }
 
         private void OnEnable()

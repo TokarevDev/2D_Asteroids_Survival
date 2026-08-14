@@ -8,7 +8,8 @@ namespace Game.Gameplay
     {
         [SerializeField] private Transform _target;
 
-        [SerializeField, Min(0f)] private float _parallaxStrength = 0.005f;
+        [SerializeField, Min(0f)]
+        private float _parallaxStrength = 0.005f;
 
         private Material _runtimeMaterial;
         private Vector2 _offset;

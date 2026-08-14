@@ -14,7 +14,7 @@ namespace Game.UI
         private void Construct(GameOverViewModel gameOverViewModel)
         {
             _gameOverViewModel = gameOverViewModel
-                                 ?? throw new ArgumentNullException(nameof(gameOverViewModel));
+                ?? throw new ArgumentNullException(nameof(gameOverViewModel));
         }
 
         private void Awake()
