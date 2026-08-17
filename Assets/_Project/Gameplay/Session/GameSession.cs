@@ -2,7 +2,7 @@ using System;
 using Game.Gameplay.Signals;
 using Zenject;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Session
 {
     public sealed class GameSession : IInitializable, IDisposable
     {

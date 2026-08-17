@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Zenject;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Session
 {
     public sealed class GamePauseService : IInitializable, IDisposable
     {
