@@ -54,6 +54,8 @@ csharp_style_expression_bodied_accessors = false:silent
 # cleanup-on-save and full cleanup cannot remove SerializeField references.
 dotnet_style_prefer_auto_properties = false:silent
 resharper_convert_to_auto_property_highlighting = none
+resharper_convert_to_auto_property_when_possible_highlighting = none
+resharper_convert_to_auto_property_with_private_setter_highlighting = none
 
 # Useful low-noise C# suggestions.
 dotnet_style_object_initializer = true:suggestion
