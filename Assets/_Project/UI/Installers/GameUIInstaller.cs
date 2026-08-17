@@ -11,6 +11,12 @@ namespace Game.UI
             BindHealthViewModel();
             BindTimerViewModel();
             BindScoreViewModel();
+            BindPlayerTelemetryViewModel();
+        }
+
+        private void BindPlayerTelemetryViewModel()
+        {
+            Container.BindInterfacesAndSelfTo<PlayerTelemetryViewModel>().AsSingle().NonLazy();
         }
 
         private void BindScoreViewModel()
