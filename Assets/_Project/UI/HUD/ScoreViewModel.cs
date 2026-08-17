@@ -1,5 +1,5 @@
 using System;
-using Game.Gameplay;
+using Game.Gameplay.Score;
 using Zenject;
 
 namespace Game.UI

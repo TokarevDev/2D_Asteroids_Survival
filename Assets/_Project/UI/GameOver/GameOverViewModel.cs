@@ -1,7 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Game.Core.Scenes;
-using Game.Gameplay;
+using Game.Gameplay.Score;
 using Game.Gameplay.Signals;
 using Zenject;
 

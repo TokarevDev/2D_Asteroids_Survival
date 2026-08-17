@@ -1,6 +1,6 @@
 using System;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Score
 {
     public sealed class ScoreCounter
     {
