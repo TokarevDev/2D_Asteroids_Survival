@@ -1,6 +1,6 @@
 using System;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Combat
 {
     public sealed class Health
     {

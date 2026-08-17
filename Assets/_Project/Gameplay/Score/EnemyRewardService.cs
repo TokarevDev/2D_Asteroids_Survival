@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Game.Core.Configuration;
 using Game.Core.Enemies;
+using Game.Gameplay.Combat;
 using Game.Gameplay.Signals;
 using Zenject;
 

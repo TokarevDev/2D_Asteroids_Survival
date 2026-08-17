@@ -1,4 +1,5 @@
 using Game.Core.Enemies;
+using Game.Gameplay.Combat;
 
 namespace Game.Gameplay.Signals
 {
