@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Pooling
 {
     public sealed class ObjectPool<T> where T : class
     {

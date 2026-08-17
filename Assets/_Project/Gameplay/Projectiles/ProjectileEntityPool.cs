@@ -1,6 +1,7 @@
 using System;
 using Game.Core.Configuration;
 using Game.Core.Projectiles;
+using Game.Gameplay.Pooling;
 using UnityEngine;
 
 namespace Game.Gameplay.Projectiles

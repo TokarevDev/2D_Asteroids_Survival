@@ -2,6 +2,7 @@ using System;
 using Game.Core.Configuration;
 using Game.Core.Enemies;
 using Game.Gameplay.Combat;
+using Game.Gameplay.Pooling;
 using UnityEngine;
 using Zenject;
 

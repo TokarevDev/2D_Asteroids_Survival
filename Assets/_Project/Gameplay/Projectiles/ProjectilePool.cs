@@ -1,7 +1,7 @@
 using System;
 using Game.Core.Configuration;
 using Game.Core.Projectiles;
-using Game.Gameplay;
+using Game.Gameplay.Pooling;
 using UnityEngine;
 using Zenject;
 
