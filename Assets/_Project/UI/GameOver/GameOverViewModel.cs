@@ -2,6 +2,7 @@ using System;
 using Cysharp.Threading.Tasks;
 using Game.Core.Scenes;
 using Game.Gameplay;
+using Game.Gameplay.Signals;
 using Zenject;
 
 namespace Game.UI
