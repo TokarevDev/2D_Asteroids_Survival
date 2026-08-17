@@ -12,6 +12,12 @@ namespace Game.UI
             BindTimerViewModel();
             BindScoreViewModel();
             BindPlayerTelemetryViewModel();
+            BindLaserStatusViewModel();
+        }
+
+        private void BindLaserStatusViewModel()
+        {
+            Container.BindInterfacesAndSelfTo<LaserStatusViewModel>().AsSingle().NonLazy();
         }
 
         private void BindPlayerTelemetryViewModel()
