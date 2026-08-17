@@ -6,21 +6,31 @@ namespace Game.Core.World
 {
     public sealed class ToroidalWorld2D
     {
-        private readonly float _width;
-        private readonly float _height;
-        private readonly float _halfWidth;
-        private readonly float _halfHeight;
+        private float _width;
+        private float _height;
+        private float _halfWidth;
+        private float _halfHeight;
+
+        public float HalfWidth => _halfWidth;
+        public float HalfHeight => _halfHeight;
 
         public ToroidalWorld2D(float width, float height)
         {
+            SetSize(width, height);
+        }
+
+        public void SetSize(float width, float height)
+        {
             if (width <= 0f)
             {
-                throw new ArgumentOutOfRangeException(nameof(width), width, "World width must be greater than zero");
+                throw new ArgumentOutOfRangeException(
+                    nameof(width), width, "World width must be greater than zero");
             }
 
             if (height <= 0f)
             {
-                throw new ArgumentOutOfRangeException(nameof(height), height, "World height must be greater than zero");
+                throw new ArgumentOutOfRangeException(
+                    nameof(height), height, "World height must be greater than zero");
             }
 
             _width = width;
@@ -58,7 +68,8 @@ namespace Game.Core.World
             float wrappedX = WrapCoordinate(position.x, _halfWidth, _width);
             float wrappedY = WrapCoordinate(position.y, _halfHeight, _height);
 
-            if (wrappedX == position.x && wrappedY == position.y)
+            if (Mathf.Approximately(wrappedX, position.x) &&
+                Mathf.Approximately(wrappedY, position.y))
             {
                 return;
             }

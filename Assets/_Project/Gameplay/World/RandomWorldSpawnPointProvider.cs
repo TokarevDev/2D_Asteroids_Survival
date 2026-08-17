@@ -1,5 +1,6 @@
 using System;
 using Game.Core.Configuration;
+using Game.Core.World;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -7,8 +8,7 @@ namespace Game.Gameplay.World
 {
     public sealed class RandomWorldSpawnPointProvider
     {
-        private readonly float _halfWidth;
-        private readonly float _halfHeight;
+        private readonly ToroidalWorld2D _world;
         private readonly float _outsideOffset;
 
         private enum WorldEdge
@@ -20,37 +20,37 @@ namespace Game.Gameplay.World
             Count
         }
 
-        public RandomWorldSpawnPointProvider(IGameConfigProvider configProvider)
+        public RandomWorldSpawnPointProvider(IGameConfigProvider configProvider, ToroidalWorld2D world)
         {
             if (configProvider == null)
             {
                 throw new ArgumentNullException(nameof(configProvider));
             }
 
-            WorldConfig config = configProvider.World;
-
-            _halfWidth = config.Width * 0.5f;
-            _halfHeight = config.Height * 0.5f;
-            _outsideOffset = config.SpawnOutsideOffset;
+            _world = world ?? throw new ArgumentNullException(nameof(world));
+            _outsideOffset = configProvider.World.SpawnOutsideOffset;
         }
 
         public Vector2 GetSpawnPosition()
         {
+            float halfWidth = _world.HalfWidth;
+            float halfHeight = _world.HalfHeight;
+
             WorldEdge edge = (WorldEdge)Random.Range(0, (int)WorldEdge.Count);
 
             switch (edge)
             {
                 case WorldEdge.Left:
-                    return new Vector2(-_halfWidth - _outsideOffset, Random.Range(-_halfHeight, _halfHeight));
+                    return new Vector2(-halfWidth - _outsideOffset, Random.Range(-halfHeight, halfHeight));
 
                 case WorldEdge.Right:
-                    return new Vector2(_halfWidth + _outsideOffset, Random.Range(-_halfHeight, _halfHeight));
+                    return new Vector2(halfWidth + _outsideOffset, Random.Range(-halfHeight, halfHeight));
 
                 case WorldEdge.Bottom:
-                    return new Vector2(Random.Range(-_halfWidth, _halfWidth), -_halfHeight - _outsideOffset);
+                    return new Vector2(Random.Range(-halfWidth, halfWidth), -halfHeight - _outsideOffset);
 
                 case WorldEdge.Top:
-                    return new Vector2(Random.Range(-_halfWidth, _halfWidth), _halfHeight + _outsideOffset);
+                    return new Vector2(Random.Range(-halfWidth, halfWidth), halfHeight + _outsideOffset);
 
                 default:
                     throw new ArgumentOutOfRangeException(nameof(edge), edge, "Unsupported world edge");
@@ -60,7 +60,7 @@ namespace Game.Gameplay.World
         public Vector2 GetTargetPosition()
         {
             return new Vector2(
-                Random.Range(-_halfWidth, _halfWidth), Random.Range(-_halfHeight, _halfHeight));
+                Random.Range(-_world.HalfWidth, _world.HalfWidth), Random.Range(-_world.HalfHeight, _world.HalfHeight));
         }
     }
 }

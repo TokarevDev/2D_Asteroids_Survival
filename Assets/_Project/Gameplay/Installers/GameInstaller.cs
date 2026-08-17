@@ -47,6 +47,7 @@ namespace Game.Gameplay.Installers
             BindPlayerPhysicsViewSynchronizer();
             BindSignals();
             BindCameraProvider();
+            BindCameraWorldBoundsSynchronizer();
             BindPlayerHealth();
             BindPlayerCollisionDamage();
             BindPlayerDeathSignalService();
@@ -60,6 +61,11 @@ namespace Game.Gameplay.Installers
             BindEnemyRewardService();
             BindGamePauseService();
             BindGameSession();
+        }
+
+        private void BindCameraWorldBoundsSynchronizer()
+        {
+            Container.BindInterfacesTo<CameraWorldBoundsSynchronizer>().AsSingle().NonLazy();
         }
 
         private void BindEnemyDeathSignalService()
