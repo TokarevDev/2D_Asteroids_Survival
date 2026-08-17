@@ -1,19 +1,28 @@
+using System;
+using Game.Core.World;
 using UnityEngine;
+using Zenject;
 
 namespace Game.Gameplay
 {
-    [DisallowMultipleComponent]
-    [RequireComponent(typeof(MeshRenderer))]
+    [DisallowMultipleComponent, RequireComponent(typeof(MeshRenderer))]
     public sealed class BackgroundLayerParallax : MonoBehaviour
     {
         [SerializeField] private Transform _target;
 
-        [SerializeField, Min(0f)]
-        private float _parallaxStrength = 0.005f;
+        [SerializeField, Min(0f)] private float _parallaxStrength = 0.005f;
+
+        private ToroidalWorld2D _world;
 
         private Material _runtimeMaterial;
         private Vector2 _offset;
         private Vector3 _previousTargetPosition;
+
+        [Inject]
+        private void Construct(ToroidalWorld2D world)
+        {
+            _world = world ?? throw new ArgumentNullException(nameof(world));
+        }
 
         private void Awake()
         {
@@ -39,7 +48,7 @@ namespace Game.Gameplay
             }
 
             Vector3 currentTargetPosition = _target.position;
-            Vector3 movementDelta = currentTargetPosition - _previousTargetPosition;
+            Vector2 movementDelta = _world.GetShortestDisplacement(_previousTargetPosition, currentTargetPosition);
 
             _previousTargetPosition = currentTargetPosition;
 
