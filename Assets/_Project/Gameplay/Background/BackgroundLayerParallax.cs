@@ -3,7 +3,7 @@ using Game.Core.World;
 using UnityEngine;
 using Zenject;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Background
 {
     [DisallowMultipleComponent, RequireComponent(typeof(MeshRenderer))]
     public sealed class BackgroundLayerParallax : MonoBehaviour
