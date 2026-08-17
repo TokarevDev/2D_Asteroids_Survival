@@ -1,5 +1,4 @@
 using System;
-using TMPro;
 using UnityEngine;
 using Zenject;
 
@@ -7,7 +6,7 @@ namespace Game.UI
 {
     public sealed class HealthView : MonoBehaviour
     {
-        [SerializeField] private TMP_Text _healthText;
+        [SerializeField] private IconCounterView _healthCounter;
 
         private HealthViewModel _viewModel;
 
@@ -27,14 +26,17 @@ namespace Game.UI
 
         private void OnEnable()
         {
-            if (_viewModel == null || _healthText == null)
+            if (_viewModel == null || _healthCounter == null)
             {
                 return;
             }
 
             _viewModel.HealthChanged += OnHealthChanged;
 
-            OnHealthChanged(_viewModel.CurrentHealth, _viewModel.MaxHealth);
+            if (_viewModel.IsInitialized)
+            {
+                OnHealthChanged(_viewModel.CurrentHealth, _viewModel.MaxHealth);
+            }
         }
 
         private void OnDisable()
@@ -49,17 +51,26 @@ namespace Game.UI
 
         private void OnHealthChanged(int currentHealth, int maxHealth)
         {
-            _healthText.SetText("HP: {0}/{1}", currentHealth, maxHealth);
+            if (_healthCounter.Capacity != maxHealth)
+            {
+                Debug.LogError(
+                    $"Health icon capacity {_healthCounter.Capacity} " +
+                    $"does not match max health {maxHealth}", this);
+                enabled = false;
+                return;
+            }
+
+            _healthCounter.SetVisibleCount(currentHealth);
         }
 
         private bool ValidateSerializedReferences()
         {
-            if (_healthText != null)
+            if (_healthCounter != null)
             {
                 return true;
             }
 
-            Debug.LogError("Health text reference is missing", this);
+            Debug.LogError("Health icon counter reference is missing", this);
             return false;
         }
     }

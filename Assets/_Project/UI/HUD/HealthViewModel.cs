@@ -12,6 +12,7 @@ namespace Game.UI
 
         public int CurrentHealth { get; private set; }
         public int MaxHealth { get; private set; }
+        public bool IsInitialized { get; private set; }
 
         public HealthViewModel(PlayerHealth playerHealth)
         {
@@ -22,6 +23,7 @@ namespace Game.UI
         {
             _playerHealth.HealthChanged += OnHealthChanged;
 
+            IsInitialized = true;
             OnHealthChanged(_playerHealth.CurrentHealth, _playerHealth.MaxHealth);
         }
 

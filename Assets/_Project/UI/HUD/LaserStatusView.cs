@@ -7,7 +7,8 @@ namespace Game.UI
 {
     public sealed class LaserStatusView : MonoBehaviour
     {
-        [SerializeField] private TMP_Text _laserStatusText;
+        [SerializeField] private IconCounterView _chargeCounter;
+        [SerializeField] private TMP_Text _rechargeText;
 
         private LaserStatusViewModel _viewModel;
 
@@ -27,7 +28,7 @@ namespace Game.UI
 
         private void OnEnable()
         {
-            if (_viewModel == null || _laserStatusText == null)
+            if (_viewModel == null || _rechargeText == null || _chargeCounter == null)
             {
                 return;
             }
@@ -47,21 +48,41 @@ namespace Game.UI
             _viewModel.LaserStatusChanged -= OnLaserStatusChanged;
         }
 
-        private void OnLaserStatusChanged(int currentCharges, int maxCharges, float rechargeRemainingSeconds)
+        private void OnLaserStatusChanged(
+            int currentCharges,
+            int maxCharges,
+            float rechargeRemainingSeconds)
         {
-            _laserStatusText.SetText("Laser: {0}/{1}\nRecharge: {2:0.0} s", currentCharges, maxCharges,
+            if (_chargeCounter.Capacity != maxCharges)
+            {
+                Debug.LogError(
+                    $"Laser charge icon capacity {_chargeCounter.Capacity} " +
+                    $"does not match max charges {maxCharges}", this);
+                enabled = false;
+                return;
+            }
+
+            _chargeCounter.SetVisibleCount(currentCharges);
+            _rechargeText.SetText(
+                "Recharge: {0:0.0} s",
                 rechargeRemainingSeconds);
         }
 
         private bool ValidateSerializedReferences()
         {
-            if (_laserStatusText != null)
+            if (_chargeCounter == null)
             {
-                return true;
+                Debug.LogError("Laser charge counter reference is missing", this);
+                return false;
             }
 
-            Debug.LogError("Laser status text reference is missing", this);
-            return false;
+            if (_rechargeText == null)
+            {
+                Debug.LogError("Laser recharge text reference is missing", this);
+                return false;
+            }
+
+            return true;
         }
     }
 }
