@@ -2,7 +2,7 @@ using System;
 using Game.Core.Configuration;
 using Game.Core.Input;
 using Game.Core.Player;
-using Game.Gameplay;
+using Game.Gameplay.Projectiles;
 using UnityEngine;
 using Zenject;
 

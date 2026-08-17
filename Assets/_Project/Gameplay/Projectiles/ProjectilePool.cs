@@ -1,11 +1,11 @@
 using System;
 using Game.Core.Configuration;
 using Game.Core.Projectiles;
-using Game.Gameplay.Projectiles;
+using Game.Gameplay;
 using UnityEngine;
 using Zenject;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Projectiles
 {
     public sealed class ProjectilePool : MonoBehaviour
     {

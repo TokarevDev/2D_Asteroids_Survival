@@ -1,7 +1,6 @@
-using Game.Gameplay.Projectiles;
 using UnityEngine;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Projectiles
 {
     public sealed class Projectile : MonoBehaviour
     {
