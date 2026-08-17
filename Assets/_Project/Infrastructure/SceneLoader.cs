@@ -1,5 +1,5 @@
 using Cysharp.Threading.Tasks;
-using Game.Core;
+using Game.Core.Scenes;
 using UnityEngine.SceneManagement;
 
 namespace Game.Infrastructure

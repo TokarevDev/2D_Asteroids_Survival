@@ -1,6 +1,6 @@
 using Cysharp.Threading.Tasks;
 
-namespace Game.Core
+namespace Game.Core.Scenes
 {
     public interface ISceneLoader
     {

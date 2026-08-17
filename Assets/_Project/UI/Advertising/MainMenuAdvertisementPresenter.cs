@@ -1,5 +1,5 @@
 using System;
-using Game.Core;
+using Game.Core.Advertising;
 using UnityEngine;
 using Zenject;
 

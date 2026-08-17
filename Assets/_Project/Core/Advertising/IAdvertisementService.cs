@@ -1,4 +1,4 @@
-namespace Game.Core
+namespace Game.Core.Advertising
 {
     public interface IAdvertisementService
     {

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Core
+namespace Game.Core.Input
 {
     public interface IInputReader
     {

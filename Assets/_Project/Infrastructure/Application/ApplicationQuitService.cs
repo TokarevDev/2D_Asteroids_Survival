@@ -1,4 +1,4 @@
-using Game.Core;
+using Game.Core.Application;
 using UnityEngine;
 
 namespace Game.Infrastructure

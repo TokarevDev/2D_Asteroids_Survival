@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
-using Game.Core;
+using Game.Core.Application;
+using Game.Core.Scenes;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;

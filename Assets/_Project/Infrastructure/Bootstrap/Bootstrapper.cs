@@ -1,8 +1,8 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Game.Core;
 using Game.Core.Configuration;
+using Game.Core.Scenes;
 using UnityEngine;
 using Zenject;
 
