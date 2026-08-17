@@ -2,7 +2,7 @@ using System;
 using Game.Gameplay.Score;
 using Zenject;
 
-namespace Game.UI
+namespace Game.UI.HUD
 {
     public sealed class ScoreViewModel : IInitializable, IDisposable
     {

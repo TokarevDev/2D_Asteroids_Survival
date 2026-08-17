@@ -1,6 +1,7 @@
 using System;
 using Game.Core.Enemies;
 using Game.Core.Projectiles;
+using Game.Gameplay.Asteroids;
 using Game.Gameplay.Enemies.Ufo;
 using UnityEngine;
 using Zenject;

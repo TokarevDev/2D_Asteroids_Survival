@@ -1,6 +1,8 @@
+using Game.UI.GameOver;
+using Game.UI.HUD;
 using Zenject;
 
-namespace Game.UI
+namespace Game.UI.Installers
 {
     public sealed class GameUIInstaller : MonoInstaller
     {

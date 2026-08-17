@@ -1,10 +1,11 @@
 using System;
 using Game.Gameplay.Combat;
 using Game.Gameplay.Enemies;
+using Game.Gameplay.Asteroids.Animation;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Asteroids
 {
     [RequireComponent(typeof(EnemyPhysicsView))]
     public sealed class Asteroid : MonoBehaviour, IDamageable

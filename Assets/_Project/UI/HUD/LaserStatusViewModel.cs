@@ -3,7 +3,7 @@ using Game.Core.Weapons;
 using UnityEngine;
 using Zenject;
 
-namespace Game.UI
+namespace Game.UI.HUD
 {
     public sealed class LaserStatusViewModel : ITickable
     {

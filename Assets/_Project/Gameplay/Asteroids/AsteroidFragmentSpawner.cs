@@ -3,7 +3,7 @@ using Game.Core.Configuration;
 using Game.Core.Enemies;
 using UnityEngine;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Asteroids
 {
     public sealed class AsteroidFragmentSpawner
     {

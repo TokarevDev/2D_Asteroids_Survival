@@ -6,7 +6,7 @@ using Game.Core.Scenes;
 using UnityEngine;
 using Zenject;
 
-namespace Game.Infrastructure
+namespace Game.Infrastructure.Bootstrap
 {
     public sealed class Bootstrapper : MonoBehaviour
     {

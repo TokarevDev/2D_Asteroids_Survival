@@ -2,7 +2,7 @@ using System;
 using Game.Gameplay.Session;
 using Zenject;
 
-namespace Game.UI
+namespace Game.UI.HUD
 {
     public sealed class TimerViewModel : IInitializable, IDisposable
     {

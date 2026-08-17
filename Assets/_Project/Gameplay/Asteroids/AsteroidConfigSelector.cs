@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Asteroids
 {
     public sealed class AsteroidConfigSelector
     {

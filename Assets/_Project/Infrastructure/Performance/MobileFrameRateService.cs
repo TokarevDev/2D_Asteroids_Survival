@@ -1,5 +1,6 @@
 using UnityEngine;
 using Zenject;
+using UnityApplication = UnityEngine.Application;
 
 namespace Game.Infrastructure.Performance
 {
@@ -10,7 +11,7 @@ namespace Game.Infrastructure.Performance
 
         public void Initialize()
         {
-            if (!Application.isMobilePlatform)
+            if (!UnityApplication.isMobilePlatform)
             {
                 return;
             }
@@ -21,7 +22,7 @@ namespace Game.Infrastructure.Performance
                 ? Mathf.RoundToInt((float)displayRefreshRate)
                 : FallbackFrameRate;
 
-            Application.targetFrameRate = Mathf.Min(targetFrameRate, MaximumFrameRate);
+            UnityApplication.targetFrameRate = Mathf.Min(targetFrameRate, MaximumFrameRate);
         }
     }
 }

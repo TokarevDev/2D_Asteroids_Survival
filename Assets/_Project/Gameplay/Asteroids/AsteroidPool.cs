@@ -7,7 +7,7 @@ using Game.Gameplay.Pooling;
 using UnityEngine;
 using Zenject;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Asteroids
 {
     public sealed class AsteroidPool : MonoBehaviour
     {

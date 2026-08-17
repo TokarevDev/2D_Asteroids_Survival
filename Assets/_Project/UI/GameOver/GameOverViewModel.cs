@@ -5,7 +5,7 @@ using Game.Gameplay.Score;
 using Game.Gameplay.Signals;
 using Zenject;
 
-namespace Game.UI
+namespace Game.UI.GameOver
 {
     public sealed class GameOverViewModel : IInitializable, IDisposable
     {

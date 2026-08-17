@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
 
-namespace Game.UI
+namespace Game.UI.Navigation
 {
     public sealed class GameplayNavigationView : MonoBehaviour
     {

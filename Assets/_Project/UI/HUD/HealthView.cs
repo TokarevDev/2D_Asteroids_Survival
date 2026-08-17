@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using Zenject;
 
-namespace Game.UI
+namespace Game.UI.HUD
 {
     public sealed class HealthView : MonoBehaviour
     {

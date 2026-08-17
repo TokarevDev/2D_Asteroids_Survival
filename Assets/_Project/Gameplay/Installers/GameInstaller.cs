@@ -5,6 +5,7 @@ using Game.Core.Player;
 using Game.Core.Projectiles;
 using Game.Core.Weapons;
 using Game.Core.World;
+using Game.Gameplay.Asteroids;
 using Game.Gameplay.Enemies;
 using Game.Gameplay.Enemies.Ufo;
 using Game.Gameplay.Physics;

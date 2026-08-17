@@ -2,7 +2,7 @@ using System;
 using Game.Core.Input;
 using UnityEngine;
 
-namespace Game.Infrastructure
+namespace Game.Infrastructure.Input
 {
     public sealed class InputReader : IInputReader
     {

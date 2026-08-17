@@ -5,7 +5,7 @@ using GoogleMobileAds.Common;
 using UnityEngine;
 using Zenject;
 
-namespace Game.Infrastructure
+namespace Game.Infrastructure.Advertising
 {
     public sealed class AdMobAdvertisementService : IAdvertisementService, IInitializable, IDisposable
     {

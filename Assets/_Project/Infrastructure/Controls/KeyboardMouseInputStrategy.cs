@@ -1,5 +1,6 @@
 using Game.Core.Input;
 using UnityEngine;
+using UnityInput = UnityEngine.Input;
 
 namespace Game.Infrastructure.Controls
 {
@@ -8,18 +9,18 @@ namespace Game.Infrastructure.Controls
         public PlayerInputState Read()
         {
             float turn = ReadTurn();
-            float thrust = Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow) ? 1f : 0f;
-            float brake = Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.DownArrow) ? 1f : 0f;
-            bool fireBulletHeld = Input.GetKey(KeyCode.Space) || Input.GetMouseButton(0);
-            bool fireLaserPressed = Input.GetKeyDown(KeyCode.E) || Input.GetMouseButtonDown(1);
+            float thrust = UnityInput.GetKey(KeyCode.W) || UnityInput.GetKey(KeyCode.UpArrow) ? 1f : 0f;
+            float brake = UnityInput.GetKey(KeyCode.S) || UnityInput.GetKey(KeyCode.DownArrow) ? 1f : 0f;
+            bool fireBulletHeld = UnityInput.GetKey(KeyCode.Space) || UnityInput.GetMouseButton(0);
+            bool fireLaserPressed = UnityInput.GetKeyDown(KeyCode.E) || UnityInput.GetMouseButtonDown(1);
 
             return new PlayerInputState(turn, thrust, brake, fireBulletHeld, fireLaserPressed);
         }
 
         private static float ReadTurn()
         {
-            bool turnLeft = Input.GetKey(KeyCode.A) || Input.GetKey(KeyCode.LeftArrow);
-            bool turnRight = Input.GetKey(KeyCode.D) || Input.GetKey(KeyCode.RightArrow);
+            bool turnLeft = UnityInput.GetKey(KeyCode.A) || UnityInput.GetKey(KeyCode.LeftArrow);
+            bool turnRight = UnityInput.GetKey(KeyCode.D) || UnityInput.GetKey(KeyCode.RightArrow);
 
             if (turnLeft == turnRight)
             {

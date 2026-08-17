@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Asteroids.Animation
 {
     [CreateAssetMenu(fileName = "AsteroidAnimation", menuName = "Game/Asteroids/Animation Config")]
     public sealed class AsteroidAnimationConfig : ScriptableObject

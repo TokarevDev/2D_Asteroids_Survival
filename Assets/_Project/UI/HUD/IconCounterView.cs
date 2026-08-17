@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace Game.UI
+namespace Game.UI.HUD
 {
     public sealed class IconCounterView : MonoBehaviour
     {

@@ -6,7 +6,7 @@ using Game.Gameplay.World;
 using UnityEngine;
 using Zenject;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Asteroids
 {
     public sealed class AsteroidSpawner : MonoBehaviour
     {

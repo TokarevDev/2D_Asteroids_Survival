@@ -1,8 +1,9 @@
 using System;
+using Game.UI.GameOver;
 using UnityEngine;
 using Zenject;
 
-namespace Game.UI
+namespace Game.UI.HUD
 {
     public sealed class HudVisibilityView : MonoBehaviour
     {

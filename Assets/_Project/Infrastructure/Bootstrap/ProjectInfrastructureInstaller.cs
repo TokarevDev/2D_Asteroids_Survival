@@ -2,13 +2,17 @@ using Game.Core.Application;
 using Game.Core.Configuration;
 using Game.Core.Input;
 using Game.Core.Scenes;
+using Game.Infrastructure.Advertising;
+using Game.Infrastructure.Application;
 using Game.Infrastructure.Configuration;
 using Game.Infrastructure.Controls;
+using Game.Infrastructure.Input;
 using Game.Infrastructure.Performance;
 using UnityEngine;
 using Zenject;
+using UnityApplication = UnityEngine.Application;
 
-namespace Game.Infrastructure
+namespace Game.Infrastructure.Bootstrap
 {
     public sealed class ProjectInfrastructureInstaller : MonoInstaller
     {
@@ -58,7 +62,7 @@ namespace Game.Infrastructure
 
             Container.Bind<IPlayerInputStrategy>().FromMethod(context =>
             {
-                if (Application.isMobilePlatform)
+                if (UnityApplication.isMobilePlatform)
                 {
                     return context.Container.Resolve<MobileInputStrategy>();
                 }

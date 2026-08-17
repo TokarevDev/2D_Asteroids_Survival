@@ -4,6 +4,7 @@ using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityApplication = UnityEngine.Application;
 
 namespace Game.Infrastructure.Configuration
 {
@@ -24,7 +25,7 @@ namespace Game.Infrastructure.Configuration
                 throw new ArgumentException("JSON path cannot be empty", nameof(relativePath));
             }
 
-            string path = $"{Application.streamingAssetsPath}/{relativePath}";
+            string path = $"{UnityApplication.streamingAssetsPath}/{relativePath}";
 
             string requestPath = path.Contains("://") ? path : new Uri(path).AbsoluteUri;
 

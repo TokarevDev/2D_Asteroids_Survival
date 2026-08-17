@@ -1,5 +1,6 @@
 using System;
 using Game.Core.Enemies;
+using Game.Gameplay.Asteroids;
 using Game.Gameplay.Combat;
 using Game.Gameplay.Enemies.Ufo;
 using Game.Gameplay.Signals;
