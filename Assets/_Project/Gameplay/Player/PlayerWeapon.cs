@@ -2,10 +2,11 @@ using System;
 using Game.Core.Configuration;
 using Game.Core.Input;
 using Game.Core.Player;
+using Game.Gameplay;
 using UnityEngine;
 using Zenject;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Player
 {
     public sealed class PlayerWeapon : MonoBehaviour
     {

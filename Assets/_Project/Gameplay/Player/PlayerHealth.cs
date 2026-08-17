@@ -2,7 +2,7 @@ using System;
 using Game.Gameplay.Combat;
 using UnityEngine;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Player
 {
     public sealed class PlayerHealth : MonoBehaviour, IDamageable
     {

@@ -2,7 +2,7 @@ using System;
 using Game.Gameplay.Signals;
 using Zenject;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.Player
 {
     public sealed class PlayerDeathSignalService : IInitializable, IDisposable
     {
