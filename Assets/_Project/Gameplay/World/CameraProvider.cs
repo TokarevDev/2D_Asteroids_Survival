@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Game.Gameplay
+namespace Game.Gameplay.World
 {
     public sealed class CameraProvider
     {
