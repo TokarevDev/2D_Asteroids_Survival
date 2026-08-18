@@ -10,7 +10,6 @@ using Game.Infrastructure.Analytics;
 using Game.Infrastructure.Application;
 using Game.Infrastructure.Configuration;
 using Game.Infrastructure.Controls;
-using Game.Infrastructure.Input;
 using Game.Infrastructure.Performance;
 using UnityEngine;
 using Zenject;
@@ -98,9 +97,6 @@ namespace Game.Infrastructure.Bootstrap
 
                 return context.Container.Resolve<KeyboardMouseInputStrategy>();
             }).AsSingle();
-
-            Container.Bind<IInputReader>().To<InputReader>()
-                .AsSingle();
         }
 
         private void BindSceneLoader()
