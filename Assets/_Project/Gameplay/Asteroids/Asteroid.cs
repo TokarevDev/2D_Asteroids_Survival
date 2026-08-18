@@ -20,8 +20,6 @@ namespace Game.Gameplay.Asteroids
 
         private readonly Health _health = new();
 
-        private AsteroidConfig _config;
-
         private DeathSource _deathSource;
 
         public EnemyPhysicsView PhysicsView => _physicsView;
@@ -68,7 +66,6 @@ namespace Game.Gameplay.Asteroids
                     "Maximum health must be greater than zero");
             }
 
-            _config = config;
             _deathSource = DeathSource.Environment;
 
             _health.Initialize(maxHealth);
