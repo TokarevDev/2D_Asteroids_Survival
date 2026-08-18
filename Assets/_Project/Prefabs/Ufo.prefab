@@ -60,6 +60,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _physicsView: {fileID: 4582504759543018755}
   _spriteRenderer: {fileID: 515814198285477699}
+  _visualVariantSelector: {fileID: 6583818599198101766}
 --- !u!1 &7747785236813654209
 GameObject:
   m_ObjectHideFlags: 0
@@ -70,6 +71,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2580249353463990957}
   - component: {fileID: 515814198285477699}
+  - component: {fileID: 6583818599198101766}
   m_Layer: 0
   m_Name: Visual
   m_TagString: Untagged
@@ -144,3 +146,20 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &6583818599198101766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7747785236813654209}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11012150cbbd5dd41909d0c30a668374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _spriteRenderer: {fileID: 515814198285477699}
+  _variants:
+  - {fileID: 21300000, guid: 8fb85d767e40e654da5dc0f293ca2edf, type: 3}
+  - {fileID: 21300000, guid: aaac157837b44b7ba5d69184e8297464, type: 3}
+  - {fileID: 21300000, guid: 8cff3e5a923945c488a873a89afe7004, type: 3}

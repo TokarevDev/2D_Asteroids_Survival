@@ -11,6 +11,7 @@ namespace Game.Gameplay.Enemies.Ufo
 
         [SerializeField] private EnemyPhysicsView _physicsView;
         [SerializeField] private SpriteRenderer _spriteRenderer;
+        [SerializeField] private UfoVisualVariantSelector _visualVariantSelector;
 
         private readonly Health _health = new();
 
@@ -45,6 +46,7 @@ namespace Game.Gameplay.Enemies.Ufo
 
             _deathSource = DeathSource.Environment;
             _health.Initialize(maxHealth);
+            _visualVariantSelector.ApplyRandomVariant();
         }
 
         public void TakeDamage(int damage)
@@ -75,6 +77,17 @@ namespace Game.Gameplay.Enemies.Ufo
             if (_spriteRenderer == null)
             {
                 Debug.LogError("UFO sprite renderer reference is missing", this);
+                isValid = false;
+            }
+
+            if (_visualVariantSelector == null)
+            {
+                Debug.LogError("UFO visual variant selector reference is missing", this);
+                isValid = false;
+            }
+            else if (!_visualVariantSelector.IsConfigured)
+            {
+                Debug.LogError("UFO visual variants are not configured", this);
                 isValid = false;
             }
 
