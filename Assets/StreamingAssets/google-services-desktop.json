@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "149270406246",
+    "project_id": "d-asteroids-survival",
+    "storage_bucket": "d-asteroids-survival.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:149270406246:android:44514e41be31f6f63239a7",
+        "android_client_info": {
+          "package_name": "com.tokarevdev.asteroidssurvival"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDHM9tEvK7kO7bmPfeEDxmoTqGB9V8yW2s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
