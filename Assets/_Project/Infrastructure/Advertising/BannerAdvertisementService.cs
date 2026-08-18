@@ -7,36 +7,46 @@ using Zenject;
 
 namespace Game.Infrastructure.Advertising
 {
-    public sealed class AdMobAdvertisementService : IAdvertisementService, IInitializable, IDisposable
+    public sealed class BannerAdvertisementService : IAdvertisementService, IInitializable, IDisposable
     {
         private readonly AdMobConfiguration _configuration;
+        private readonly AdMobInitializer _initializer;
 
         private BannerView _bannerView;
 
-        private bool _isInitialized;
         private bool _isBannerRequested;
         private bool _isDisposed;
 
-        public AdMobAdvertisementService(AdMobConfiguration configuration)
+        public BannerAdvertisementService(AdMobConfiguration configuration, AdMobInitializer initializer)
         {
             _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+
+            _initializer = initializer ?? throw new ArgumentNullException(nameof(initializer));
         }
 
         public void Initialize()
         {
-            MobileAds.Initialize(OnMobileAdsInitialized);
+            _initializer.Initialized += OnAdMobInitialized;
+
+            if (_initializer.IsInitialized)
+            {
+                OnAdMobInitialized();
+            }
         }
 
         public void Dispose()
         {
             _isDisposed = true;
+            _initializer.Initialized -= OnAdMobInitialized;
+
             DestroyBanner();
         }
 
         public void ShowBanner()
         {
             _isBannerRequested = true;
-            if (!_isInitialized || _isDisposed)
+
+            if (!_initializer.IsInitialized || _isDisposed)
             {
                 return;
             }
@@ -55,28 +65,14 @@ namespace Game.Infrastructure.Advertising
             DestroyBanner();
         }
 
-        private void OnMobileAdsInitialized(InitializationStatus status)
+        private void OnAdMobInitialized()
         {
-            MobileAdsEventExecutor.ExecuteInUpdate(() =>
+            if (_isDisposed || !_isBannerRequested)
             {
-                if (_isDisposed)
-                {
-                    return;
-                }
+                return;
+            }
 
-                if (status == null)
-                {
-                    Debug.LogError("Google Mobile Ads Initialization failed");
-                    return;
-                }
-
-                _isInitialized = true;
-                Debug.Log("Google Mobile Ads Initialized");
-                if (_isBannerRequested)
-                {
-                    ShowBanner();
-                }
-            });
+            ShowBanner();
         }
 
         private void CreateBannerIfRequired()
@@ -87,7 +83,6 @@ namespace Game.Infrastructure.Advertising
             }
 
             string bannerAdUnitId = _configuration.BannerAdUnitId;
-
             if (string.IsNullOrWhiteSpace(bannerAdUnitId))
             {
                 Debug.LogWarning("AdMob banner unit ID is not configured for the current platform");

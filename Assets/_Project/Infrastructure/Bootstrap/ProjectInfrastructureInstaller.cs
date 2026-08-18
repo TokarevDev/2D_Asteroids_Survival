@@ -67,7 +67,9 @@ namespace Game.Infrastructure.Bootstrap
 
             Container.BindInstance(_adMobConfiguration);
 
-            Container.BindInterfacesTo<AdMobAdvertisementService>().AsSingle().NonLazy();
+            Container.BindInterfacesAndSelfTo<AdMobInitializer>().AsSingle().NonLazy();
+
+            Container.BindInterfacesTo<BannerAdvertisementService>().AsSingle().NonLazy();
         }
 
         private void BindInput()
