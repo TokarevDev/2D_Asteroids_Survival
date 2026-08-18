@@ -1,6 +1,7 @@
 using Game.Core.Application;
 using Game.Core.Configuration;
 using Game.Core.Input;
+using Game.Core.Navigation;
 using Game.Core.Scenes;
 using Game.Infrastructure.Advertising;
 using Game.Infrastructure.Application;
@@ -8,7 +9,6 @@ using Game.Infrastructure.Configuration;
 using Game.Infrastructure.Controls;
 using Game.Infrastructure.Input;
 using Game.Infrastructure.Performance;
-using UnityEngine;
 using Zenject;
 using UnityApplication = UnityEngine.Application;
 
@@ -21,10 +21,16 @@ namespace Game.Infrastructure.Bootstrap
         {
             BindGameConfiguration();
             BindSceneLoader();
+            BindNavigation();
             BindApplicationQuitService();
             BindPerformance();
             BindInput();
             BindAdvertisement();
+        }
+
+        private void BindNavigation()
+        {
+            Container.Bind<GameNavigationFacade>().AsSingle();
         }
 
         private void BindPerformance()

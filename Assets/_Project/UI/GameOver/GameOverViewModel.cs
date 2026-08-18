@@ -1,6 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
-using Game.Core.Scenes;
+using Game.Core.Navigation;
 using Game.Gameplay.Score;
 using Game.Gameplay.Signals;
 using Zenject;
@@ -13,20 +13,18 @@ namespace Game.UI.GameOver
         public event Action<bool> InteractabilityChanged;
 
         private readonly SignalBus _signalBus;
-        private readonly ISceneLoader _sceneLoader;
         private readonly ScoreCounter _scoreCounter;
-
-        private bool _isTransitionInProgress;
+        private readonly GameNavigationFacade _navigationFacade;
 
         public int FinalScore { get; private set; }
-
         public bool IsVisible { get; private set; }
-        public bool IsInteractable => _isTransitionInProgress == false;
 
-        public GameOverViewModel(SignalBus signalBus, ISceneLoader sceneLoader, ScoreCounter scoreCounter)
+        public bool IsInteractable => !_navigationFacade.IsTransitionInProgress;
+
+        public GameOverViewModel(SignalBus signalBus, GameNavigationFacade navigationFacade, ScoreCounter scoreCounter)
         {
             _signalBus = signalBus ?? throw new ArgumentNullException(nameof(signalBus));
-            _sceneLoader = sceneLoader ?? throw new ArgumentNullException(nameof(sceneLoader));
+            _navigationFacade = navigationFacade ?? throw new ArgumentNullException(nameof(navigationFacade));
             _scoreCounter = scoreCounter ?? throw new ArgumentNullException(nameof(scoreCounter));
         }
 
@@ -34,22 +32,31 @@ namespace Game.UI.GameOver
         public void Initialize()
         {
             _signalBus.Subscribe<PlayerDiedSignal>(OnPlayerDied);
+            _navigationFacade.TransitionStateChanged += OnTransitionStateChanged;
+
+            OnTransitionStateChanged(_navigationFacade.IsTransitionInProgress);
         }
 
         // ReSharper disable Unity.PerformanceAnalysis
         public void Dispose()
         {
             _signalBus.Unsubscribe<PlayerDiedSignal>(OnPlayerDied);
+            _navigationFacade.TransitionStateChanged -= OnTransitionStateChanged;
         }
 
         public UniTask RestartAsync()
         {
-            return LoadSceneAsync(_sceneLoader.LoadGameAsync);
+            return _navigationFacade.RestartGameAsync();
         }
 
         public UniTask ReturnToMainMenuAsync()
         {
-            return LoadSceneAsync(_sceneLoader.LoadMainMenuAsync);
+            return _navigationFacade.ReturnToMainMenuAsync();
+        }
+
+        private void OnTransitionStateChanged(bool isTransitionInProgress)
+        {
+            InteractabilityChanged?.Invoke(!isTransitionInProgress);
         }
 
         private void OnPlayerDied()
@@ -63,28 +70,6 @@ namespace Game.UI.GameOver
             IsVisible = true;
 
             VisibilityChanged?.Invoke(IsVisible);
-        }
-
-        private async UniTask LoadSceneAsync(Func<UniTask> loadScene)
-        {
-            if (_isTransitionInProgress)
-            {
-                return;
-            }
-
-            _isTransitionInProgress = true;
-            InteractabilityChanged?.Invoke(false);
-
-            try
-            {
-                await loadScene();
-            }
-            catch
-            {
-                _isTransitionInProgress = false;
-                InteractabilityChanged?.Invoke(true);
-                throw;
-            }
         }
     }
 }

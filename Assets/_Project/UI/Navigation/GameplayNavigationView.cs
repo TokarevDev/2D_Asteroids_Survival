@@ -1,6 +1,6 @@
 using System;
 using Cysharp.Threading.Tasks;
-using Game.Core.Scenes;
+using Game.Core.Navigation;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -11,13 +11,12 @@ namespace Game.UI.Navigation
     {
         [SerializeField] private Button _mainMenuButton;
 
-        private ISceneLoader _sceneLoader;
-        private bool _isTransitionInProgress;
+        private GameNavigationFacade _navigationFacade;
 
         [Inject]
-        private void Construct(ISceneLoader sceneLoader)
+        private void Construct(GameNavigationFacade navigationFacade)
         {
-            _sceneLoader = sceneLoader ?? throw new ArgumentNullException(nameof(sceneLoader));
+            _navigationFacade = navigationFacade ?? throw new ArgumentNullException(nameof(navigationFacade));
         }
 
         private void Awake()
@@ -30,43 +29,26 @@ namespace Game.UI.Navigation
 
         private void OnEnable()
         {
+            _navigationFacade.TransitionStateChanged += OnTransitionStateChanged;
             _mainMenuButton.onClick.AddListener(ReturnToMainMenu);
+
+            OnTransitionStateChanged(_navigationFacade.IsTransitionInProgress);
         }
 
         private void OnDisable()
         {
+            _navigationFacade.TransitionStateChanged -= OnTransitionStateChanged;
             _mainMenuButton.onClick.RemoveListener(ReturnToMainMenu);
+        }
+
+        private void OnTransitionStateChanged(bool isTransitionInProgress)
+        {
+            _mainMenuButton.interactable = !isTransitionInProgress;
         }
 
         private void ReturnToMainMenu()
         {
-            if (_isTransitionInProgress)
-            {
-                return;
-            }
-
-            _isTransitionInProgress = true;
-            _mainMenuButton.interactable = false;
-
-            ReturnToMainMenuAsync().Forget(Debug.LogException);
-        }
-
-        private async UniTask ReturnToMainMenuAsync()
-        {
-            try
-            {
-                await _sceneLoader.LoadMainMenuAsync();
-            }
-            catch
-            {
-                _isTransitionInProgress = false;
-                if (_mainMenuButton != null)
-                {
-                    _mainMenuButton.interactable = true;
-                }
-
-                throw;
-            }
+            _navigationFacade.ReturnToMainMenuAsync().Forget(Debug.LogException);
         }
 
         private bool ValidateSerializedReferences()

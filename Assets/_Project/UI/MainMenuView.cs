@@ -1,7 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using Game.Core.Application;
-using Game.Core.Scenes;
+using Game.Core.Navigation;
 using UnityEngine;
 using UnityEngine.UI;
 using Zenject;
@@ -14,49 +14,42 @@ namespace Game.UI
         [SerializeField] private Button _exitButton;
         private IApplicationQuitService _applicationQuitService;
 
-        private ISceneLoader _sceneLoader;
+        private GameNavigationFacade _navigationFacade;
 
         [Inject]
-        private void Construct(ISceneLoader sceneLoader, IApplicationQuitService applicationQuitService)
+        private void Construct(GameNavigationFacade navigationFacade, IApplicationQuitService applicationQuitService)
         {
-            _sceneLoader = sceneLoader ?? throw new ArgumentNullException(nameof(sceneLoader));
+            _navigationFacade = navigationFacade ?? throw new ArgumentNullException(nameof(navigationFacade));
             _applicationQuitService = applicationQuitService
-                ?? throw new ArgumentNullException(nameof(applicationQuitService));
+                                      ?? throw new ArgumentNullException(nameof(applicationQuitService));
         }
 
         private void OnEnable()
         {
+            _navigationFacade.TransitionStateChanged += OnTransitionStateChanged;
+
             _startButton.onClick.AddListener(LoadGameScene);
             _exitButton.onClick.AddListener(ExitGame);
+
+            OnTransitionStateChanged(_navigationFacade.IsTransitionInProgress);
         }
 
         private void OnDisable()
         {
+            _navigationFacade.TransitionStateChanged -= OnTransitionStateChanged;
+
             _startButton.onClick.RemoveListener(LoadGameScene);
             _exitButton.onClick.RemoveListener(ExitGame);
         }
 
-        private void LoadGameScene()
+        private void OnTransitionStateChanged(bool isTransitionInProgress)
         {
-            _startButton.interactable = false;
-            LoadGameSceneAsync().Forget(Debug.LogException);
+            _startButton.interactable = !isTransitionInProgress;
         }
 
-        private async UniTask LoadGameSceneAsync()
+        private void LoadGameScene()
         {
-            try
-            {
-                await _sceneLoader.LoadGameAsync();
-            }
-            catch
-            {
-                if (_startButton != null)
-                {
-                    _startButton.interactable = true;
-                }
-
-                throw;
-            }
+            _navigationFacade.StartGameAsync().Forget(Debug.LogException);
         }
 
         private void ExitGame()
