@@ -9,21 +9,18 @@ namespace Game.Infrastructure.Advertising
 {
     public sealed class AdMobAdvertisementService : IAdvertisementService, IInitializable, IDisposable
     {
-#if UNITY_ANDROID
-        private const string BannerAdUnitId =
-            "ca-app-pub-3940256099942544/6300978111";
-#elif UNITY_IOS
-        private const string BannerAdUnitId =
-            "ca-app-pub-3940256099942544/2934735716";
-#else
-        private const string BannerAdUnitId = "unused";
-#endif
+        private readonly AdMobConfiguration _configuration;
 
         private BannerView _bannerView;
 
         private bool _isInitialized;
         private bool _isBannerRequested;
         private bool _isDisposed;
+
+        public AdMobAdvertisementService(AdMobConfiguration configuration)
+        {
+            _configuration = configuration ?? throw new ArgumentNullException(nameof(configuration));
+        }
 
         public void Initialize()
         {
@@ -45,7 +42,11 @@ namespace Game.Infrastructure.Advertising
             }
 
             CreateBannerIfRequired();
-            _bannerView.Show();
+
+            if (_bannerView != null)
+            {
+                _bannerView.Show();
+            }
         }
 
         public void HideBanner()
@@ -85,7 +86,15 @@ namespace Game.Infrastructure.Advertising
                 return;
             }
 
-            _bannerView = new BannerView(BannerAdUnitId, AdSize.Banner, AdPosition.Bottom);
+            string bannerAdUnitId = _configuration.BannerAdUnitId;
+
+            if (string.IsNullOrWhiteSpace(bannerAdUnitId))
+            {
+                Debug.LogWarning("AdMob banner unit ID is not configured for the current platform");
+                return;
+            }
+
+            _bannerView = new BannerView(bannerAdUnitId, AdSize.Banner, AdPosition.Bottom);
 
             _bannerView.OnBannerAdLoaded += OnBannerAdLoaded;
             _bannerView.OnBannerAdLoadFailed += OnBannerAdLoadFailed;

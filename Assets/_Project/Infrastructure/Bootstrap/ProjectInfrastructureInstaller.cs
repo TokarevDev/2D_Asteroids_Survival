@@ -1,3 +1,4 @@
+using System;
 using Game.Core.Application;
 using Game.Core.Configuration;
 using Game.Core.Input;
@@ -9,6 +10,7 @@ using Game.Infrastructure.Configuration;
 using Game.Infrastructure.Controls;
 using Game.Infrastructure.Input;
 using Game.Infrastructure.Performance;
+using UnityEngine;
 using Zenject;
 using UnityApplication = UnityEngine.Application;
 
@@ -16,6 +18,8 @@ namespace Game.Infrastructure.Bootstrap
 {
     public sealed class ProjectInfrastructureInstaller : MonoInstaller
     {
+        [SerializeField] private AdMobConfiguration _adMobConfiguration;
+
         // ReSharper disable Unity.PerformanceAnalysis
         public override void InstallBindings()
         {
@@ -56,6 +60,13 @@ namespace Game.Infrastructure.Bootstrap
 
         private void BindAdvertisement()
         {
+            if (_adMobConfiguration == null)
+            {
+                throw new InvalidOperationException("AdMob configuration reference is missing");
+            }
+
+            Container.BindInstance(_adMobConfiguration);
+
             Container.BindInterfacesTo<AdMobAdvertisementService>().AsSingle().NonLazy();
         }
 
