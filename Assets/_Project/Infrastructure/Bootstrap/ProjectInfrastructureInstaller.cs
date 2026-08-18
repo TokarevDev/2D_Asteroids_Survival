@@ -1,10 +1,12 @@
 using System;
+using Game.Core.Analytics;
 using Game.Core.Application;
 using Game.Core.Configuration;
 using Game.Core.Input;
 using Game.Core.Navigation;
 using Game.Core.Scenes;
 using Game.Infrastructure.Advertising;
+using Game.Infrastructure.Analytics;
 using Game.Infrastructure.Application;
 using Game.Infrastructure.Configuration;
 using Game.Infrastructure.Controls;
@@ -24,12 +26,20 @@ namespace Game.Infrastructure.Bootstrap
         public override void InstallBindings()
         {
             BindGameConfiguration();
+            BindAnalytics();
             BindSceneLoader();
             BindNavigation();
             BindApplicationQuitService();
             BindPerformance();
             BindInput();
             BindAdvertisement();
+        }
+
+        private void BindAnalytics()
+        {
+            Container.Bind<FirebaseInitializer>().AsSingle();
+
+            Container.Bind<IAnalyticsService>().To<FirebaseAnalyticsService>().AsSingle();
         }
 
         private void BindNavigation()

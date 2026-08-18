@@ -5,6 +5,7 @@ using Game.Core.Player;
 using Game.Core.Projectiles;
 using Game.Core.Weapons;
 using Game.Core.World;
+using Game.Gameplay.Analytics;
 using Game.Gameplay.Asteroids;
 using Game.Gameplay.Enemies;
 using Game.Gameplay.Enemies.Ufo;
@@ -63,6 +64,12 @@ namespace Game.Gameplay.Installers
             BindEnemyRewardService();
             BindGamePauseService();
             BindGameSession();
+            BindGameAnalyticsReporter();
+        }
+
+        private void BindGameAnalyticsReporter()
+        {
+            Container.BindInterfacesTo<GameAnalyticsReporter>().AsSingle().NonLazy();
         }
 
         private void BindCameraWorldBoundsSynchronizer()

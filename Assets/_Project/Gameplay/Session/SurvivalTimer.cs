@@ -10,6 +10,7 @@ namespace Game.Gameplay.Session
 
         private float _elapsedTime;
 
+        public float ElapsedTime => _elapsedTime;
         public int ElapsedSeconds { get; private set; }
 
         public void Tick()
