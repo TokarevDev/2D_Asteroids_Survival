@@ -1,7 +1,7 @@
 using System;
+using Game.Gameplay.Asteroids.Animation;
 using Game.Gameplay.Combat;
 using Game.Gameplay.Enemies;
-using Game.Gameplay.Asteroids.Animation;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -16,6 +16,7 @@ namespace Game.Gameplay.Asteroids
 
         [SerializeField] private SpriteRenderer _spriteRenderer;
         [SerializeField] private AsteroidSpriteAnimator _spriteAnimator;
+        [SerializeField] private AsteroidVisualRotator _visualRotator;
 
         private readonly Health _health = new();
 
@@ -72,6 +73,7 @@ namespace Game.Gameplay.Asteroids
 
             _health.Initialize(maxHealth);
             _spriteAnimator.Stop();
+            _visualRotator.Stop();
 
             if (config.AnimationVariantCount > 0)
             {
@@ -98,6 +100,11 @@ namespace Game.Gameplay.Asteroids
                 _spriteRenderer.sprite = config.Sprite;
             }
 
+            if (!config.UseFrameAnimation)
+            {
+                StartVisualRotation(config);
+            }
+
             transform.localScale = Vector3.one * config.Scale;
         }
 
@@ -110,6 +117,19 @@ namespace Game.Gameplay.Asteroids
         public void Stop()
         {
             _spriteAnimator.Stop();
+            _visualRotator.Stop();
+        }
+
+        private void StartVisualRotation(AsteroidConfig config)
+        {
+            float angularSpeed = Random.Range(config.MinAngularSpeed, config.MaxAngularSpeed);
+
+            if (Random.value < 0.5f)
+            {
+                angularSpeed = -angularSpeed;
+            }
+
+            _visualRotator.Play(angularSpeed);
         }
 
         private void OnHealthDied()
@@ -137,6 +157,12 @@ namespace Game.Gameplay.Asteroids
             if (_spriteAnimator == null)
             {
                 Debug.LogError("Asteroid sprite animator reference is missing", this);
+                isValid = false;
+            }
+
+            if (_visualRotator == null)
+            {
+                Debug.LogError("Asteroid visual rotator reference is missing", this);
                 isValid = false;
             }
 
