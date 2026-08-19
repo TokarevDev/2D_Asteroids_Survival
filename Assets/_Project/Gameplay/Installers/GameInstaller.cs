@@ -44,6 +44,7 @@ namespace Game.Gameplay.Installers
             BindPlayerPhysicsView();
             BindPlayerPhysicsController();
             BindPlayerInvulnerability();
+            BindPlayerInvulnerabilityVisual();
             BindLaserSystem();
             BindPlayerCollisionVfx();
             BindPlayerWorldWrapController();
@@ -65,6 +66,13 @@ namespace Game.Gameplay.Installers
             BindGamePauseService();
             BindGameSession();
             BindGameAnalyticsReporter();
+        }
+
+        private void BindPlayerInvulnerabilityVisual()
+        {
+            Container.Bind<PlayerInvulnerabilityView>().FromComponentInHierarchy().AsSingle();
+
+            Container.BindInterfacesTo<PlayerInvulnerabilityVisualController>().AsSingle().NonLazy();
         }
 
         private void BindGameAnalyticsReporter()
