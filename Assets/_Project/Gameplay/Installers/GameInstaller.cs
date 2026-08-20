@@ -43,6 +43,7 @@ namespace Game.Gameplay.Installers
             BindEnemyWorldWrapController();
             BindPlayerPhysicsView();
             BindPlayerPhysicsController();
+            BindPlayerThrustVisual();
             BindPlayerInvulnerability();
             BindPlayerInvulnerabilityVisual();
             BindLaserSystem();
@@ -66,6 +67,13 @@ namespace Game.Gameplay.Installers
             BindGamePauseService();
             BindGameSession();
             BindGameAnalyticsReporter();
+        }
+
+        private void BindPlayerThrustVisual()
+        {
+            Container.Bind<PlayerThrustView>().FromComponentInHierarchy().AsSingle();
+
+            Container.BindInterfacesTo<PlayerThrustVisualController>().AsSingle().NonLazy();
         }
 
         private void BindPlayerInvulnerabilityVisual()

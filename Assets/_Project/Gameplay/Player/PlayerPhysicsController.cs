@@ -19,8 +19,14 @@ namespace Game.Gameplay.Player
         private CustomPhysicsBody2D _body;
         private ShipMovement _movement;
 
+        private float _maxSpeed;
+
         public CustomPhysicsBody2D Body =>
             _body ?? throw new InvalidOperationException("Player physics body has not been initialized");
+
+        public float CurrentThrust { get; private set; }
+
+        public float NormalizedSpeed => Mathf.Clamp01(Body.Velocity.magnitude / _maxSpeed);
 
         public PlayerPhysicsController(PlayerPhysicsView view, IGameConfigProvider configProvider,
             IPlayerInputStrategy inputStrategy,
@@ -40,6 +46,8 @@ namespace Game.Gameplay.Player
         public void Initialize()
         {
             PlayerConfig config = _configProvider.Player;
+
+            _maxSpeed = config.MaxSpeed;
 
             _body = new CustomPhysicsBody2D(
                 _view.Position, Vector2.zero, _view.RotationDegrees, config.CollisionRadius, config.Mass);
@@ -61,6 +69,10 @@ namespace Game.Gameplay.Player
 
             PlayerInputState input = _invulnerability.IsActive ? default : _inputStrategy.Read();
 
+            CurrentThrust = input.MovementDirection.sqrMagnitude > 0f
+                ? input.MovementDirection.magnitude
+                : Mathf.Clamp01(input.Thrust);
+
             _movement.Step(input, Time.fixedDeltaTime);
         }
 
@@ -73,6 +85,8 @@ namespace Game.Gameplay.Player
 
             _physicsWorld.Unregister(_body);
             _body = null;
+            CurrentThrust = 0f;
+            _maxSpeed = 0f;
             _movement = null;
         }
     }
