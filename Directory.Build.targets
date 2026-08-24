@@ -2,10 +2,15 @@
   <PropertyGroup>
     <!-- Unity Bee supplies this file, but generated IDE projects do not. -->
     <NoWarn>$(NoWarn);USG0001</NoWarn>
+
+    <!-- Firebase Unity managed assemblies are platform-filtered by Unity's
+         PluginImporter. MSBuild does not understand those import settings and
+         reports false x86/MSIL architecture mismatches in generated IDE projects. -->
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3270</MSBuildWarningsAsMessages>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(AssemblyName)' == 'Assembly-CSharp'">
-    <!-- This project is intentionally empty because project code uses asmdefs. -->
+  <PropertyGroup Condition="'$(AssemblyName)' == 'Assembly-CSharp' Or '$(AssemblyName)' == 'Assembly-CSharp-Editor'">
+    <!-- These projects are intentionally empty because project code uses asmdefs. -->
     <NoWarn>$(NoWarn);CS2008;CS8021</NoWarn>
   </PropertyGroup>
 </Project>
