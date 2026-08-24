@@ -38,6 +38,7 @@ namespace Game.Gameplay.Enemies
 
             if (!_registry.Register(enemy))
             {
+                ReturnToPool(enemy);
                 throw new InvalidOperationException("Enemy entity is already registered");
             }
 
