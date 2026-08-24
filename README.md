@@ -4,7 +4,7 @@ An endless 2D Asteroids-style survival game built with Unity `2022.3.9f1` and C#
 
 The project is a graduation work and gameplay-programming portfolio sample focused on explicit architecture, custom physics, data-driven configuration, pooled runtime objects, desktop/mobile controls, platform adapters, and lifecycle-safe Unity code.
 
-Status: feature-complete; final Android and release validation in progress.
+Status: feature-complete; architecture review complete; final Android and release validation in progress.
 
 Portfolio: https://tokarevdev.github.io/
 
@@ -59,7 +59,11 @@ Project code is divided into four high-level assembly definitions:
 
 `ProjectContext`, scene installers, and UI installers are composition roots. Zenject constructs services and exposes scene components through explicit bindings; runtime gameplay code does not search the scene with `FindObjectOfType`, `GameObject.Find`, or tag lookups.
 
-Pure gameplay state and algorithms are regular C# classes. `MonoBehaviour` components are limited to Unity-facing views, scene references, pools, spawners, and lifecycle adapters. MVVM is used only for UI.
+Gameplay bindings are split by domain across `GameWorldInstaller`, `PlayerInstaller`, `EnemyLifecycleInstaller`, `EnemySpawningInstaller`, `ProjectileLifecycleInstaller`, `LaserWeaponInstaller`, and `GameSessionInstaller`. The remaining `GameInstaller` contains only shared gameplay services and fixed-loop composition. Installers describe dependencies without resolving services manually or hiding runtime strategy selection inside factory callbacks.
+
+Pure gameplay state and algorithms are regular C# classes. `MonoBehaviour` components are limited to Unity-facing views, scene references, pools, and lifecycle adapters. MVVM is used only for UI.
+
+`GameplayFixedLoop` is the single Zenject `IFixedTickable` entry point. It executes named stages in an explicit order: player state, movement, physics integration, projectile lifecycle, world boundaries, collisions, and presentation synchronization. Gameplay ordering is therefore visible in code instead of being encoded through unrelated numeric execution priorities.
 
 ### Custom physics
 
@@ -98,7 +102,7 @@ The non-`MonoBehaviour` generic `ObjectPool<T>` owns all created instances and r
 
 ### Strategy
 
-`IPlayerInputStrategy` separates `KeyboardMouseInputStrategy` from `MobileInputStrategy`. Gameplay consumes the same `PlayerInputState` regardless of platform, while each strategy owns its platform-specific input source.
+`IPlayerInputStrategy` separates `KeyboardMouseInputStrategy` from `MobileInputStrategy`. `PlayerInputStrategySelector` receives both strategies through constructor injection and selects the platform implementation. `PlayerInputStateProvider` polls the selected strategy once per rendered frame and exposes the same immutable `PlayerInputState` snapshot to movement and weapon systems.
 
 ### Factory
 
@@ -113,6 +117,9 @@ C# events and Zenject SignalBus propagate health, score, enemy-death, and player
 ### Enemies and rewards
 
 - Asteroids and UFOs share centralized logical enemy storage and lifecycle services.
+- `EnemyPool<TEnemy>` provides the common pooled-view lifecycle, while type-specific pools retain only their creation details.
+- `EnemyHealth` owns reusable health/death state; asteroid and UFO components delegate visual selection and presentation to dedicated visual collaborators.
+- `EnemyDestructionService` works through the shared `IDamageable` contract and `EnemyDamageableRegistry`, so it does not depend on concrete asteroid or UFO pools.
 - Large asteroid variants are selected without immediate repetition.
 - UFO visuals are randomized on each pooled spawn.
 - `UfoPursuitMovement` follows the player without coupling the logical entity to a Unity component.
@@ -187,7 +194,7 @@ Google Mobile Ads `11.2.0` is isolated behind `IAdvertisementService`.
 - Frequently spawned enemies, projectiles, and collision effects are pooled.
 - Event and SignalBus subscriptions are paired with deterministic cleanup.
 - UniTask operations use owner cancellation where applicable.
-- Input is read once per frame by the mobile strategy and cached for all consumers.
+- Input is read once per rendered frame by `PlayerInputStateProvider` and shared by all gameplay consumers.
 - Hot loops avoid LINQ, temporary arrays, closures, and repeated component lookup.
 - Runtime entities and Unity views are synchronized explicitly instead of sharing hidden state.
 - Particle systems provide pooled collision feedback, invulnerability feedback, and speed-dependent twin thrusters.
