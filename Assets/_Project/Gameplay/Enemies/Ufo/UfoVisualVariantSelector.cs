@@ -32,5 +32,15 @@ namespace Game.Gameplay.Enemies.Ufo
 
             _spriteRenderer.sprite = variant;
         }
+
+        public void SetSortingOrder(int sortingOrder)
+        {
+            if (_spriteRenderer == null)
+            {
+                throw new InvalidOperationException("UFO sprite renderer is missing");
+            }
+
+            _spriteRenderer.sortingOrder = sortingOrder;
+        }
     }
 }

@@ -1,9 +1,7 @@
 using System;
-using Game.Gameplay.Asteroids.Animation;
 using Game.Gameplay.Combat;
 using Game.Gameplay.Enemies;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Game.Gameplay.Asteroids
 {
@@ -13,14 +11,9 @@ namespace Game.Gameplay.Asteroids
         public event Action<Asteroid, DeathSource> Died;
 
         [SerializeField] private EnemyPhysicsView _physicsView;
+        [SerializeField] private AsteroidVisual _visual;
 
-        [SerializeField] private SpriteRenderer _spriteRenderer;
-        [SerializeField] private AsteroidSpriteAnimator _spriteAnimator;
-        [SerializeField] private AsteroidVisualRotator _visualRotator;
-
-        private readonly Health _health = new();
-
-        private DeathSource _deathSource;
+        private readonly EnemyHealth _health = new();
 
         public EnemyPhysicsView PhysicsView => _physicsView;
 
@@ -34,23 +27,22 @@ namespace Game.Gameplay.Asteroids
                 return;
             }
 
-            _health.Died += OnHealthDied;
+            _health.Died += OnDied;
         }
 
         private void OnDestroy()
         {
-            _health.Died -= OnHealthDied;
+            _health.Died -= OnDied;
         }
 
         public void TakeDamage(int damage)
         {
-            _deathSource = DeathSource.Player;
             _health.TakeDamage(damage);
         }
 
         public void SetSortingOrder(int sortingOrder)
         {
-            _spriteRenderer.sortingOrder = sortingOrder;
+            _visual.SetSortingOrder(sortingOrder);
         }
 
         public void Initialize(AsteroidConfig config, int maxHealth)
@@ -60,78 +52,33 @@ namespace Game.Gameplay.Asteroids
                 throw new ArgumentNullException(nameof(config));
             }
 
-            if (maxHealth <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(maxHealth), maxHealth,
-                    "Maximum health must be greater than zero");
-            }
-
-            _deathSource = DeathSource.Environment;
-
-            _health.Initialize(maxHealth);
-            _spriteAnimator.Stop();
-            _visualRotator.Stop();
-
-            if (config.AnimationVariantCount > 0)
-            {
-                int animationIndex =
-                    Random.Range(0, config.AnimationVariantCount);
-
-                AsteroidAnimationConfig animationConfig =
-                    config.GetAnimationVariant(animationIndex);
-
-                if (config.UseFrameAnimation)
-                {
-                    _spriteAnimator.Play(animationConfig);
-                }
-                else
-                {
-                    int frameIndex =
-                        Random.Range(0, animationConfig.FrameCount);
-
-                    _spriteAnimator.ShowFrame(animationConfig, frameIndex);
-                }
-            }
-            else
-            {
-                _spriteRenderer.sprite = config.Sprite;
-            }
-
-            if (!config.UseFrameAnimation)
-            {
-                StartVisualRotation(config);
-            }
-
-            transform.localScale = Vector3.one * config.Scale;
+            InitializeHealth(maxHealth);
+            InitializeVisual(config);
         }
 
         public void Kill()
         {
-            _deathSource = DeathSource.Environment;
-            _health.TakeDamage(_health.CurrentHealth);
+            _health.Kill(DeathSource.Environment);
         }
 
         public void Stop()
         {
-            _spriteAnimator.Stop();
-            _visualRotator.Stop();
+            _visual.Stop();
         }
 
-        private void StartVisualRotation(AsteroidConfig config)
+        private void InitializeHealth(int maxHealth)
         {
-            float angularSpeed = Random.Range(config.MinAngularSpeed, config.MaxAngularSpeed);
-
-            if (Random.value < 0.5f)
-            {
-                angularSpeed = -angularSpeed;
-            }
-
-            _visualRotator.Play(angularSpeed);
+            _health.Initialize(maxHealth);
         }
 
-        private void OnHealthDied()
+        private void InitializeVisual(AsteroidConfig config)
         {
-            Died?.Invoke(this, _deathSource);
+            _visual.Initialize(config);
+        }
+
+        private void OnDied(DeathSource deathSource)
+        {
+            Died?.Invoke(this, deathSource);
         }
 
         private bool ValidateSerializedReferences()
@@ -145,21 +92,14 @@ namespace Game.Gameplay.Asteroids
                 isValid = false;
             }
 
-            if (_spriteRenderer == null)
+            if (_visual == null)
             {
-                Debug.LogError("Asteroid sprite renderer reference is missing", this);
+                Debug.LogError("Asteroid visual reference is missing", this);
                 isValid = false;
             }
-
-            if (_spriteAnimator == null)
+            else if (!_visual.IsConfigured)
             {
-                Debug.LogError("Asteroid sprite animator reference is missing", this);
-                isValid = false;
-            }
-
-            if (_visualRotator == null)
-            {
-                Debug.LogError("Asteroid visual rotator reference is missing", this);
+                Debug.LogError("Asteroid visual is not configured", this);
                 isValid = false;
             }
 

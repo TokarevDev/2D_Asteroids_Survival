@@ -10,12 +10,9 @@ namespace Game.Gameplay.Enemies.Ufo
         public event Action<Ufo, DeathSource> Died;
 
         [SerializeField] private EnemyPhysicsView _physicsView;
-        [SerializeField] private SpriteRenderer _spriteRenderer;
         [SerializeField] private UfoVisualVariantSelector _visualVariantSelector;
 
-        private readonly Health _health = new();
-
-        private DeathSource _deathSource;
+        private readonly EnemyHealth _health = new();
 
         public EnemyPhysicsView PhysicsView => _physicsView;
         public int CurrentHealth => _health.CurrentHealth;
@@ -28,41 +25,33 @@ namespace Game.Gameplay.Enemies.Ufo
                 return;
             }
 
-            _health.Died += OnHealthDied;
+            _health.Died += OnDied;
         }
 
         private void OnDestroy()
         {
-            _health.Died -= OnHealthDied;
+            _health.Died -= OnDied;
         }
 
         public void Initialize(int maxHealth)
         {
-            if (maxHealth <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(maxHealth), maxHealth,
-                    "Maximum health must be greater than zero");
-            }
-
-            _deathSource = DeathSource.Environment;
             _health.Initialize(maxHealth);
             _visualVariantSelector.ApplyRandomVariant();
         }
 
         public void TakeDamage(int damage)
         {
-            _deathSource = DeathSource.Player;
             _health.TakeDamage(damage);
         }
 
         public void SetSortingOrder(int sortingOrder)
         {
-            _spriteRenderer.sortingOrder = sortingOrder;
+            _visualVariantSelector.SetSortingOrder(sortingOrder);
         }
 
-        private void OnHealthDied()
+        private void OnDied(DeathSource deathSource)
         {
-            Died?.Invoke(this, _deathSource);
+            Died?.Invoke(this, deathSource);
         }
 
         private bool ValidateSerializedReferences()
@@ -71,12 +60,6 @@ namespace Game.Gameplay.Enemies.Ufo
             if (_physicsView == null)
             {
                 Debug.LogError("UFO physics view reference is missing", this);
-                isValid = false;
-            }
-
-            if (_spriteRenderer == null)
-            {
-                Debug.LogError("UFO sprite renderer reference is missing", this);
                 isValid = false;
             }
 

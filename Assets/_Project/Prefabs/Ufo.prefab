@@ -59,7 +59,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _physicsView: {fileID: 4582504759543018755}
-  _spriteRenderer: {fileID: 515814198285477699}
   _visualVariantSelector: {fileID: 6583818599198101766}
 --- !u!1 &7747785236813654209
 GameObject:
