@@ -1,21 +1,17 @@
 using System;
 using Game.Core.Enemies;
-using Game.Gameplay.Asteroids;
-using Game.Gameplay.Enemies.Ufo;
-using UfoEnemy = Game.Gameplay.Enemies.Ufo.Ufo;
+using Game.Gameplay.Combat;
 
 namespace Game.Gameplay.Enemies
 {
     public sealed class EnemyDestructionService
     {
-        private readonly AsteroidPool _asteroidPool;
-        private readonly UfoPool _ufoPool;
+        private readonly EnemyDamageableRegistry _damageableRegistry;
 
-        public EnemyDestructionService(AsteroidPool asteroidPool, UfoPool ufoPool)
+        public EnemyDestructionService(EnemyDamageableRegistry damageableRegistry)
         {
-            _asteroidPool = asteroidPool ?? throw new ArgumentNullException(nameof(asteroidPool));
-
-            _ufoPool = ufoPool ?? throw new ArgumentNullException(nameof(ufoPool));
+            _damageableRegistry = damageableRegistry
+                                  ?? throw new ArgumentNullException(nameof(damageableRegistry));
         }
 
         public void DestroyByPlayer(EnemyEntity enemy)
@@ -25,19 +21,12 @@ namespace Game.Gameplay.Enemies
                 throw new ArgumentNullException(nameof(enemy));
             }
 
-            if (_asteroidPool.TryGetByEntity(enemy, out Asteroid asteroid))
+            if (!_damageableRegistry.TryGet(enemy, out IDamageable damageable))
             {
-                asteroid.TakeDamage(asteroid.CurrentHealth);
-                return;
+                throw new InvalidOperationException("Enemy entity has no associated damageable");
             }
 
-            if (_ufoPool.TryGetByEntity(enemy, out UfoEnemy ufo))
-            {
-                ufo.TakeDamage(ufo.CurrentHealth);
-                return;
-            }
-
-            throw new InvalidOperationException("Enemy entity has no associated visual");
+            damageable.TakeDamage(damageable.CurrentHealth);
         }
     }
 }

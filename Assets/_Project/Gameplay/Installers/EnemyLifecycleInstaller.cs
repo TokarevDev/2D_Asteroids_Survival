@@ -11,6 +11,7 @@ namespace Game.Gameplay.Installers
         public override void InstallBindings()
         {
             Container.Bind<EnemyRegistry>().AsSingle();
+            Container.Bind<EnemyDamageableRegistry>().AsSingle();
             Container.Bind<EnemyEntityFactory>().AsSingle();
             Container.Bind<EnemyEntityPool>().AsSingle();
             Container.Bind<EnemyLifecycleService>().AsSingle();

@@ -2,13 +2,12 @@ using System;
 using Game.Core.Configuration;
 using Game.Core.Enemies;
 using Game.Gameplay.Combat;
-using Game.Gameplay.Pooling;
 using UnityEngine;
 using Zenject;
 
 namespace Game.Gameplay.Enemies.Ufo
 {
-    public sealed class UfoPool : MonoBehaviour
+    public sealed class UfoPool : EnemyPool<Ufo>
     {
         public event Action<EnemyType, DeathSource> UfoDied;
 
@@ -16,18 +15,11 @@ namespace Game.Gameplay.Enemies.Ufo
 
         [SerializeField] private Ufo _ufoPrefab;
 
-        private EnemyLifecycleService _enemyLifecycleService;
         private IGameConfigProvider _configProvider;
 
-        private ObjectPool<Ufo> _pool;
-        private int _nextSortingOrder = UfoSortingOrderBase;
-
         [Inject]
-        private void Construct(EnemyLifecycleService enemyLifecycleService, IGameConfigProvider configProvider)
+        private void Construct(IGameConfigProvider configProvider)
         {
-            _enemyLifecycleService =
-                enemyLifecycleService ?? throw new ArgumentNullException(nameof(enemyLifecycleService));
-
             _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
         }
 
@@ -39,44 +31,42 @@ namespace Game.Gameplay.Enemies.Ufo
                 return;
             }
 
-            _pool = new ObjectPool<Ufo>(CreateUfo, _configProvider.World.InitialUfoPoolSize);
+            InitializePool(
+                InstantiateUfo,
+                _configProvider.World.InitialUfoPoolSize,
+                UfoSortingOrderBase);
         }
 
-        private void OnDestroy()
+        protected override EnemyPhysicsView GetPhysicsView(Ufo ufo)
         {
-            if (_pool == null)
-            {
-                return;
-            }
+            return ufo.PhysicsView;
+        }
 
-            for (int i = 0; i < _pool.CreatedItems.Count; i++)
-            {
-                Ufo ufo = _pool.CreatedItems[i];
+        protected override void SetSortingOrder(Ufo ufo, int sortingOrder)
+        {
+            ufo.SetSortingOrder(sortingOrder);
+        }
 
-                if (ufo == null)
-                {
-                    continue;
-                }
+        protected override void SubscribeToDeath(Ufo ufo)
+        {
+            ufo.Died += OnUfoDied;
+        }
 
-                ufo.Died -= OnUfoDied;
-            }
-
-            _pool.Clear();
+        protected override void UnsubscribeFromDeath(Ufo ufo)
+        {
+            ufo.Died -= OnUfoDied;
         }
 
         public Ufo Get(Vector2 position, Vector2 velocity)
         {
             EnemyParameters parameters = _configProvider.Enemy.GetParameters(EnemyType.Ufo);
 
-            Ufo ufo = _pool.Get();
+            Ufo ufo = RentEnemy();
 
             try
             {
-                ufo.transform.SetPositionAndRotation(position, Quaternion.identity);
-
                 ufo.Initialize(parameters.MaxHealth);
-
-                _enemyLifecycleService.Spawn(ufo.PhysicsView, EnemyType.Ufo, position, velocity, 0f);
+                ActivateEnemy(ufo, EnemyType.Ufo, position, velocity);
             }
             catch
             {
@@ -84,70 +74,12 @@ namespace Game.Gameplay.Enemies.Ufo
                 throw;
             }
 
-            ufo.gameObject.SetActive(true);
             return ufo;
         }
 
-        public void Return(Ufo ufo)
+        private Ufo InstantiateUfo()
         {
-            if (ufo == null)
-            {
-                Debug.LogError("Cannot return a null UFO", this);
-                return;
-            }
-
-            if (ufo.PhysicsView.IsBound && !_enemyLifecycleService.Despawn(ufo.PhysicsView))
-            {
-                Debug.LogError("Bound UFO physics view was not active", ufo);
-            }
-
-            if (!_pool.Return(ufo))
-            {
-                Debug.LogWarning("UFO is already in the pool", ufo);
-                return;
-            }
-
-            ufo.gameObject.SetActive(false);
-        }
-
-        public bool TryGetByEntity(EnemyEntity entity, out Ufo ufo)
-        {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
-
-            for (int i = 0; i < _pool.CreatedItems.Count; i++)
-            {
-                Ufo candidate = _pool.CreatedItems[i];
-
-                if (candidate == null || !candidate.PhysicsView.IsBound)
-                {
-                    continue;
-                }
-
-                if (ReferenceEquals(candidate.PhysicsView.Entity, entity))
-                {
-                    ufo = candidate;
-                    return true;
-                }
-            }
-
-            ufo = null;
-            return false;
-        }
-
-        private Ufo CreateUfo()
-        {
-            Ufo ufo = Instantiate(_ufoPrefab, transform);
-
-            ufo.SetSortingOrder(_nextSortingOrder);
-            _nextSortingOrder++;
-
-            ufo.Died += OnUfoDied;
-            ufo.gameObject.SetActive(false);
-
-            return ufo;
+            return Instantiate(_ufoPrefab, transform);
         }
 
         private void OnUfoDied(Ufo ufo, DeathSource deathSource)

@@ -3,13 +3,12 @@ using Game.Core.Configuration;
 using Game.Core.Enemies;
 using Game.Gameplay.Combat;
 using Game.Gameplay.Enemies;
-using Game.Gameplay.Pooling;
 using UnityEngine;
 using Zenject;
 
 namespace Game.Gameplay.Asteroids
 {
-    public sealed class AsteroidPool : MonoBehaviour
+    public sealed class AsteroidPool : EnemyPool<Asteroid>
     {
         public event Action<EnemyType, DeathSource> AsteroidDied;
 
@@ -18,17 +17,11 @@ namespace Game.Gameplay.Asteroids
         [SerializeField] private Asteroid _asteroidPrefab;
         [SerializeField] private AsteroidConfig _fragmentConfig;
 
-        private EnemyLifecycleService _enemyLifecycleService;
         private IGameConfigProvider _configProvider;
 
-        private ObjectPool<Asteroid> _pool;
-        private int _nextSortingOrder = AsteroidSortingOrderBase;
-
         [Inject]
-        private void Construct(EnemyLifecycleService enemyLifecycleService, IGameConfigProvider configProvider)
+        private void Construct(IGameConfigProvider configProvider)
         {
-            _enemyLifecycleService =
-                enemyLifecycleService ?? throw new ArgumentNullException(nameof(enemyLifecycleService));
             _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
         }
 
@@ -40,28 +33,35 @@ namespace Game.Gameplay.Asteroids
                 return;
             }
 
-            _pool = new ObjectPool<Asteroid>(CreateAsteroid, _configProvider.World.InitialAsteroidPoolSize);
+            InitializePool(
+                InstantiateAsteroid,
+                _configProvider.World.InitialAsteroidPoolSize,
+                AsteroidSortingOrderBase);
         }
 
-        private void OnDestroy()
+        protected override EnemyPhysicsView GetPhysicsView(Asteroid asteroid)
         {
-            if (_pool == null)
-            {
-                return;
-            }
+            return asteroid.PhysicsView;
+        }
 
-            for (int i = 0; i < _pool.CreatedItems.Count; i++)
-            {
-                Asteroid asteroid = _pool.CreatedItems[i];
-                if (asteroid == null)
-                {
-                    continue;
-                }
+        protected override void SetSortingOrder(Asteroid asteroid, int sortingOrder)
+        {
+            asteroid.SetSortingOrder(sortingOrder);
+        }
 
-                asteroid.Died -= OnAsteroidDied;
-            }
+        protected override void SubscribeToDeath(Asteroid asteroid)
+        {
+            asteroid.Died += OnAsteroidDied;
+        }
 
-            _pool.Clear();
+        protected override void UnsubscribeFromDeath(Asteroid asteroid)
+        {
+            asteroid.Died -= OnAsteroidDied;
+        }
+
+        protected override void PrepareForReturn(Asteroid asteroid)
+        {
+            asteroid.Stop();
         }
 
         public Asteroid GetFragment(Vector2 position, Vector2 velocity)
@@ -73,14 +73,12 @@ namespace Game.Gameplay.Asteroids
 
         public Asteroid Get(AsteroidConfig config, EnemyType type, Vector2 position, Vector2 velocity, int maxHealth)
         {
-            Asteroid asteroid = _pool.Get();
+            Asteroid asteroid = RentEnemy();
+
             try
             {
-                asteroid.transform.SetPositionAndRotation(position, Quaternion.identity);
-
                 asteroid.Initialize(config, maxHealth);
-
-                _enemyLifecycleService.Spawn(asteroid.PhysicsView, type, position, velocity, 0f);
+                ActivateEnemy(asteroid, type, position, velocity);
             }
             catch
             {
@@ -88,71 +86,12 @@ namespace Game.Gameplay.Asteroids
                 throw;
             }
 
-            asteroid.gameObject.SetActive(true);
-
             return asteroid;
         }
 
-        public void Return(Asteroid asteroid)
+        private Asteroid InstantiateAsteroid()
         {
-            if (asteroid == null)
-            {
-                Debug.LogError("Cannot return a null asteroid", this);
-                return;
-            }
-
-            if (asteroid.PhysicsView.IsBound && !_enemyLifecycleService.Despawn(asteroid.PhysicsView))
-            {
-                Debug.LogError("Bound asteroid physics view was not active", asteroid);
-            }
-
-            if (!_pool.Return(asteroid))
-            {
-                Debug.LogWarning("Asteroid is already in the pool", asteroid);
-                return;
-            }
-
-            asteroid.Stop();
-            asteroid.gameObject.SetActive(false);
-        }
-
-        public bool TryGetByEntity(EnemyEntity entity, out Asteroid asteroid)
-        {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
-
-            for (int i = 0; i < _pool.CreatedItems.Count; i++)
-            {
-                Asteroid candidate = _pool.CreatedItems[i];
-                if (candidate == null || !candidate.PhysicsView.IsBound)
-                {
-                    continue;
-                }
-
-                if (ReferenceEquals(candidate.PhysicsView.Entity, entity))
-                {
-                    asteroid = candidate;
-                    return true;
-                }
-            }
-
-            asteroid = null;
-            return false;
-        }
-
-        private Asteroid CreateAsteroid()
-        {
-            Asteroid asteroid = Instantiate(_asteroidPrefab, transform);
-
-            asteroid.SetSortingOrder(_nextSortingOrder);
-            _nextSortingOrder++;
-
-            asteroid.Died += OnAsteroidDied;
-            asteroid.gameObject.SetActive(false);
-
-            return asteroid;
+            return Instantiate(_asteroidPrefab, transform);
         }
 
         private void OnAsteroidDied(Asteroid asteroid, DeathSource deathSource)
