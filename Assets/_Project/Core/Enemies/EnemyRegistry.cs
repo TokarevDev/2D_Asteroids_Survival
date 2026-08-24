@@ -6,6 +6,7 @@ namespace Game.Core.Enemies
     public sealed class EnemyRegistry
     {
         private readonly List<EnemyEntity> _enemies = new();
+        private readonly HashSet<EnemyEntity> _registeredEnemies = new HashSet<EnemyEntity>();
 
         public IReadOnlyList<EnemyEntity> Enemies => _enemies;
         public int Count => _enemies.Count;
@@ -17,7 +18,7 @@ namespace Game.Core.Enemies
                 throw new ArgumentNullException(nameof(enemy));
             }
 
-            if (_enemies.Contains(enemy))
+            if (!_registeredEnemies.Add(enemy))
             {
                 return false;
             }
@@ -33,11 +34,18 @@ namespace Game.Core.Enemies
                 throw new ArgumentNullException(nameof(enemy));
             }
 
-            return _enemies.Remove(enemy);
+            if (!_registeredEnemies.Remove(enemy))
+            {
+                return false;
+            }
+
+            _enemies.Remove(enemy);
+            return true;
         }
 
         public void Clear()
         {
+            _registeredEnemies.Clear();
             _enemies.Clear();
         }
     }
