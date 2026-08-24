@@ -13,7 +13,6 @@ using Game.Infrastructure.Controls;
 using Game.Infrastructure.Performance;
 using UnityEngine;
 using Zenject;
-using UnityApplication = UnityEngine.Application;
 
 namespace Game.Infrastructure.Bootstrap
 {
@@ -55,6 +54,18 @@ namespace Game.Infrastructure.Bootstrap
         {
             Container.BindInterfacesAndSelfTo<GameConfigProvider>().AsSingle();
 
+            Container.Bind<PlayerConfig>()
+                .FromResolveGetter<IGameConfigProvider>(provider => provider.Player)
+                .AsSingle();
+
+            Container.Bind<EnemyConfig>()
+                .FromResolveGetter<IGameConfigProvider>(provider => provider.Enemy)
+                .AsSingle();
+
+            Container.Bind<WorldConfig>()
+                .FromResolveGetter<IGameConfigProvider>(provider => provider.World)
+                .AsSingle();
+
             Container.Bind<GameConfigValidator>().AsSingle();
 
             Container.Bind<JsonConfigReader>().AsSingle();
@@ -88,22 +99,14 @@ namespace Game.Infrastructure.Bootstrap
             Container.Bind<KeyboardMouseInputStrategy>().AsSingle();
             Container.Bind<MobileInputStrategy>().AsSingle();
 
-            Container.Bind<IPlayerInputStrategy>().FromMethod(context =>
-            {
-                if (UnityApplication.isMobilePlatform)
-                {
-                    return context.Container.Resolve<MobileInputStrategy>();
-                }
+            Container.Bind<IPlayerInputStrategy>().To<PlayerInputStrategySelector>().AsSingle();
 
-                return context.Container.Resolve<KeyboardMouseInputStrategy>();
-            }).AsSingle();
+            Container.Bind<PlayerInputStateProvider>().AsSingle();
         }
 
         private void BindSceneLoader()
         {
-            Container.Bind<ISceneLoader>()
-                .To<SceneLoader>()
-                .AsSingle();
+            Container.Bind<ISceneLoader>().To<SceneLoader>().AsSingle();
         }
     }
 }

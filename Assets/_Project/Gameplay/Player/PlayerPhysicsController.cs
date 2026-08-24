@@ -13,7 +13,7 @@ namespace Game.Gameplay.Player
         private readonly PlayerPhysicsView _view;
         private readonly IGameConfigProvider _configProvider;
         private readonly CustomPhysicsWorld2D _physicsWorld;
-        private readonly IPlayerInputStrategy _inputStrategy;
+        private readonly PlayerInputStateProvider _inputProvider;
         private readonly PlayerInvulnerability _invulnerability;
 
         private CustomPhysicsBody2D _body;
@@ -29,14 +29,14 @@ namespace Game.Gameplay.Player
         public float NormalizedSpeed => Mathf.Clamp01(Body.Velocity.magnitude / _maxSpeed);
 
         public PlayerPhysicsController(PlayerPhysicsView view, IGameConfigProvider configProvider,
-            IPlayerInputStrategy inputStrategy,
+            PlayerInputStateProvider inputProvider,
             CustomPhysicsWorld2D physicsWorld, PlayerInvulnerability invulnerability)
         {
             _view = view ?? throw new ArgumentNullException(nameof(view));
 
             _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
 
-            _inputStrategy = inputStrategy ?? throw new ArgumentNullException(nameof(inputStrategy));
+            _inputProvider = inputProvider ?? throw new ArgumentNullException(nameof(inputProvider));
 
             _physicsWorld = physicsWorld ?? throw new ArgumentNullException(nameof(physicsWorld));
 
@@ -67,7 +67,7 @@ namespace Game.Gameplay.Player
                 throw new InvalidOperationException("Player movement has not been initialized");
             }
 
-            PlayerInputState input = _invulnerability.IsActive ? default : _inputStrategy.Read();
+            PlayerInputState input = _invulnerability.IsActive ? default : _inputProvider.Current;
 
             CurrentThrust = input.MovementDirection.sqrMagnitude > 0f
                 ? input.MovementDirection.magnitude

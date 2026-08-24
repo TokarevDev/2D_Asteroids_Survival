@@ -9,16 +9,16 @@ namespace Game.Gameplay.Player
 {
     public sealed class PlayerLaserWeapon : ITickable
     {
-        private readonly IPlayerInputStrategy _inputStrategy;
+        private readonly PlayerInputStateProvider _inputProvider;
         private readonly PlayerInvulnerability _invulnerability;
         private readonly WeaponOrigin _weaponOrigin;
         private readonly LaserChargeMagazine _chargeMagazine;
         private readonly LaserShotService _shotService;
 
-        public PlayerLaserWeapon(IPlayerInputStrategy inputStrategy, PlayerInvulnerability invulnerability,
+        public PlayerLaserWeapon(PlayerInputStateProvider inputProvider, PlayerInvulnerability invulnerability,
             WeaponOrigin weaponOrigin, LaserChargeMagazine chargeMagazine, LaserShotService shotService)
         {
-            _inputStrategy = inputStrategy ?? throw new ArgumentNullException(nameof(inputStrategy));
+            _inputProvider = inputProvider ?? throw new ArgumentNullException(nameof(inputProvider));
 
             _invulnerability = invulnerability ?? throw new ArgumentNullException(nameof(invulnerability));
 
@@ -36,7 +36,7 @@ namespace Game.Gameplay.Player
                 return;
             }
 
-            PlayerInputState input = _inputStrategy.Read();
+            PlayerInputState input = _inputProvider.Current;
 
             if (!input.FireLaserPressed || !_chargeMagazine.TryConsume())
             {

@@ -14,18 +14,18 @@ namespace Game.Gameplay.Player
         [SerializeField] private ProjectilePool _projectilePool;
 
         private IGameConfigProvider _configProvider;
-        private IPlayerInputStrategy _inputStrategy;
+        private PlayerInputStateProvider _inputProvider;
         private PlayerInvulnerability _invulnerability;
 
         private float _timeUntilNextShot;
 
         [Inject]
-        private void Construct(IGameConfigProvider configProvider, IPlayerInputStrategy inputStrategy,
+        private void Construct(IGameConfigProvider configProvider, PlayerInputStateProvider inputProvider,
             PlayerInvulnerability invulnerability)
         {
             _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
 
-            _inputStrategy = inputStrategy ?? throw new ArgumentNullException(nameof(inputStrategy));
+            _inputProvider = inputProvider ?? throw new ArgumentNullException(nameof(inputProvider));
 
             _invulnerability = invulnerability ?? throw new ArgumentNullException(nameof(invulnerability));
         }
@@ -52,7 +52,7 @@ namespace Game.Gameplay.Player
                 return;
             }
 
-            PlayerInputState input = _inputStrategy.Read();
+            PlayerInputState input = _inputProvider.Current;
 
             if (!input.FireBulletHeld)
             {
