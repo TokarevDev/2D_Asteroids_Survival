@@ -6,12 +6,12 @@ namespace Game.Gameplay.Session
 {
     public sealed class GamePauseService : IInitializable, IDisposable
     {
-        public void Dispose()
+        public void Initialize()
         {
             Resume();
         }
 
-        public void Initialize()
+        public void Dispose()
         {
             Resume();
         }

@@ -15,14 +15,14 @@ namespace Game.Gameplay.Player
             _signalBus = signalBus ?? throw new ArgumentNullException(nameof(signalBus));
         }
 
-        public void Dispose()
-        {
-            _playerHealth.Died -= OnPlayerDied;
-        }
-
         public void Initialize()
         {
             _playerHealth.Died += OnPlayerDied;
+        }
+
+        public void Dispose()
+        {
+            _playerHealth.Died -= OnPlayerDied;
         }
 
         private void OnPlayerDied()

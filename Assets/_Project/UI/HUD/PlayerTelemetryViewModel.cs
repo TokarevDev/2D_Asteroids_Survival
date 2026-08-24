@@ -8,6 +8,8 @@ namespace Game.UI.HUD
 {
     public sealed class PlayerTelemetryViewModel : ITickable
     {
+        private const float FullRotationDegrees = 360f;
+
         public event Action<Vector2, float, float> TelemetryChanged;
 
         private readonly PlayerPhysicsController _playerPhysicsController;
@@ -27,7 +29,7 @@ namespace Game.UI.HUD
             CustomPhysicsBody2D body = _playerPhysicsController.Body;
 
             Position = body.Position;
-            RotationDegrees = Mathf.Repeat(body.RotationDegrees, 360f);
+            RotationDegrees = Mathf.Repeat(body.RotationDegrees, FullRotationDegrees);
             Speed = body.Velocity.magnitude;
 
             TelemetryChanged?.Invoke(Position, RotationDegrees, Speed);

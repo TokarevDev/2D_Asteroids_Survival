@@ -6,6 +6,8 @@ namespace Game.UI.HUD
 {
     public sealed class TimerViewModel : IInitializable, IDisposable
     {
+        private const int SecondsPerMinute = 60;
+
         public event Action<int, int> TimeChanged;
 
         private readonly SurvivalTimer _survivalTimer;
@@ -32,8 +34,8 @@ namespace Game.UI.HUD
 
         private void OnElapsedSecondsChanged(int elapsedSeconds)
         {
-            Minutes = elapsedSeconds / 60;
-            Seconds = elapsedSeconds % 60;
+            Minutes = elapsedSeconds / SecondsPerMinute;
+            Seconds = elapsedSeconds % SecondsPerMinute;
 
             TimeChanged?.Invoke(Minutes, Seconds);
         }

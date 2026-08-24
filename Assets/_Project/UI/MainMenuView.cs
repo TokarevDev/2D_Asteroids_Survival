@@ -24,6 +24,14 @@ namespace Game.UI
                                       ?? throw new ArgumentNullException(nameof(applicationQuitService));
         }
 
+        private void Awake()
+        {
+            if (!ValidateSerializedReferences())
+            {
+                enabled = false;
+            }
+        }
+
         private void OnEnable()
         {
             _navigationFacade.TransitionStateChanged += OnTransitionStateChanged;
@@ -55,6 +63,25 @@ namespace Game.UI
         private void ExitGame()
         {
             _applicationQuitService.Quit();
+        }
+
+        private bool ValidateSerializedReferences()
+        {
+            bool isValid = true;
+
+            if (_startButton == null)
+            {
+                Debug.LogError("Start button reference is missing", this);
+                isValid = false;
+            }
+
+            if (_exitButton == null)
+            {
+                Debug.LogError("Exit button reference is missing", this);
+                isValid = false;
+            }
+
+            return isValid;
         }
     }
 }
