@@ -1,147 +1,68 @@
 using System;
 using Game.Core.Configuration;
 using Game.Core.Enemies;
+using Game.Gameplay.Enemies.Spawning;
 using Game.Gameplay.Session;
-using Game.Gameplay.World;
 using UnityEngine;
 using Zenject;
 
 namespace Game.Gameplay.Asteroids
 {
-    public sealed class AsteroidSpawner : MonoBehaviour
+    public sealed class AsteroidSpawner : IInitializable, ITickable
     {
-        [SerializeField] private AsteroidPool _asteroidPool;
-        [SerializeField] private AsteroidConfig[] _asteroidConfigs;
+        private const float SecondsPerMinute = 60f;
 
-        private SurvivalTimer _survivalTimer;
-        private float _timeUntilNextSpawn;
+        private readonly EnemySpawnProcess _spawnProcess;
+        private readonly SurvivalTimer _survivalTimer;
+        private readonly float _initialSpawnInterval;
+        private readonly float _minimumSpawnInterval;
+        private readonly float _intervalReductionPerMinute;
 
-        private IGameConfigProvider _configProvider;
-        private EnemyRegistry _enemyRegistry;
-
-        private AsteroidConfigSelector _configSelector;
-        private RandomWorldSpawnPointProvider _spawnPointProvider;
-
-        [Inject]
-        private void Construct(EnemyRegistry enemyRegistry, IGameConfigProvider configProvider,
+        public AsteroidSpawner(EnemyRegistry enemyRegistry, WorldConfig worldConfig, EnemyConfig enemyConfig,
             SurvivalTimer survivalTimer,
-            RandomWorldSpawnPointProvider spawnPointProvider)
+            AsteroidSpawnAction spawnAction)
         {
-            _enemyRegistry = enemyRegistry ?? throw new ArgumentNullException(nameof(enemyRegistry));
-            _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
+            if (enemyConfig == null)
+            {
+                throw new ArgumentNullException(nameof(enemyConfig));
+            }
+
             _survivalTimer = survivalTimer ?? throw new ArgumentNullException(nameof(survivalTimer));
-            _spawnPointProvider = spawnPointProvider ?? throw new ArgumentNullException(nameof(spawnPointProvider));
+
+            _initialSpawnInterval = enemyConfig.AsteroidSpawnIntervalSeconds;
+            _minimumSpawnInterval = enemyConfig.MinimumAsteroidSpawnIntervalSeconds;
+            _intervalReductionPerMinute = enemyConfig.AsteroidSpawnIntervalReductionPerMinute;
+
+            ValidateConfiguration();
+
+            _spawnProcess = new EnemySpawnProcess(enemyRegistry, worldConfig, spawnAction, GetCurrentSpawnInterval);
         }
 
-        private void Awake()
+        public void Initialize()
         {
-            if (!ValidateSerializedReferences() || !ValidateConfiguration())
-            {
-                enabled = false;
-                return;
-            }
-
-            _configSelector = new AsteroidConfigSelector(_asteroidConfigs);
+            _spawnProcess.Begin();
         }
 
-        private void Start()
+        public void Tick()
         {
-            SpawnOne();
-
-            _timeUntilNextSpawn = GetCurrentSpawnInterval();
-        }
-
-        private void Update()
-        {
-            _timeUntilNextSpawn -= Time.deltaTime;
-
-            if (_timeUntilNextSpawn > 0)
-            {
-                return;
-            }
-
-            SpawnOne();
-            _timeUntilNextSpawn = GetCurrentSpawnInterval();
+            _spawnProcess.Advance(Time.deltaTime);
         }
 
         private float GetCurrentSpawnInterval()
         {
-            float elapsedMinutes = _survivalTimer.ElapsedSeconds / 60f;
-            float intervalReduction = elapsedMinutes * _configProvider.Enemy.AsteroidSpawnIntervalReductionPerMinute;
-            float initialInterval = _configProvider.Enemy.AsteroidSpawnIntervalSeconds;
-            float minimumInterval = _configProvider.Enemy.MinimumAsteroidSpawnIntervalSeconds;
+            float elapsedMinutes = _survivalTimer.ElapsedSeconds / SecondsPerMinute;
+            float intervalReduction = elapsedMinutes * _intervalReductionPerMinute;
 
-            return Mathf.Max(minimumInterval, initialInterval - intervalReduction);
+            return Mathf.Max(_minimumSpawnInterval, _initialSpawnInterval - intervalReduction);
         }
 
-        private void SpawnOne()
+        private void ValidateConfiguration()
         {
-            if (_enemyRegistry.Count >= _configProvider.World.MaxEnemies)
+            if (_minimumSpawnInterval > _initialSpawnInterval)
             {
-                return;
+                throw new InvalidOperationException("Minimum asteroid spawn interval cannot exceed " +
+                                                    "the initial interval");
             }
-
-            Vector2 spawnPosition = _spawnPointProvider.GetSpawnPosition();
-            Vector2 targetPosition = _spawnPointProvider.GetTargetPosition();
-
-            Vector2 direction = targetPosition - spawnPosition;
-
-            EnemyParameters parameters = _configProvider.Enemy.GetParameters(EnemyType.LargeAsteroid);
-
-            Vector2 velocity = direction.normalized * parameters.Speed;
-
-            AsteroidConfig config = _configSelector.GetNextConfig();
-
-            _asteroidPool.Get(config, EnemyType.LargeAsteroid, spawnPosition, velocity, parameters.MaxHealth);
-        }
-
-        private bool ValidateConfiguration()
-        {
-            float initialInterval = _configProvider.Enemy.AsteroidSpawnIntervalSeconds;
-            float minimumInterval = _configProvider.Enemy.MinimumAsteroidSpawnIntervalSeconds;
-            if (minimumInterval <= initialInterval)
-            {
-                return true;
-            }
-
-            Debug.LogError(
-                "Minimum spawn interval cannot exceed initial interval",
-                this);
-
-            return false;
-        }
-
-        private bool ValidateSerializedReferences()
-        {
-            bool isValid = true;
-
-            if (_asteroidPool == null)
-            {
-                Debug.LogError("Asteroid pool reference is missing", this);
-                isValid = false;
-            }
-
-            if (_asteroidConfigs == null || _asteroidConfigs.Length == 0)
-            {
-                Debug.LogError("Asteroid configs are missing", this);
-                return false;
-            }
-
-            for (int i = 0; i < _asteroidConfigs.Length; i++)
-            {
-                if (_asteroidConfigs[i] != null)
-                {
-                    continue;
-                }
-
-                Debug.LogError(
-                    $"Asteroid config at index {i} is missing",
-                    this);
-
-                isValid = false;
-            }
-
-            return isValid;
         }
     }
 }

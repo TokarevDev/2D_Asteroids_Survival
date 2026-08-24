@@ -1,362 +1,66 @@
-using Game.Core.Configuration;
-using Game.Core.Enemies;
+using System;
 using Game.Core.Physics;
 using Game.Core.Player;
-using Game.Core.Projectiles;
-using Game.Core.Weapons;
-using Game.Core.World;
-using Game.Gameplay.Analytics;
-using Game.Gameplay.Asteroids;
 using Game.Gameplay.Enemies;
 using Game.Gameplay.Enemies.Ufo;
+using Game.Gameplay.Loop;
 using Game.Gameplay.Physics;
 using Game.Gameplay.Player;
 using Game.Gameplay.Projectiles;
-using Game.Gameplay.Score;
-using Game.Gameplay.Session;
-using Game.Gameplay.Signals;
-using Game.Gameplay.Weapons;
-using Game.Gameplay.World;
-using UnityEngine;
 using Zenject;
 
 namespace Game.Gameplay.Installers
 {
     public sealed class GameInstaller : MonoInstaller
     {
-        // ReSharper disable Unity.PerformanceAnalysis
         public override void InstallBindings()
         {
-            BindCustomPhysics();
-            BindProjectileCollisionDetection();
-            BindPlayerEnemyCollisionDetection();
-            BindPlayerEnemyBounce();
-            BindProjectilePool();
-            BindProjectileEntities();
-            BindEnemyRegistry();
-            BindEnemyEntityFactory();
-            BindEnemyEntityPool();
-            BindEnemyLifecycleService();
-            BindEnemyPhysicsViewSynchronizer();
-            BindToroidalWorld();
-            BindRandomWorldSpawnPointProvider();
-            BindEnemyWorldWrapController();
-            BindPlayerPhysicsView();
+            BindSharedServices();
+            BindFixedLoopSystems();
             BindPlayerPhysicsController();
-            BindPlayerThrustVisual();
-            BindPlayerInvulnerability();
-            BindPlayerInvulnerabilityVisual();
-            BindLaserSystem();
-            BindPlayerCollisionVfx();
-            BindPlayerWorldWrapController();
-            BindPlayerPhysicsViewSynchronizer();
-            BindSignals();
-            BindCameraProvider();
-            BindCameraWorldBoundsSynchronizer();
-            BindPlayerHealth();
-            BindPlayerCollisionDamage();
-            BindPlayerDeathSignalService();
-            BindAsteroidPool();
-            BindUfoPool();
-            BindEnemyDeathSignalService();
-            BindUfoPursuitController();
-            BindAsteroidFragmentSpawner();
-            BindSurvivalTimer();
-            BindScoreCounter();
-            BindEnemyRewardService();
-            BindGamePauseService();
-            BindGameSession();
-            BindGameAnalyticsReporter();
+            BindProjectileImpactService();
+
+            Container.BindInterfacesTo<GameplayFixedLoop>().AsSingle().NonLazy();
         }
 
-        private void BindPlayerThrustVisual()
+        private void BindSharedServices()
         {
-            Container.Bind<PlayerThrustView>().FromComponentInHierarchy().AsSingle();
-
-            Container.BindInterfacesTo<PlayerThrustVisualController>().AsSingle().NonLazy();
-        }
-
-        private void BindPlayerInvulnerabilityVisual()
-        {
-            Container.Bind<PlayerInvulnerabilityView>().FromComponentInHierarchy().AsSingle();
-
-            Container.BindInterfacesTo<PlayerInvulnerabilityVisualController>().AsSingle().NonLazy();
-        }
-
-        private void BindGameAnalyticsReporter()
-        {
-            Container.BindInterfacesTo<GameAnalyticsReporter>().AsSingle().NonLazy();
-        }
-
-        private void BindCameraWorldBoundsSynchronizer()
-        {
-            Container.BindInterfacesTo<CameraWorldBoundsSynchronizer>().AsSingle().NonLazy();
-        }
-
-        private void BindEnemyDeathSignalService()
-        {
-            Container.BindInterfacesTo<EnemyDeathSignalService>().AsSingle().NonLazy();
-        }
-
-        private void BindLaserSystem()
-        {
-            Container.Bind<LaserChargeMagazine>().FromMethod(context =>
-            {
-                PlayerConfig config = context.Container.Resolve<IGameConfigProvider>().Player;
-                return new LaserChargeMagazine(config.LaserMaxCharges, config.LaserRechargeSeconds);
-            }).AsSingle();
-
-            Container.BindInterfacesTo<LaserRechargeController>().AsSingle().NonLazy();
-
-            Container.Bind<SegmentCircleIntersectionDetector2D>().AsSingle();
-
-            Container.Bind<LaserTargetQuery>().AsSingle();
-
-            Container.Bind<EnemyDestructionService>().AsSingle();
-
-            Container.Bind<LaserShotService>().AsSingle().NonLazy();
-
-            Container.Bind<WeaponOrigin>().FromComponentInHierarchy().AsSingle();
-
-            Container.BindInterfacesTo<PlayerLaserWeapon>().AsSingle().NonLazy();
-
-            Container.Bind<LaserView>().FromComponentInHierarchy().AsSingle();
-
-            Container.BindInterfacesTo<LaserViewController>().AsSingle().NonLazy();
-        }
-
-        private void BindPlayerCollisionVfx()
-        {
-            Container.Bind<PlayerCollisionVfxPool>().FromComponentInHierarchy().AsSingle();
-
-            Container.BindInterfacesTo<PlayerCollisionVfxService>().AsSingle().NonLazy();
-        }
-
-        private void BindPlayerCollisionDamage()
-        {
-            Container.BindInterfacesTo<PlayerCollisionDamageService>().AsSingle().NonLazy();
-        }
-
-        private void BindPlayerInvulnerability()
-        {
-            Container.Bind<PlayerInvulnerability>().FromMethod(context =>
-            {
-                PlayerConfig config = context.Container.Resolve<IGameConfigProvider>().Player;
-
-                return new PlayerInvulnerability(config.InvulnerabilitySeconds);
-            }).AsSingle();
-
-            Container.BindInterfacesTo<PlayerInvulnerabilityController>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<PlayerInvulnerabilityController>(-110);
-        }
-
-        private void BindPlayerEnemyBounce()
-        {
-            Container.Bind<ElasticCollisionResolver2D>().AsSingle();
-
-            Container.BindInterfacesTo<PlayerEnemyBounceService>().AsSingle().NonLazy();
-        }
-
-        private void BindPlayerEnemyCollisionDetection()
-        {
-            Container.BindInterfacesAndSelfTo<PlayerEnemyCollisionController>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<PlayerEnemyCollisionController>(75);
-        }
-
-        private void BindUfoPursuitController()
-        {
-            Container.BindInterfacesTo<UfoPursuitController>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<UfoPursuitController>(-50);
-        }
-
-        private void BindUfoPool()
-        {
-            Container.Bind<UfoPool>().FromComponentInHierarchy().AsSingle();
-        }
-
-        private void BindAsteroidFragmentSpawner()
-        {
-            Container.Bind<AsteroidFragmentSpawner>().AsSingle();
-        }
-
-        private void BindRandomWorldSpawnPointProvider()
-        {
-            Container.Bind<RandomWorldSpawnPointProvider>().AsSingle();
-        }
-
-        private void BindProjectileCollisionDetection()
-        {
+            Container.Bind<CustomPhysicsIntegrator2D>().AsSingle();
+            Container.Bind<CustomPhysicsWorld2D>().AsSingle();
             Container.Bind<CircleCollisionDetector2D>().AsSingle();
-
-            Container.BindInterfacesAndSelfTo<ProjectileEnemyCollisionController>().AsSingle().NonLazy();
-
-            Container.BindInterfacesTo<ProjectileImpactService>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<ProjectileEnemyCollisionController>(75);
+            Container.Bind<PlayerInvulnerability>().AsSingle();
         }
 
-        private void BindProjectilePool()
+        private void BindFixedLoopSystems()
         {
-            Container.Bind<ProjectilePool>().FromComponentInHierarchy().AsSingle();
-        }
-
-        private void BindProjectileEntities()
-        {
-            Container.Bind<ProjectileEntityFactory>().AsSingle();
-
-            Container.Bind<ProjectileRegistry>().AsSingle();
-
-            Container.Bind<ProjectileEntityPool>().AsSingle();
-
-            Container.Bind<ProjectileLifecycleService>().AsSingle().NonLazy();
-
-            Container.BindInterfacesTo<ProjectileLifetimeController>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<ProjectileLifetimeController>(10);
-
-            Container.BindInterfacesTo<ProjectileWorldExitController>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<ProjectileWorldExitController>(25);
-
-            Container.BindInterfacesAndSelfTo<ProjectilePhysicsViewSynchronizer>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<ProjectilePhysicsViewSynchronizer>(100);
-        }
-
-        private void BindEnemyWorldWrapController()
-        {
-            Container.BindInterfacesTo<EnemyWorldWrapController>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<EnemyWorldWrapController>(50);
-        }
-
-        private void BindEnemyPhysicsViewSynchronizer()
-        {
-            Container.BindInterfacesAndSelfTo<EnemyPhysicsViewSynchronizer>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<EnemyPhysicsViewSynchronizer>(100);
-        }
-
-        private void BindEnemyLifecycleService()
-        {
-            Container.Bind<EnemyLifecycleService>().AsSingle();
-        }
-
-        private void BindEnemyEntityPool()
-        {
-            Container.Bind<EnemyEntityPool>().AsSingle();
-        }
-
-        private void BindEnemyEntityFactory()
-        {
-            Container.Bind<EnemyEntityFactory>().AsSingle();
-        }
-
-        private void BindEnemyRegistry()
-        {
-            Container.Bind<EnemyRegistry>().AsSingle();
-        }
-
-        private void BindPlayerWorldWrapController()
-        {
-            Container.BindInterfacesTo<PlayerWorldWrapController>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<PlayerWorldWrapController>(50);
-        }
-
-        private void BindToroidalWorld()
-        {
-            Container.Bind<ToroidalWorld2D>().FromMethod(context =>
-            {
-                WorldConfig config = context.Container.Resolve<IGameConfigProvider>().World;
-
-                return new ToroidalWorld2D(config.Width, config.Height);
-            }).AsSingle();
-        }
-
-        private void BindPlayerPhysicsViewSynchronizer()
-        {
-            Container.BindInterfacesTo<PlayerPhysicsViewSynchronizer>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<PlayerPhysicsViewSynchronizer>(100);
+            Container.Bind<PlayerInvulnerabilityController>().AsSingle();
+            Container.Bind<PlayerEnemyCollisionController>().AsSingle();
+            Container.Bind<UfoPursuitController>().AsSingle();
+            Container.Bind<ProjectileEnemyCollisionController>().AsSingle();
+            Container.Bind<ProjectileLifetimeController>().AsSingle();
+            Container.Bind<ProjectileWorldExitController>().AsSingle();
+            Container.Bind<ProjectilePhysicsViewSynchronizer>().AsSingle();
+            Container.Bind<EnemyWorldWrapController>().AsSingle();
+            Container.Bind<EnemyPhysicsViewSynchronizer>().AsSingle();
+            Container.Bind<PlayerWorldWrapController>().AsSingle();
+            Container.Bind<PlayerPhysicsViewSynchronizer>().AsSingle();
+            Container.Bind<CustomPhysicsFixedTickRunner>().AsSingle();
         }
 
         private void BindPlayerPhysicsController()
         {
-            Container.BindInterfacesAndSelfTo<PlayerPhysicsController>().AsSingle().NonLazy();
-
-            Container.BindFixedTickableExecutionOrder<PlayerPhysicsController>(-100);
+            Container.Bind(
+                    typeof(PlayerPhysicsController), typeof(IInitializable), typeof(IDisposable))
+                .To<PlayerPhysicsController>()
+                .AsSingle()
+                .NonLazy();
         }
 
-        private void BindPlayerPhysicsView()
+        private void BindProjectileImpactService()
         {
-            Container.Bind<PlayerPhysicsView>().FromComponentInHierarchy().AsSingle();
-        }
-
-        private void BindCustomPhysics()
-        {
-            Container.Bind<CustomPhysicsIntegrator2D>().AsSingle();
-            Container.Bind<CustomPhysicsWorld2D>().AsSingle();
-
-            Container.BindInterfacesTo<CustomPhysicsFixedTickRunner>().AsSingle().NonLazy();
-            Container.BindFixedTickableExecutionOrder<CustomPhysicsFixedTickRunner>(0);
-        }
-
-        private void BindEnemyRewardService()
-        {
-            Container.BindInterfacesTo<EnemyRewardService>().AsSingle().NonLazy();
-        }
-
-        private void BindCameraProvider()
-        {
-            Container.Bind<Camera>().FromComponentInHierarchy().AsSingle();
-            Container.Bind<CameraProvider>().AsSingle();
-        }
-
-        private void BindGamePauseService()
-        {
-            Container.BindInterfacesAndSelfTo<GamePauseService>().AsSingle().NonLazy();
-        }
-
-        private void BindPlayerDeathSignalService()
-        {
-            Container.BindInterfacesTo<PlayerDeathSignalService>().AsSingle().NonLazy();
-        }
-
-        private void BindScoreCounter()
-        {
-            Container.Bind<ScoreCounter>().AsSingle().NonLazy();
-        }
-
-        private void BindAsteroidPool()
-        {
-            Container.Bind<AsteroidPool>().FromComponentInHierarchy().AsSingle();
-        }
-
-        private void BindSignals()
-        {
-            SignalBusInstaller.Install(Container);
-
-            Container.DeclareSignal<PlayerDiedSignal>();
-            Container.DeclareSignal<EnemyDiedSignal>();
-        }
-
-        private void BindPlayerHealth()
-        {
-            Container.Bind<PlayerHealth>().FromComponentInHierarchy().AsSingle();
-        }
-
-        private void BindSurvivalTimer()
-        {
-            Container.BindInterfacesAndSelfTo<SurvivalTimer>().AsSingle().NonLazy();
-        }
-
-        private void BindGameSession()
-        {
-            Container.BindInterfacesTo<GameSession>().AsSingle().NonLazy();
+            Container.BindInterfacesTo<ProjectileImpactService>()
+                .AsSingle()
+                .NonLazy();
         }
     }
 }

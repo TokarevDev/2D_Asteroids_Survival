@@ -1,4 +1,5 @@
 using System;
+using Game.Core.Configuration;
 using Game.Core.Physics;
 using UnityEngine;
 
@@ -14,9 +15,14 @@ namespace Game.Core.World
         public float HalfWidth => _halfWidth;
         public float HalfHeight => _halfHeight;
 
-        public ToroidalWorld2D(float width, float height)
+        public ToroidalWorld2D(WorldConfig config)
         {
-            SetSize(width, height);
+            if (config == null)
+            {
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            SetSize(config.Width, config.Height);
         }
 
         public void SetSize(float width, float height)

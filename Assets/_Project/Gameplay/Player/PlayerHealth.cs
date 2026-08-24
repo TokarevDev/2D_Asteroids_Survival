@@ -1,6 +1,8 @@
 using System;
+using Game.Core.Configuration;
 using Game.Gameplay.Combat;
 using UnityEngine;
+using Zenject;
 
 namespace Game.Gameplay.Player
 {
@@ -9,20 +11,26 @@ namespace Game.Gameplay.Player
         public event Action<int, int> HealthChanged;
         public event Action Died;
 
-        [SerializeField, Min(1)] private int _maxHealth = 3;
-
         private readonly Health _health = new();
+
+        private IGameConfigProvider _configProvider;
 
         public int MaxHealth => _health.MaxHealth;
         public int CurrentHealth => _health.CurrentHealth;
         public bool IsDead => _health.IsDead;
+
+        [Inject]
+        private void Construct(IGameConfigProvider configProvider)
+        {
+            _configProvider = configProvider ?? throw new ArgumentNullException(nameof(configProvider));
+        }
 
         private void Awake()
         {
             _health.Changed += OnHealthChanged;
             _health.Died += OnDied;
 
-            _health.Initialize(_maxHealth);
+            _health.Initialize(_configProvider.Player.MaxHealth);
         }
 
         private void OnDestroy()

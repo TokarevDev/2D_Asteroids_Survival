@@ -1,4 +1,5 @@
 using System;
+using Game.Core.Configuration;
 
 namespace Game.Core.Weapons
 {
@@ -26,23 +27,32 @@ namespace Game.Core.Weapons
             }
         }
 
-        public LaserChargeMagazine(int maxCharges, float rechargeDurationSeconds)
+        public LaserChargeMagazine(PlayerConfig config)
         {
-            if (maxCharges <= 0)
+            if (config == null)
             {
-                throw new ArgumentOutOfRangeException(nameof(maxCharges), maxCharges,
+                throw new ArgumentNullException(nameof(config));
+            }
+
+            if (config.LaserMaxCharges <= 0)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(config.LaserMaxCharges),
+                    config.LaserMaxCharges,
                     "Maximum laser charges must be greater than zero");
             }
 
-            if (rechargeDurationSeconds <= 0f)
+            if (config.LaserRechargeSeconds <= 0f)
             {
-                throw new ArgumentOutOfRangeException(nameof(rechargeDurationSeconds), rechargeDurationSeconds,
+                throw new ArgumentOutOfRangeException(
+                    nameof(config.LaserRechargeSeconds),
+                    config.LaserRechargeSeconds,
                     "Laser recharge duration must be greater than zero");
             }
 
-            MaxCharges = maxCharges;
-            CurrentCharges = maxCharges;
-            _rechargeDurationSeconds = rechargeDurationSeconds;
+            MaxCharges = config.LaserMaxCharges;
+            CurrentCharges = config.LaserMaxCharges;
+            _rechargeDurationSeconds = config.LaserRechargeSeconds;
         }
 
         public bool TryConsume()
