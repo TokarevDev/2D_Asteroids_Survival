@@ -1,6 +1,4 @@
 using System;
-using Game.Core.Enemies;
-using UnityEngine;
 using Zenject;
 
 namespace Game.Gameplay.Player
@@ -31,7 +29,7 @@ namespace Game.Gameplay.Player
             _collisionController.CollisionDetected -= OnCollisionDetected;
         }
 
-        private void OnCollisionDetected(EnemyEntity enemy, Vector2 displacement)
+        private void OnCollisionDetected()
         {
             _vfxPool.Play(_playerController.Body.Position);
         }

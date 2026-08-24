@@ -24,12 +24,12 @@ namespace Game.Gameplay.Player
 
         public void Initialize()
         {
-            _collisionController.CollisionDetected += OnCollisionDetected;
+            _collisionController.DetailedCollisionDetected += OnCollisionDetected;
         }
 
         public void Dispose()
         {
-            _collisionController.CollisionDetected -= OnCollisionDetected;
+            _collisionController.DetailedCollisionDetected -= OnCollisionDetected;
         }
 
         private void OnCollisionDetected(EnemyEntity enemy, Vector2 displacement)

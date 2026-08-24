@@ -1,7 +1,5 @@
 using System;
-using Game.Core.Enemies;
 using Game.Core.Player;
-using UnityEngine;
 using Zenject;
 
 namespace Game.Gameplay.Player
@@ -34,7 +32,7 @@ namespace Game.Gameplay.Player
             _collisionController.CollisionDetected -= OnCollisionDetected;
         }
 
-        private void OnCollisionDetected(EnemyEntity enemy, Vector2 displacement)
+        private void OnCollisionDetected()
         {
             if (_playerHealth.IsDead)
             {
