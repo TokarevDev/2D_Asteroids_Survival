@@ -118,45 +118,6 @@ namespace Game.Gameplay.Enemies
             enemy.gameObject.SetActive(false);
         }
 
-        public bool TryGetByEntity(
-            EnemyEntity entity,
-            out TEnemy enemy)
-        {
-            if (entity == null)
-            {
-                throw new ArgumentNullException(nameof(entity));
-            }
-
-            EnsureInitialized();
-
-            for (int i = 0; i < _pool.CreatedItems.Count; i++)
-            {
-                TEnemy candidate = _pool.CreatedItems[i];
-
-                if (candidate == null)
-                {
-                    continue;
-                }
-
-                EnemyPhysicsView physicsView =
-                    GetPhysicsView(candidate);
-
-                if (!physicsView.IsBound)
-                {
-                    continue;
-                }
-
-                if (ReferenceEquals(physicsView.Entity, entity))
-                {
-                    enemy = candidate;
-                    return true;
-                }
-            }
-
-            enemy = null;
-            return false;
-        }
-
         protected virtual void OnDestroy()
         {
             if (_pool == null)

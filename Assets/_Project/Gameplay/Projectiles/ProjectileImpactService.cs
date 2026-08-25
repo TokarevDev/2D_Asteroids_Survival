@@ -2,7 +2,8 @@ using System;
 using Game.Core.Enemies;
 using Game.Core.Projectiles;
 using Game.Gameplay.Asteroids;
-using Game.Gameplay.Enemies.Ufo;
+using Game.Gameplay.Combat;
+using Game.Gameplay.Enemies;
 using UnityEngine;
 using Zenject;
 
@@ -12,23 +13,20 @@ namespace Game.Gameplay.Projectiles
     {
         private readonly ProjectileEnemyCollisionController _collisionController;
         private readonly ProjectilePool _projectilePool;
-        private readonly AsteroidPool _asteroidPool;
-        private readonly UfoPool _ufoPool;
+        private readonly EnemyDamageableRegistry _damageableRegistry;
         private readonly AsteroidFragmentSpawner _fragmentSpawner;
 
         public ProjectileImpactService(ProjectileEnemyCollisionController collisionController,
-            ProjectilePool projectilePool, AsteroidPool asteroidPool, AsteroidFragmentSpawner fragmentSpawner,
-            UfoPool ufoPool)
+            ProjectilePool projectilePool, EnemyDamageableRegistry damageableRegistry,
+            AsteroidFragmentSpawner fragmentSpawner)
         {
             _collisionController = collisionController ?? throw new ArgumentNullException(nameof(collisionController));
 
             _projectilePool = projectilePool ?? throw new ArgumentNullException(nameof(projectilePool));
 
-            _asteroidPool = asteroidPool ?? throw new ArgumentNullException(nameof(asteroidPool));
+            _damageableRegistry = damageableRegistry ?? throw new ArgumentNullException(nameof(damageableRegistry));
 
             _fragmentSpawner = fragmentSpawner ?? throw new ArgumentNullException(nameof(fragmentSpawner));
-
-            _ufoPool = ufoPool ?? throw new ArgumentNullException(nameof(ufoPool));
         }
 
         public void Initialize()
@@ -43,38 +41,24 @@ namespace Game.Gameplay.Projectiles
 
         private void OnCollisionDetected(ProjectileEntity projectile, EnemyEntity enemy)
         {
-            int damage = projectile.Damage;
-
-            if (_asteroidPool.TryGetByEntity(enemy, out Asteroid asteroid))
+            if (!_damageableRegistry.TryGet(enemy, out IDamageable damageable))
             {
-                HandleAsteroidCollision(projectile, enemy, asteroid, damage);
-                return;
+                throw new InvalidOperationException("Enemy entity has no associated damageable");
             }
 
-            if (_ufoPool.TryGetByEntity(enemy, out Ufo ufo))
-            {
-                ReturnProjectile(projectile);
-                ufo.TakeDamage(damage);
-                return;
-            }
+            int damageAmount = projectile.Damage;
+            bool shouldSpawnFragments =
+                enemy.Type == EnemyType.LargeAsteroid && damageAmount >= damageable.CurrentHealth;
 
-            throw new InvalidOperationException("Detected enemy entity has no associated visual");
-        }
-
-        private void HandleAsteroidCollision(ProjectileEntity projectile, EnemyEntity enemy, Asteroid asteroid,
-            int damage)
-        {
-            bool shouldSpawnFragments = enemy.Type == EnemyType.LargeAsteroid && damage >= asteroid.CurrentHealth;
-
-            Vector2 parentPosition = enemy.PhysicsBody.Position;
-            Vector2 parentVelocity = enemy.PhysicsBody.Velocity;
+            Vector2 enemyPosition = enemy.PhysicsBody.Position;
+            Vector2 enemyVelocity = enemy.PhysicsBody.Velocity;
 
             ReturnProjectile(projectile);
-            asteroid.TakeDamage(damage);
+            damageable.TakeDamage(damageAmount);
 
             if (shouldSpawnFragments)
             {
-                _fragmentSpawner.Spawn(parentPosition, parentVelocity);
+                _fragmentSpawner.Spawn(enemyPosition, enemyVelocity);
             }
         }
 
