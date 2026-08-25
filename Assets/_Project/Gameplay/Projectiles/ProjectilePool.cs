@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Game.Core.Configuration;
 using Game.Core.Projectiles;
 using Game.Gameplay.Pooling;
@@ -10,6 +11,8 @@ namespace Game.Gameplay.Projectiles
     public sealed class ProjectilePool : MonoBehaviour
     {
         [SerializeField] private Projectile _projectilePrefab;
+
+        private readonly Dictionary<ProjectileEntity, Projectile> _projectilesByEntity = new();
 
         private IGameConfigProvider _configProvider;
         private ProjectileLifecycleService _lifecycleService;
@@ -43,19 +46,38 @@ namespace Game.Gameplay.Projectiles
                 return;
             }
 
+            _projectilesByEntity.Clear();
             _pool.Clear();
         }
 
         public bool TrySpawn(Vector2 position, Vector2 direction, float rotationDegrees)
         {
             Projectile projectile = _pool.Get();
+            ProjectileEntity entity;
+            bool isSpawned;
 
             try
             {
-                if (!_lifecycleService.TrySpawn(projectile.PhysicsView, position, direction, rotationDegrees, out _))
+                isSpawned = _lifecycleService.TrySpawn(projectile.PhysicsView, position, direction, rotationDegrees,
+                    out entity);
+            }
+            catch
+            {
+                RollbackSpawn(projectile);
+                throw;
+            }
+
+            if (!isSpawned)
+            {
+                ReturnRentedProjectile(projectile);
+                return false;
+            }
+
+            try
+            {
+                if (!_projectilesByEntity.TryAdd(entity, projectile))
                 {
-                    Return(projectile);
-                    return false;
+                    throw new InvalidOperationException("Projectile entity is already associated with a visual");
                 }
 
                 projectile.gameObject.SetActive(true);
@@ -64,32 +86,49 @@ namespace Game.Gameplay.Projectiles
             }
             catch
             {
-                Return(projectile);
+                RollbackSpawn(projectile);
                 throw;
             }
         }
 
-        public void Return(Projectile projectile)
+        private bool ReturnProjectile(Projectile projectile)
         {
             if (projectile == null)
             {
                 Debug.LogError("Cannot return a null projectile", this);
-                return;
+                return false;
             }
 
-            if (projectile.PhysicsView.IsBound && !_lifecycleService.Despawn(projectile.PhysicsView.Entity))
+            if (projectile.PhysicsView.IsBound)
             {
-                Debug.LogError("Bound projectile physics view was not active", projectile);
-                return;
+                ProjectileEntity entity = projectile.PhysicsView.Entity;
+
+                if (!_projectilesByEntity.TryGetValue(entity, out Projectile registeredProjectile) ||
+                    !ReferenceEquals(registeredProjectile, projectile))
+                {
+                    Debug.LogError("Bound projectile has no matching entity association", projectile);
+                    return false;
+                }
+
+                if (!_lifecycleService.Despawn(entity))
+                {
+                    Debug.LogError("Bound projectile physics view was not active", projectile);
+                    return false;
+                }
+
+                if (!_projectilesByEntity.Remove(entity))
+                {
+                    throw new InvalidOperationException("Projectile entity association was not registered");
+                }
             }
 
-            if (!_pool.Return(projectile))
+            if (!TryReturnToPool(projectile))
             {
                 Debug.LogWarning("Projectile is already in the pool", projectile);
-                return;
+                return false;
             }
 
-            projectile.gameObject.SetActive(false);
+            return true;
         }
 
         public bool Return(ProjectileEntity entity)
@@ -99,40 +138,57 @@ namespace Game.Gameplay.Projectiles
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            if (!TryGetByEntity(entity, out Projectile projectile))
+            if (!_projectilesByEntity.TryGetValue(entity, out Projectile projectile))
             {
                 return false;
             }
 
-            Return(projectile);
-            return true;
+            return ReturnProjectile(projectile);
         }
 
-        private bool TryGetByEntity(ProjectileEntity entity, out Projectile projectile)
+        private void RollbackSpawn(Projectile projectile)
         {
-            if (entity == null)
+            if (projectile.PhysicsView.IsBound)
             {
-                throw new ArgumentNullException(nameof(entity));
-            }
+                ProjectileEntity entity = projectile.PhysicsView.Entity;
 
-            for (int i = 0; i < _pool.CreatedItems.Count; i++)
-            {
-                Projectile candidate = _pool.CreatedItems[i];
-
-                if (candidate == null || !candidate.PhysicsView.IsBound)
+                if (!_lifecycleService.Despawn(entity))
                 {
-                    continue;
+                    throw new InvalidOperationException("Failed to despawn projectile during spawn rollback");
                 }
 
-                if (ReferenceEquals(candidate.PhysicsView.Entity, entity))
+                if (_projectilesByEntity.TryGetValue(entity, out Projectile registeredProjectile) &&
+                    ReferenceEquals(registeredProjectile, projectile) &&
+                    !_projectilesByEntity.Remove(entity))
                 {
-                    projectile = candidate;
-                    return true;
+                    throw new InvalidOperationException(
+                        "Failed to remove projectile association during spawn rollback");
                 }
             }
 
-            projectile = null;
-            return false;
+            if (!TryReturnToPool(projectile))
+            {
+                throw new InvalidOperationException("Failed to return projectile during spawn rollback");
+            }
+        }
+
+        private void ReturnRentedProjectile(Projectile projectile)
+        {
+            if (!TryReturnToPool(projectile))
+            {
+                throw new InvalidOperationException("Failed to return projectile after rejected spawn");
+            }
+        }
+
+        private bool TryReturnToPool(Projectile projectile)
+        {
+            if (!_pool.Return(projectile))
+            {
+                return false;
+            }
+
+            projectile.gameObject.SetActive(false);
+            return true;
         }
 
         private Projectile CreateProjectile()
