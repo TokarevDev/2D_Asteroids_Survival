@@ -32,20 +32,7 @@ namespace Game.Gameplay.Enemies
         public EnemyEntity Spawn(EnemyPhysicsView view, IDamageable damageable, EnemyType type, Vector2 position,
             Vector2 velocity, float rotationDegrees)
         {
-            if (view == null)
-            {
-                throw new ArgumentNullException(nameof(view));
-            }
-
-            if (damageable == null)
-            {
-                throw new ArgumentNullException(nameof(damageable));
-            }
-
-            if (view.IsBound)
-            {
-                throw new InvalidOperationException("Enemy physics view is already bound");
-            }
+            ValidateSpawnArguments(view, damageable);
 
             EnemyEntity enemy = _pool.Get(type, position, velocity, rotationDegrees);
 
@@ -139,6 +126,25 @@ namespace Game.Gameplay.Enemies
             if (!_pool.Return(enemy))
             {
                 throw new InvalidOperationException("Enemy entity is already in the pool");
+            }
+        }
+
+        private static void ValidateSpawnArguments(EnemyPhysicsView view, IDamageable damageable)
+        {
+            if (view == null)
+            {
+                throw new ArgumentNullException(nameof(view));
+            }
+
+            if (damageable == null)
+            {
+                throw new ArgumentNullException(nameof(damageable));
+            }
+
+            if (view.IsBound)
+            {
+                throw new InvalidOperationException(
+                    "Enemy physics view is already bound");
             }
         }
     }
