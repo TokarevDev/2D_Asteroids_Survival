@@ -1,4 +1,4 @@
-using System;
+using Game.Core.Advertising;
 using Game.Core.Analytics;
 using Game.Core.Application;
 using Game.Core.Configuration;
@@ -82,7 +82,11 @@ namespace Game.Infrastructure.Bootstrap
         {
             if (_adMobConfiguration == null)
             {
-                throw new InvalidOperationException("AdMob configuration reference is missing");
+                Debug.LogWarning("AdMob configuration is missing. Advertisement is disabled.", this);
+
+                Container.Bind<IAdvertisementService>().To<DisabledAdvertisementService>().AsSingle();
+
+                return;
             }
 
             Container.BindInstance(_adMobConfiguration);
