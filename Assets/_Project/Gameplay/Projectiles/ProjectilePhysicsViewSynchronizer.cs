@@ -7,9 +7,9 @@ namespace Game.Gameplay.Projectiles
 {
     public sealed class ProjectilePhysicsViewSynchronizer : IFixedTickable
     {
-        private readonly List<ProjectilePhysicsView> _views = new();
+        private readonly Dictionary<ProjectileEntity, ProjectilePhysicsView> _viewsByEntity = new();
 
-        public int ViewCount => _views.Count;
+        public int ViewCount => _viewsByEntity.Count;
 
         public bool Register(ProjectilePhysicsView view)
         {
@@ -23,13 +23,7 @@ namespace Game.Gameplay.Projectiles
                 throw new InvalidOperationException("Cannot register an unbound projectile physics view");
             }
 
-            if (_views.Contains(view))
-            {
-                return false;
-            }
-
-            _views.Add(view);
-            return true;
+            return _viewsByEntity.TryAdd(view.Entity, view);
         }
 
         public bool Unregister(ProjectilePhysicsView view)
@@ -39,7 +33,20 @@ namespace Game.Gameplay.Projectiles
                 throw new ArgumentNullException(nameof(view));
             }
 
-            return _views.Remove(view);
+            if (!view.IsBound)
+            {
+                return false;
+            }
+
+            ProjectileEntity entity = view.Entity;
+
+            if (!_viewsByEntity.TryGetValue(entity, out ProjectilePhysicsView registeredView) ||
+                !ReferenceEquals(registeredView, view))
+            {
+                return false;
+            }
+
+            return _viewsByEntity.Remove(entity);
         }
 
         public bool TryGetView(ProjectileEntity entity, out ProjectilePhysicsView view)
@@ -49,26 +56,14 @@ namespace Game.Gameplay.Projectiles
                 throw new ArgumentNullException(nameof(entity));
             }
 
-            for (int i = 0; i < _views.Count; i++)
-            {
-                ProjectilePhysicsView candidate = _views[i];
-
-                if (ReferenceEquals(candidate.Entity, entity))
-                {
-                    view = candidate;
-                    return true;
-                }
-            }
-
-            view = null;
-            return false;
+            return _viewsByEntity.TryGetValue(entity, out view);
         }
 
         public void FixedTick()
         {
-            for (int i = 0; i < _views.Count; i++)
+            foreach (KeyValuePair<ProjectileEntity, ProjectilePhysicsView> pair in _viewsByEntity)
             {
-                _views[i].Synchronize();
+                pair.Value.Synchronize();
             }
         }
     }
