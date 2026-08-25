@@ -4,6 +4,10 @@ namespace Game.Gameplay.Weapons
 {
     public sealed class LaserView : MonoBehaviour
     {
+        private const int StartPointIndex = 0;
+        private const int EndPointIndex = 1;
+        private const int LinePointCount = 2;
+
         [SerializeField] private LineRenderer _lineRenderer;
 
         private float _maximumWidth;
@@ -18,15 +22,15 @@ namespace Game.Gameplay.Weapons
             }
 
             _lineRenderer.useWorldSpace = true;
-            _lineRenderer.positionCount = 2;
+            _lineRenderer.positionCount = LinePointCount;
             _maximumWidth = _lineRenderer.widthMultiplier;
             _lineRenderer.enabled = false;
         }
 
         public void Show(Vector2 start, Vector2 end)
         {
-            _lineRenderer.SetPosition(0, start);
-            _lineRenderer.SetPosition(1, end);
+            _lineRenderer.SetPosition(StartPointIndex, start);
+            _lineRenderer.SetPosition(EndPointIndex, end);
             _lineRenderer.widthMultiplier = _maximumWidth;
             _lineRenderer.enabled = true;
         }

@@ -8,6 +8,8 @@ namespace Game.Core.Player
 {
     public sealed class ShipMovement
     {
+        private const float FullRotationDegrees = 360f;
+
         private readonly CustomPhysicsBody2D _body;
         private readonly PlayerConfig _config;
 
@@ -38,7 +40,7 @@ namespace Game.Core.Player
             float nextRotation = Mathf.MoveTowardsAngle(_body.RotationDegrees, targetRotation,
                 _config.TurnSpeedDegreesPerSecond * deltaTime);
 
-            _body.SetRotation(Mathf.Repeat(nextRotation, 360f));
+            _body.SetRotation(Mathf.Repeat(nextRotation, FullRotationDegrees));
 
             ApplyVelocity(movementDirection.magnitude, 0f, deltaTime);
         }
@@ -50,7 +52,7 @@ namespace Game.Core.Player
             float nextRotation =
                 _body.RotationDegrees - clampedTurnInput * _config.TurnSpeedDegreesPerSecond * deltaTime;
 
-            _body.SetRotation(Mathf.Repeat(nextRotation, 360f));
+            _body.SetRotation(Mathf.Repeat(nextRotation, FullRotationDegrees));
         }
 
         private void ApplyVelocity(float thrustInput, float brakeInput, float deltaTime)

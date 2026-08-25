@@ -8,6 +8,8 @@ namespace Game.Gameplay.Asteroids
     [DisallowMultipleComponent]
     public sealed class AsteroidVisual : MonoBehaviour
     {
+        private const float ReverseRotationProbability = 0.5f;
+
         [SerializeField] private SpriteRenderer _spriteRenderer;
         [SerializeField] private AsteroidSpriteAnimator _spriteAnimator;
         [SerializeField] private AsteroidVisualRotator _visualRotator;
@@ -87,7 +89,7 @@ namespace Game.Gameplay.Asteroids
 
             float angularSpeed = Random.Range(config.MinAngularSpeed, config.MaxAngularSpeed);
 
-            if (Random.value < 0.5f)
+            if (Random.value < ReverseRotationProbability)
             {
                 angularSpeed = -angularSpeed;
             }
