@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
-using UnityEngine;
+using Newtonsoft.Json.Linq;
 using UnityEngine.Networking;
 using UnityApplication = UnityEngine.Application;
 
@@ -16,8 +16,14 @@ namespace Game.Infrastructure.Configuration
                 MissingMemberHandling = MissingMemberHandling.Error
             };
 
-        public async UniTask<T> ReadAsync<T>(
-            string relativePath, CancellationToken cancellationToken)
+        private static readonly JsonLoadSettings _loadSettings =
+            new()
+            {
+                DuplicatePropertyNameHandling =
+                    DuplicatePropertyNameHandling.Error
+            };
+
+        public async UniTask<T> ReadAsync<T>(string relativePath, CancellationToken cancellationToken)
             where T : class
         {
             if (string.IsNullOrWhiteSpace(relativePath))
@@ -40,7 +46,9 @@ namespace Game.Infrastructure.Configuration
 
             string json = request.downloadHandler.text.TrimStart('\uFEFF');
 
-            T result = JsonConvert.DeserializeObject<T>(json, _serializerSettings);
+            JToken root = JToken.Parse(json, _loadSettings);
+
+            T result = root.ToObject<T>(JsonSerializer.Create(_serializerSettings));
 
             return result ?? throw new InvalidOperationException($"JSON '{relativePath}' contains no configuration");
         }
