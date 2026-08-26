@@ -9,8 +9,6 @@ namespace Game.Gameplay.Enemies.Ufo
 {
     public sealed class UfoPool : EnemyPool<Ufo>
     {
-        public event Action<EnemyType, DeathSource> UfoDied;
-
         private const int UfoSortingOrderBase = 200;
 
         [SerializeField] private Ufo _ufoPrefab;
@@ -84,11 +82,7 @@ namespace Game.Gameplay.Enemies.Ufo
 
         private void OnUfoDied(Ufo ufo, DeathSource deathSource)
         {
-            EnemyType enemyType = ufo.PhysicsView.Entity.Type;
-
-            Return(ufo);
-
-            UfoDied?.Invoke(enemyType, deathSource);
+            HandleEnemyDeath(ufo, deathSource);
         }
 
         private bool ValidateSerializedReferences()

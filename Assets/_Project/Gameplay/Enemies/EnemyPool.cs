@@ -11,21 +11,20 @@ namespace Game.Gameplay.Enemies
         where TEnemy : MonoBehaviour, IDamageable
     {
         private EnemyLifecycleService _lifecycleService;
+        private EnemyDeathEventSource _deathEventSource;
         private ObjectPool<TEnemy> _pool;
         private Func<TEnemy> _createEnemy;
         private int _nextSortingOrder;
 
         [Inject]
-        private void Construct(EnemyLifecycleService lifecycleService)
+        private void Construct(EnemyLifecycleService lifecycleService, EnemyDeathEventSource deathEventSource)
         {
-            _lifecycleService = lifecycleService
-                                ?? throw new ArgumentNullException(nameof(lifecycleService));
+            _lifecycleService = lifecycleService ?? throw new ArgumentNullException(nameof(lifecycleService));
+
+            _deathEventSource = deathEventSource ?? throw new ArgumentNullException(nameof(deathEventSource));
         }
 
-        protected void InitializePool(
-            Func<TEnemy> createEnemy,
-            int initialCapacity,
-            int sortingOrderBase)
+        protected void InitializePool(Func<TEnemy> createEnemy, int initialCapacity, int sortingOrderBase)
         {
             if (_pool != null)
             {
@@ -33,13 +32,10 @@ namespace Game.Gameplay.Enemies
                     "Enemy pool is already initialized");
             }
 
-            _createEnemy = createEnemy
-                           ?? throw new ArgumentNullException(nameof(createEnemy));
+            _createEnemy = createEnemy ?? throw new ArgumentNullException(nameof(createEnemy));
             _nextSortingOrder = sortingOrderBase;
 
-            _pool = new ObjectPool<TEnemy>(
-                CreatePooledEnemy,
-                initialCapacity);
+            _pool = new ObjectPool<TEnemy>(CreatePooledEnemy, initialCapacity);
         }
 
         protected TEnemy RentEnemy()
@@ -48,11 +44,7 @@ namespace Game.Gameplay.Enemies
             return _pool.Get();
         }
 
-        protected void ActivateEnemy(
-            TEnemy enemy,
-            EnemyType type,
-            Vector2 position,
-            Vector2 velocity)
+        protected void ActivateEnemy(TEnemy enemy, EnemyType type, Vector2 position, Vector2 velocity)
         {
             if (enemy == null)
             {
@@ -80,6 +72,27 @@ namespace Game.Gameplay.Enemies
                 0f);
 
             enemy.gameObject.SetActive(true);
+        }
+
+        protected void HandleEnemyDeath(TEnemy enemy, DeathSource deathSource)
+        {
+            if (enemy == null)
+            {
+                throw new ArgumentNullException(nameof(enemy));
+            }
+
+            EnemyPhysicsView physicsView = GetPhysicsView(enemy);
+
+            if (physicsView == null)
+            {
+                throw new InvalidOperationException("Enemy physics view is missing");
+            }
+
+            EnemyType enemyType = physicsView.Entity.Type;
+
+            Return(enemy);
+
+            _deathEventSource.Publish(enemyType, deathSource);
         }
 
         public void Return(TEnemy enemy)
@@ -142,12 +155,9 @@ namespace Game.Gameplay.Enemies
         {
         }
 
-        protected abstract EnemyPhysicsView GetPhysicsView(
-            TEnemy enemy);
+        protected abstract EnemyPhysicsView GetPhysicsView(TEnemy enemy);
 
-        protected abstract void SetSortingOrder(
-            TEnemy enemy,
-            int sortingOrder);
+        protected abstract void SetSortingOrder(TEnemy enemy, int sortingOrder);
 
         protected abstract void SubscribeToDeath(TEnemy enemy);
 
@@ -176,8 +186,7 @@ namespace Game.Gameplay.Enemies
         {
             if (_pool == null)
             {
-                throw new InvalidOperationException(
-                    "Enemy pool is not initialized");
+                throw new InvalidOperationException("Enemy pool is not initialized");
             }
         }
     }

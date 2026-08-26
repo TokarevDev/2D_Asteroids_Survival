@@ -16,6 +16,8 @@ namespace Game.Gameplay.Installers
             Container.Bind<EnemyEntityPool>().AsSingle();
             Container.Bind<EnemyLifecycleService>().AsSingle();
 
+            Container.Bind<EnemyDeathEventSource>().AsSingle();
+
             Container.Bind<AsteroidPool>().FromComponentInHierarchy().AsSingle();
 
             Container.Bind<UfoPool>().FromComponentInHierarchy().AsSingle();

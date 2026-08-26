@@ -10,8 +10,6 @@ namespace Game.Gameplay.Asteroids
 {
     public sealed class AsteroidPool : EnemyPool<Asteroid>
     {
-        public event Action<EnemyType, DeathSource> AsteroidDied;
-
         private const int AsteroidSortingOrderBase = 100;
 
         [SerializeField] private Asteroid _asteroidPrefab;
@@ -96,11 +94,7 @@ namespace Game.Gameplay.Asteroids
 
         private void OnAsteroidDied(Asteroid asteroid, DeathSource deathSource)
         {
-            EnemyType enemyType = asteroid.PhysicsView.Entity.Type;
-
-            Return(asteroid);
-
-            AsteroidDied?.Invoke(enemyType, deathSource);
+            HandleEnemyDeath(asteroid, deathSource);
         }
 
         private bool ValidateSerializedReferences()
