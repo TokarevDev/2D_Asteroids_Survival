@@ -7,7 +7,7 @@ using Zenject;
 
 namespace Game.Gameplay.Enemies
 {
-    public abstract class EnemyPool<TEnemy> : MonoBehaviour
+    public abstract class EnemyPool<TEnemy, TInitialization> : MonoBehaviour
         where TEnemy : MonoBehaviour, IDamageable
     {
         private EnemyLifecycleService _lifecycleService;
@@ -38,13 +38,28 @@ namespace Game.Gameplay.Enemies
             _pool = new ObjectPool<TEnemy>(CreatePooledEnemy, initialCapacity);
         }
 
-        protected TEnemy RentEnemy()
+        protected TEnemy RentAndActivate(TInitialization initialization, EnemyType type, Vector2 position,
+            Vector2 velocity)
         {
             EnsureInitialized();
-            return _pool.Get();
+
+            TEnemy enemy = _pool.Get();
+
+            try
+            {
+                InitializeEnemy(enemy, initialization);
+                ActivateEnemy(enemy, type, position, velocity);
+
+                return enemy;
+            }
+            catch
+            {
+                Return(enemy);
+                throw;
+            }
         }
 
-        protected void ActivateEnemy(TEnemy enemy, EnemyType type, Vector2 position, Vector2 velocity)
+        private void ActivateEnemy(TEnemy enemy, EnemyType type, Vector2 position, Vector2 velocity)
         {
             if (enemy == null)
             {
@@ -156,6 +171,8 @@ namespace Game.Gameplay.Enemies
         }
 
         protected abstract EnemyPhysicsView GetPhysicsView(TEnemy enemy);
+
+        protected abstract void InitializeEnemy(TEnemy enemy, TInitialization initialization);
 
         protected abstract void SetSortingOrder(TEnemy enemy, int sortingOrder);
 

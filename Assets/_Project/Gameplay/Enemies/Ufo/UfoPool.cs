@@ -7,7 +7,7 @@ using Zenject;
 
 namespace Game.Gameplay.Enemies.Ufo
 {
-    public sealed class UfoPool : EnemyPool<Ufo>
+    public sealed class UfoPool : EnemyPool<Ufo, int>
     {
         private const int UfoSortingOrderBase = 200;
 
@@ -35,6 +35,11 @@ namespace Game.Gameplay.Enemies.Ufo
                 UfoSortingOrderBase);
         }
 
+        protected override void InitializeEnemy(Ufo ufo, int maxHealth)
+        {
+            ufo.Initialize(maxHealth);
+        }
+
         protected override EnemyPhysicsView GetPhysicsView(Ufo ufo)
         {
             return ufo.PhysicsView;
@@ -57,22 +62,9 @@ namespace Game.Gameplay.Enemies.Ufo
 
         public Ufo Get(Vector2 position, Vector2 velocity)
         {
-            EnemyParameters parameters = _configProvider.Enemy.GetParameters(EnemyType.Ufo);
+            int maxHealth = _configProvider.Enemy.GetParameters(EnemyType.Ufo).MaxHealth;
 
-            Ufo ufo = RentEnemy();
-
-            try
-            {
-                ufo.Initialize(parameters.MaxHealth);
-                ActivateEnemy(ufo, EnemyType.Ufo, position, velocity);
-            }
-            catch
-            {
-                Return(ufo);
-                throw;
-            }
-
-            return ufo;
+            return RentAndActivate(maxHealth, EnemyType.Ufo, position, velocity);
         }
 
         private Ufo InstantiateUfo()

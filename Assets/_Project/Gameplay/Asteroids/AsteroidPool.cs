@@ -8,7 +8,7 @@ using Zenject;
 
 namespace Game.Gameplay.Asteroids
 {
-    public sealed class AsteroidPool : EnemyPool<Asteroid>
+    public sealed class AsteroidPool : EnemyPool<Asteroid, AsteroidInitializationParameters>
     {
         private const int AsteroidSortingOrderBase = 100;
 
@@ -35,6 +35,11 @@ namespace Game.Gameplay.Asteroids
                 InstantiateAsteroid,
                 _configProvider.World.InitialAsteroidPoolSize,
                 AsteroidSortingOrderBase);
+        }
+
+        protected override void InitializeEnemy(Asteroid asteroid, AsteroidInitializationParameters initialization)
+        {
+            asteroid.Initialize(initialization.Config, initialization.MaxHealth);
         }
 
         protected override EnemyPhysicsView GetPhysicsView(Asteroid asteroid)
@@ -71,20 +76,9 @@ namespace Game.Gameplay.Asteroids
 
         public Asteroid Get(AsteroidConfig config, EnemyType type, Vector2 position, Vector2 velocity, int maxHealth)
         {
-            Asteroid asteroid = RentEnemy();
+            var initialization = new AsteroidInitializationParameters(config, maxHealth);
 
-            try
-            {
-                asteroid.Initialize(config, maxHealth);
-                ActivateEnemy(asteroid, type, position, velocity);
-            }
-            catch
-            {
-                Return(asteroid);
-                throw;
-            }
-
-            return asteroid;
+            return RentAndActivate(initialization, type, position, velocity);
         }
 
         private Asteroid InstantiateAsteroid()
