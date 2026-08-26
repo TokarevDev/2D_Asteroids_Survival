@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Game.Core.Enemies;
 
 namespace Game.Core.Configuration
 {
@@ -82,17 +84,15 @@ namespace Game.Core.Configuration
                 throw new ArgumentNullException(nameof(config));
             }
 
-            ValidateEnemyParameters(
-                config.LargeAsteroid,
-                nameof(config.LargeAsteroid));
+            config.InitializeParameterLookup();
 
-            ValidateEnemyParameters(
-                config.Fragment,
-                nameof(config.Fragment));
-
-            ValidateEnemyParameters(
-                config.Ufo,
-                nameof(config.Ufo));
+            foreach (KeyValuePair<EnemyType, EnemyParameters> entry
+                     in config.ParametersByType)
+            {
+                ValidateEnemyParameters(
+                    entry.Value,
+                    $"{nameof(config.ParametersByType)}[{entry.Key}]");
+            }
 
             EnsurePositive(config.MinimumAsteroidSpawnIntervalSeconds,
                 nameof(config.MinimumAsteroidSpawnIntervalSeconds));
@@ -114,18 +114,24 @@ namespace Game.Core.Configuration
                 config.UfoSpawnIntervalSeconds,
                 nameof(config.UfoSpawnIntervalSeconds));
 
-            if (config.Fragment.Speed <= config.LargeAsteroid.Speed)
+            EnemyParameters fragment =
+                config.GetParameters(EnemyType.Fragment);
+
+            EnemyParameters largeAsteroid =
+                config.GetParameters(EnemyType.LargeAsteroid);
+
+            if (fragment.Speed <= largeAsteroid.Speed)
             {
                 throw new ArgumentException(
                     "Fragment speed must be greater than large asteroid speed",
-                    nameof(config.Fragment));
+                    nameof(EnemyType.Fragment));
             }
 
-            if (config.Fragment.CollisionRadius >= config.LargeAsteroid.CollisionRadius)
+            if (fragment.CollisionRadius >= largeAsteroid.CollisionRadius)
             {
                 throw new ArgumentException(
                     "Fragment collision radius must be smaller than large asteroid collision radius",
-                    nameof(config.Fragment));
+                    nameof(EnemyType.Fragment));
             }
         }
 

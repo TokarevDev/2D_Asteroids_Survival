@@ -27,13 +27,19 @@ namespace Game.Gameplay.Score
             }
 
             EnemyConfig enemyConfig = configProvider.Enemy;
+            IReadOnlyDictionary<EnemyType, EnemyParameters> parametersByType =
+                enemyConfig.ParametersByType;
 
-            _rewardByEnemyType = new Dictionary<EnemyType, int>(3)
+            _rewardByEnemyType =
+                new Dictionary<EnemyType, int>(parametersByType.Count);
+
+            foreach (KeyValuePair<EnemyType, EnemyParameters> entry
+                     in parametersByType)
             {
-                [EnemyType.LargeAsteroid] = enemyConfig.LargeAsteroid.ScoreReward,
-                [EnemyType.Fragment] = enemyConfig.Fragment.ScoreReward,
-                [EnemyType.Ufo] = enemyConfig.Ufo.ScoreReward
-            };
+                _rewardByEnemyType.Add(
+                    entry.Key,
+                    entry.Value.ScoreReward);
+            }
         }
 
         public void Initialize()

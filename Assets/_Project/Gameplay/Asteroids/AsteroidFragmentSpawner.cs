@@ -26,6 +26,8 @@ namespace Game.Gameplay.Asteroids
         public int Spawn(Vector2 position, Vector2 parentVelocity)
         {
             EnemyConfig enemyConfig = _configProvider.Enemy;
+            EnemyParameters fragmentParameters =
+                enemyConfig.GetParameters(EnemyType.Fragment);
 
             int availableSlots = _configProvider.World.MaxEnemies - _enemyRegistry.Count;
 
@@ -44,7 +46,7 @@ namespace Game.Gameplay.Asteroids
 
             float angle = fragmentCount > 1 ? -enemyConfig.FragmentSpreadDegrees * 0.5f : 0f;
 
-            float fragmentSpeed = enemyConfig.Fragment.Speed;
+            float fragmentSpeed = fragmentParameters.Speed;
 
             for (int i = 0; i < fragmentCount; i++)
             {
