@@ -4,7 +4,7 @@ An endless 2D Asteroids-style survival game built with Unity `2022.3.9f1` and C#
 
 The project is a graduation work and gameplay-programming portfolio sample focused on explicit architecture, custom physics, data-driven configuration, pooled runtime objects, desktop/mobile controls, platform adapters, and lifecycle-safe Unity code.
 
-Status: feature-complete; architecture review complete; final Android and release validation in progress.
+Status: feature-complete; the 21-point architecture review is closed; final Android device and release-build validation remain.
 
 Portfolio: https://tokarevdev.github.io/
 
@@ -85,16 +85,20 @@ Enemy-enemy collision is intentionally disabled. Collision queries operate on ce
 Runtime balance is loaded from JSON in `Assets/StreamingAssets/Configs/` through Newtonsoft.Json:
 
 - `player.json` — health, acceleration, braking, speed, turn rate, bullet parameters, laser parameters, and invulnerability duration;
-- `enemy.json` — asteroid, fragment, and UFO parameters, rewards, spawn timing, and fragmentation settings;
+- `enemy.json` — a stable enemy-type key-to-parameters map plus spawn timing and fragmentation settings;
 - `world.json` — world size, maximum enemies, spawn offset, and initial pool sizes.
 
-`GameConfigLoader` loads the three files during bootstrap, and `GameConfigValidator` rejects invalid values before gameplay scenes open. ScriptableObjects remain only where Unity asset references are appropriate, such as asteroid animation variants and advertising identifiers.
+`GameConfigLoader` loads the three files during bootstrap, and `GameConfigValidator` rejects invalid values before gameplay scenes open. Enemy keys must exactly match the `EnemyType` values `LargeAsteroid`, `Fragment`, and `Ufo`; missing, unknown, null, duplicate, or incorrectly cased keys fail at the configuration boundary. JSON deserialization also rejects duplicate object properties instead of silently accepting the last value.
+
+ScriptableObjects remain only where Unity asset references are appropriate, such as asteroid animation variants and advertising identifiers. Enemy parameter and reward lookup are built from the validated map instead of a fixed property set plus `switch`, so extending those data paths does not require modifying their consumers.
 
 ## Design patterns
 
 ### Object Pool
 
 The non-`MonoBehaviour` generic `ObjectPool<T>` owns all created instances and reusable entries. It uses `List<T>`, `Queue<T>`, and `HashSet<T>` to expose created objects, provide FIFO reuse, and reject duplicate returns. Asteroid, UFO, projectile, enemy-entity, and collision-VFX lifecycles build on pooled storage to avoid repeated runtime `Instantiate`/`Destroy` churn.
+
+`EnemyPool<TEnemy, TInitialization>` centralizes the complete view lifecycle: rent, type-specific initialization, entity/view registration, activation, and rollback on failure. Concrete asteroid and UFO pools provide only creation details, initialization data, and narrow visual hooks. Enemy death captures the required event data before the object is reset and returned, then publishes through the shared death event source.
 
 ### Facade
 
@@ -117,18 +121,21 @@ C# events and Zenject SignalBus propagate health, score, enemy-death, and player
 ### Enemies and rewards
 
 - Asteroids and UFOs share centralized logical enemy storage and lifecycle services.
-- `EnemyPool<TEnemy>` provides the common pooled-view lifecycle, while type-specific pools retain only their creation details.
+- `EnemySpawnProcess` owns the shared timer, maximum-enemy check, and spawn flow; `AsteroidSpawnAction` and `UfoSpawnAction` own only type-specific spawn behavior.
+- `EnemyPool<TEnemy, TInitialization>` provides the common transactional pooled-view lifecycle, while type-specific pools retain only creation and presentation details.
 - `EnemyHealth` owns reusable health/death state; asteroid and UFO components delegate visual selection and presentation to dedicated visual collaborators.
-- `EnemyDestructionService` works through the shared `IDamageable` contract and `EnemyDamageableRegistry`, so it does not depend on concrete asteroid or UFO pools.
+- `EnemyLifecycleService` registers the entity, custom-physics body, `IDamageable`, and view as one operation and rolls completed stages back if a later stage fails.
+- Projectile impacts and `EnemyDestructionService` resolve targets through the shared `IDamageable` contract and `EnemyDamageableRegistry`, so neither depends on concrete asteroid or UFO pools.
 - Large asteroid variants are selected without immediate repetition.
 - UFO visuals are randomized on each pooled spawn.
 - `UfoPursuitMovement` follows the player without coupling the logical entity to a Unity component.
-- `EnemyRewardService` uses `Dictionary<EnemyType, int>` and grants score only for player-caused deaths.
+- `EnemyRewardService` builds `Dictionary<EnemyType, int>` from the validated enemy-parameter map and grants score only for player-caused deaths.
 
 ### Projectiles and laser
 
 - Bullets use custom bodies, pooled views, a centralized registry, lifetime control, and world-exit cleanup.
-- Bullet impacts distinguish large asteroids, fragments, and UFOs.
+- Projectile entity-to-view ownership uses dictionaries with symmetric registration, removal, and spawn rollback; impact handling does not scan concrete pools.
+- Bullet impacts apply damage through `IDamageable`; a lethal hit on a large asteroid additionally spawns configured fragments.
 - `LaserTargetQuery` performs segment-circle tests and returns every intersected enemy.
 - `LaserChargeMagazine` and `LaserRechargeController` own charge consumption and recovery.
 - A short-lived `LineRenderer` view presents each laser shot.
@@ -177,6 +184,7 @@ Google Mobile Ads `11.2.0` is isolated behind `IAdvertisementService`.
 - `AdMobInitializer` owns SDK initialization.
 - `BannerAdvertisementService` owns banner creation, display, callbacks, and destruction.
 - `AdMobConfiguration` stores platform-specific banner unit IDs outside service logic.
+- If the configuration asset is absent, the project binds `DisabledAdvertisementService`, logs a diagnostic warning, and continues bootstrap without advertising.
 - The current configuration uses official test banner identifiers.
 - Banner lifetime follows main-menu presentation and is cleaned up on disposal.
 
@@ -196,6 +204,8 @@ Google Mobile Ads `11.2.0` is isolated behind `IAdvertisementService`.
 - UniTask operations use owner cancellation where applicable.
 - Input is read once per rendered frame by `PlayerInputStateProvider` and shared by all gameplay consumers.
 - Hot loops avoid LINQ, temporary arrays, closures, and repeated component lookup.
+- `HashSet` membership checks protect ordered enemy/projectile registries from duplicate registration, while entity-to-view and entity-to-damageable relationships use dictionaries for direct lookup.
+- Enemy and projectile spawn paths roll registrations back and return rented objects when a later lifecycle stage fails.
 - Runtime entities and Unity views are synchronized explicitly instead of sharing hidden state.
 - Particle systems provide pooled collision feedback, invulnerability feedback, and speed-dependent twin thrusters.
 
@@ -217,7 +227,7 @@ Enabled build-scene order: `Bootstrap`, `MainMenu`, `Game`.
 
    ```bash
    git lfs install
-   git clone <repository-url>
+   git clone https://github.com/TokarevDev/2D_Asteroids_Survival.git
    ```
 
 3. Open the project with Unity `2022.3.9f1`.
