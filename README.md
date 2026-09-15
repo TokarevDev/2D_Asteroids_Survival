@@ -2,7 +2,7 @@
 
 An endless 2D Asteroids-style survival game built with Unity `2022.3.9f1` and C#.
 
-The project is a graduation work and gameplay-programming portfolio sample focused on explicit architecture, custom physics, data-driven configuration, pooled runtime objects, desktop/mobile controls, platform adapters, and lifecycle-safe Unity code.
+The project is a graduation work and engineering portfolio sample focused on explicit architecture, custom physics, data-driven configuration, pooled runtime objects, desktop/mobile controls, platform adapters, and lifecycle-safe Unity code.
 
 Status: feature-complete; the 21-point architecture review is closed; final Android device and release-build validation remain.
 
@@ -271,7 +271,7 @@ Third-party SDKs, plugins, and fonts retain their respective vendor or open-sour
 
 Oleksandr Tokarev
 
-Unity Developer | C# Gameplay Programmer
+Unity Developer
 
 Email: otokarevdev@gmail.com
 
