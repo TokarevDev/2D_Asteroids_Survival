@@ -269,7 +269,7 @@ Third-party SDKs, plugins, and fonts retain their respective vendor or open-sour
 
 ## Author
 
-Oleksandr Tokarev
+Alexander Tokarev
 
 Unity Developer
 
