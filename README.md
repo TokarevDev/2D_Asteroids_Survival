@@ -273,6 +273,6 @@ Alexander Tokarev
 
 Unity Developer
 
-Email: otokarevdev@gmail.com
+Email: otokarev@gmail.com
 
 Portfolio: https://tokarevdev.github.io/
